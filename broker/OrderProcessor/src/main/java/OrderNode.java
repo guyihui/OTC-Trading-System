@@ -36,4 +36,8 @@ public class OrderNode {
         this.next = next;
     }
 
+    public String toTestString() {
+        return this.toString() + "\t{" + this.order.toString() +
+                ", next:" + (this.getNext() == null ? "null" : this.getNext().toString()) + "}";
+    }
 }
