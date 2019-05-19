@@ -6,44 +6,267 @@
 
 import java.util.*;
 
-/** @pdOid 814dbe0f-9e64-4dfc-957f-03d5caeff93b */
 public class PriceNodeList {
-   /** @pdOid ec6535a1-0416-4662-ba58-1092a00fa23b */
+
    private PriceNode head;
-   /** @pdOid ad03b960-fac7-4d9c-a805-05eec6b13825 */
    private PriceNode depth;
-   
-   /** @pdOid f85c1c1f-21cd-40c2-a329-988ba7756c98 */
+
+   public PriceNode getHead() {
+      return head;
+   }
+
+   public void setHead(PriceNode head) {
+      this.head = head;
+   }
+
+   public PriceNode getDepth() {
+      return depth;
+   }
+
+   public void setDepth(PriceNode depth) {
+      this.depth = depth;
+   }
+
+   public PriceNodeList(PriceNode head, PriceNode depth) {
+      this.head = head;
+      this.depth = depth;
+   }
+
    public Boolean addOrder(Order order) {
-      // TODO: implement
-      return null;
+      Integer price = order.getPrice();
+      if(head == null){
+         PriceNode newHead = new PriceNode(price);
+         head = newHead;
+         if(order.getOrderType().equals("limit")){
+            depth = newHead;
+         }
+         return head.addOrder(order);
+      }
+
+      PriceNode temp = head;
+      int flag = 0;
+
+      if(order.getSellOrBuy().equals("sell")){
+         if(price < temp.getPrice()){ //新的订单的价格小于队首第一个节点的价格，于是新订单的价格是当前价格优先级最高
+            PriceNode newHead = new PriceNode(price);
+            newHead.setNext(head);
+            head = newHead;
+            if(order.getOrderType().equals("limit")){
+               depth = newHead;
+            }
+            return head.addOrder(order);
+         }
+
+         while(temp.getNext() != null){
+            if(depth == temp){
+               flag = 1;
+            }
+            if(price == temp.getPrice()){ //新的订单的价格在原price node list中存在，则直接在后面加上节点
+               if(flag == 0 && order.getOrderType().equals("limit")){
+                  depth = temp;
+               }
+               return temp.addOrder(order);
+            }
+            else if(price > temp.getPrice() && price < temp.getNext().getPrice()){ //新的订单的价格介于原price node list中两个节点之间，则插入新节点
+                  PriceNode newMedium = new PriceNode(price);
+                  newMedium.setNext(temp.getNext());
+                  temp.setNext(newMedium);
+               if(flag == 0 && order.getOrderType().equals("limit")){
+                  depth = newMedium;
+               }
+                  return newMedium.addOrder(order);
+            }
+            temp = temp.getNext();
+         }
+
+         if(price == temp.getPrice()){ //判断最后一个节点的price值是否与新订单的price相等
+            if(flag == 0 && order.getOrderType().equals("limit")){
+               depth = temp;
+            }
+            return temp.addOrder(order);
+         }
+
+         PriceNode newTail = new PriceNode(price);
+         temp.setNext(newTail);
+         if(flag == 0 && order.getOrderType().equals("limit")){
+            depth = newTail;
+         }
+         return newTail.addOrder(order);
+      }
+      else{
+
+         if(price > temp.getPrice()){ //新的订单的价格大于队首第一个节点的价格，于是新订单的价格是当前价格优先级最高
+            PriceNode newHead = new PriceNode(price);
+            newHead.setNext(head);
+            head = newHead;
+            if(order.getOrderType().equals("limit")){
+               depth = newHead;
+            }
+            return head.addOrder(order);
+         }
+
+         while(temp.getNext() != null){
+            if(depth == temp){
+               flag = 1;
+            }
+            if(price == temp.getPrice()){ //新的订单的价格在原price node list中存在，则直接在后面加上节点
+               if(flag == 0 && order.getOrderType().equals("limit")){
+                  depth = temp;
+               }
+               return temp.addOrder(order);
+            }
+            else if(price < temp.getPrice() && price > temp.getNext().getPrice()){
+               PriceNode newMedium = new PriceNode(price);
+               newMedium.setNext(temp.getNext());
+               temp.setNext(newMedium);
+               if(flag == 0){
+                  if(order.getOrderType().equals("limit")) {
+                     depth = newMedium;
+                  }
+               }
+               return newMedium.addOrder(order);
+            }
+            temp = temp.getNext();
+         }
+
+         if(price == temp.getPrice()){ //判断最后一个节点的price值是否与新订单的price相等
+            if(flag == 0 && order.getOrderType().equals("limit")){
+               depth = temp;
+            }
+            return temp.addOrder(order);
+         }
+
+         PriceNode newTail = new PriceNode(price);
+         temp.setNext(newTail);
+         if(flag == 0 && order.getOrderType().equals("limit")){
+            depth = newTail;
+         }
+         return newTail.addOrder(order);
+
+      }
+
    }
-   
-   /** @pdOid 1bf4f9b5-38cf-4ae7-a8fc-3e31f128c2fe */
+
    public Order cancelOrder(Order order) {
-      // TODO: implement
+      Integer price = order.getPrice();
+      if(head == null){
+         return null;
+      }
+      PriceNode temp = head;
+      if(temp.getPrice() == price){
+         Order canceledOrder = temp.cancelOrder(order);
+         if(temp.isEmpty() == 0){
+            if(temp != depth){
+               head = head.getNext();
+            }
+            else{
+               depth = null;
+               head = head.getNext();
+               temp = head;
+               while(temp != null){
+                  if(temp.isEmpty() > 1){
+                     depth = temp;
+                  }
+                  temp = temp.getNext();
+               }
+            }
+         }
+         return canceledOrder;
+      }
+
+      while(temp.getNext() != null){
+         if(temp.getNext().getPrice() == price){
+            Order canceledOrder = temp.getNext().cancelOrder(order);
+            if(temp.getNext().isEmpty() == 0){
+               if(temp.getNext() != depth){
+                  temp.setNext(temp.getNext().getNext());
+               }
+               else{
+                  depth = null;
+                  temp.setNext(temp.getNext().getNext());
+                  temp = temp.getNext();
+                  while(temp != null){
+                     if(temp.isEmpty() > 1){
+                        depth = temp;
+                     }
+                     temp = temp.getNext();
+                  }
+               }
+            }
+            return canceledOrder;
+         }
+         temp = temp.getNext();
+      }
+
       return null;
    }
-   
-   /** @pdOid 12cff902-c952-4048-863c-7577945565c0 */
+
    public Order candidateOrder() {
-      // TODO: implement
-      return null;
+      if(depth == null){
+         return null;
+      }
+      return depth.candidateOrder();
    }
-   
-   /** @pdOid 973f02d8-8d8b-49cc-9bb4-77b996953555 */
+
    public Integer checkStop() {
       // TODO: implement
       return null;
    }
-   
-   /** @pdOid 30a23a92-5e55-4a98-bc57-23dbb62179b8 */
-   public Boolean removeOrder() {
-      // TODO: implement
+
+   public Boolean removeOrder(Order order) {
+      Integer price = order.getPrice();
+      if(head == null){
+         return null;
+      }
+      PriceNode temp = head;
+      if(temp.getPrice() == price){
+         Boolean removedOrder = temp.removeOrder(order);
+         if(temp.isEmpty() == 0){
+            if(temp != depth){
+               head = head.getNext();
+            }
+            else{
+               depth = null;
+               head = head.getNext();
+               temp = head;
+               while(temp != null){
+                  if(temp.isEmpty() > 1){
+                     depth = temp;
+                  }
+                  temp = temp.getNext();
+               }
+            }
+         }
+         return removedOrder;
+      }
+
+      while(temp.getNext() != null){
+         if(temp.getNext().getPrice() == price){
+            Boolean removedOrder = temp.getNext().removeOrder(order);
+            if(temp.getNext().isEmpty() == 0){
+               if(temp.getNext() != depth){
+                  temp.setNext(temp.getNext().getNext());
+               }
+               else{
+                  depth = null;
+                  temp.setNext(temp.getNext().getNext());
+                  temp = temp.getNext();
+                  while(temp != null){
+                     if(temp.isEmpty() > 1){
+                        depth = temp;
+                     }
+                     temp = temp.getNext();
+                  }
+               }
+            }
+            return removedOrder;
+         }
+         temp = temp.getNext();
+      }
+
       return null;
    }
-   
-   /** @pdOid 21d0dbdf-2797-490c-9c9b-8aee8833e39e */
+
    public Boolean removeLevel() {
       // TODO: implement
       return null;

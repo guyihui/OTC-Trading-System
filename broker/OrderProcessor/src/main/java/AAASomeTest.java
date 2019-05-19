@@ -7,21 +7,22 @@ public class AAASomeTest {
     public static void main(String[] args) {
 //        singleThreadTest();
 
-        for (int i = 0; i < 50; i++) {
-            list.add(new Order("test" + i, "limit"));
-        }
+//        for (int i = 0; i < 10; i++) {
+//            list.add(new Order("test" + i, "limit"));
+//        }
         Thread thread1 = new Thread(new TestThread1());
         thread1.start();
         Thread thread2 = new Thread(new TestThread2());
         thread2.start();
-        for (int i = 50; i < 100; i++) {
-            System.out.println("insert" + i);
-            list.add(new Order("test" + i, "limit"));
+        for (int i = 0; i < 20; i++) {
+//            System.out.println("insert" + i);
+            list.add(new Order("insert" + i, "limit"));
         }
         try {
             thread1.join();
             thread2.join();
             System.out.println(list);
+            System.out.println(list.activateStop());
         } catch (Exception e) {
             System.out.println(e.toString());
         }
@@ -29,27 +30,20 @@ public class AAASomeTest {
 
     static class TestThread1 implements Runnable {
         public void run() {
-            for (int i = 0; i < 50; i++) {
-                Order order = new Order("cancel" + i, "cancel");
-                order.setCancelId("test" + i);
-                Order canceled = list.cancelOrder(order);
-                System.out.println("[Thread 1]" + (canceled == null ? i : canceled.toString()));
-                System.out.flush();
+            for (int j = 0; j < 10; j++) {
+                OrderNodeList shortList = new OrderNodeList();
+                for (int i = 0; i < 3; i++) {
+                    shortList.add(new Order("thread1-" + j + "-" + i, "limit"));
+                }
+                list.concat(shortList);
             }
         }
     }
 
     static class TestThread2 implements Runnable {
         public void run() {
-            for (int i = 0; i < 50; i++) {
-                Order candidate = list.candidateOrder();
-                System.out.println("[Thread 2] --->" + candidate);
-                System.out.flush();
-                candidate.unlock();
-                if (list.removeOrder(candidate)) {
-                    System.out.println(candidate.getOrderId());
-                    System.out.flush();
-                }
+            for (int i = 0; i < 30; i++) {
+                list.add(new Order("test" + i, "limit"));
             }
         }
     }
@@ -75,9 +69,17 @@ public class AAASomeTest {
         list.add(order5);
         list.removeOrder(order1);
         Order cancel = new Order("cancel_test", "cancel");
-        cancel.setCancelId("test3");
+        cancel.setCancelId("test5");
         list.cancelOrder(cancel);
         System.out.println(list.toString());
+
+        OrderNodeList anotherList = new OrderNodeList();
+        anotherList.add(new Order("test6", "limit"));
+        anotherList.add(new Order("test7", "limit"));
+        anotherList.add(new Order("test8", "limit"));
+        list.concat(anotherList);
+        System.out.println(list);
+
     }
 
 }
