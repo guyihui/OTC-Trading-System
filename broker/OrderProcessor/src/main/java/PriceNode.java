@@ -6,39 +6,94 @@
 
 import java.util.*;
 
-/** @pdOid bd961b70-b5fc-4a8b-8c4e-0a964363046c */
 public class PriceNode {
-   /** @pdOid ffe799d3-68b2-4d15-b70c-a96d91547c30 */
+
    private int price;
-   /** @pdOid 6cc5e51c-eee7-49d2-9864-1aa36b52fb4b */
    private OrderNodeList limitOrders;
-   /** @pdOid 2923b27c-bb8d-4576-b6d6-249a2af9abcf */
    private OrderNodeList stopOrders;
-   /** @pdOid 5c35cfce-83e4-4495-a01d-e91f807f1c8d */
    private PriceNode next;
-   
-   /** @pdOid 376fc952-7e86-468e-b27e-42b4f4ad6ddb */
-   public Boolean addOrder() {
-      // TODO: implement
-      return null;
+
+   public PriceNode(int price){
+      this.price=price;
+
    }
-   
-   /** @pdOid 714de740-0fc1-4a49-9408-74feef59c63a */
-   public Order cancelOrder() {
-      // TODO: implement
-      return null;
+
+   public Boolean addOrder(Order order) {
+      if(order.getOrderType().equals("stop")){
+         return stopOrders.add(order);
+      }
+      else{
+         return limitOrders.add(order);
+      }
    }
-   
-   /** @pdOid 05a94448-9f83-4d81-9593-e5767a508a93 */
+
+   public Order cancelOrder(Order order) {
+      if(order.getOrderType().equals("stop")){
+         return stopOrders.cancelOrder(order);
+      }
+      else{
+         return limitOrders.cancelOrder(order);
+      }
+   }
+
    public Order candidateOrder() {
-      // TODO: implement
-      return null;
+      return limitOrders.candidateOrder();
    }
-   
-   /** @pdOid fedbfc7f-ec06-4253-8e6d-a2a1aee44be4 */
-   public Boolean removeOrder() {
-      // TODO: implement
-      return null;
+
+   public Boolean removeOrder(Order order) {
+      if(order.getOrderType().equals("stop")){
+         return stopOrders.removeOrder(order);
+      }
+      else{
+         return limitOrders.removeOrder(order);
+      }
+   }
+
+   public int isEmpty(){
+      if(limitOrders.isEmpty() == true && stopOrders.isEmpty() == true){
+         return 0;
+      }
+      if(limitOrders.isEmpty() == true){
+         return 1;
+      }
+      else if(stopOrders.isEmpty() == true){
+         return 2;
+      }
+      else{
+         return 3;
+      }
+   }
+
+   public int getPrice() {
+      return price;
+   }
+
+   public void setPrice(int price) {
+      this.price = price;
+   }
+
+   public OrderNodeList getLimitOrders() {
+      return limitOrders;
+   }
+
+   public void setLimitOrders(OrderNodeList limitOrders) {
+      this.limitOrders = limitOrders;
+   }
+
+   public OrderNodeList getStopOrders() {
+      return stopOrders;
+   }
+
+   public void setStopOrders(OrderNodeList stopOrders) {
+      this.stopOrders = stopOrders;
+   }
+
+   public PriceNode getNext() {
+      return next;
+   }
+
+   public void setNext(PriceNode next) {
+      this.next = next;
    }
 
 }
