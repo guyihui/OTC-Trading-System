@@ -44,12 +44,11 @@ public class Order {
     }
 
     public String toString() {
-        return "{" + this.orderId + "}";
+        return "{" + this.orderId + "\t," + this.orderType + "}";
     }
 
-    public Integer stopToLimit() {
-        this.orderType = "limit";
-        return null;
+    public void stopToLimit() {
+        this.orderType = "stop->limit";
     }
 
     public Integer fill() {
