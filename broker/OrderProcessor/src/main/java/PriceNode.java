@@ -5,6 +5,9 @@
  ***********************************************************************/
 
 import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 
 public class PriceNode {
 
@@ -12,6 +15,15 @@ public class PriceNode {
    private OrderNodeList limitOrders;
    private OrderNodeList stopOrders;
    private PriceNode next;
+   private Lock lock = new ReentrantLock();
+
+   public void lock() {
+      this.lock.lock();
+   }
+
+   public void unlock() {
+      this.lock.unlock();
+   }
 
    public PriceNode(int price){
       this.price=price;
