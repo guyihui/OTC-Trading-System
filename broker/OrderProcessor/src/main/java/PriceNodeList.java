@@ -14,13 +14,13 @@ public class PriceNodeList {
    private PriceNode depth;
    
    /** @pdOid f85c1c1f-21cd-40c2-a329-988ba7756c98 */
-   public Boolean addOrder() {
+   public Boolean addOrder(Order order) {
       // TODO: implement
       return null;
    }
    
    /** @pdOid 1bf4f9b5-38cf-4ae7-a8fc-3e31f128c2fe */
-   public Order cancelOrder() {
+   public Order cancelOrder(Order order) {
       // TODO: implement
       return null;
    }

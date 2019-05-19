@@ -15,4 +15,32 @@ public class Trader {
    /** @pdOid 270a91ec-d4a6-4e39-9ff6-add624d25523 */
    private Object connection;
 
+
+   public Trader(String traderId,String traderCompany){
+
+   }
+
+   public String getTraderId() {
+      return traderId;
+   }
+
+   public void setTraderId(String traderId) {
+      this.traderId = traderId;
+   }
+
+   public String getTraderCompany() {
+      return traderCompany;
+   }
+
+   public void setTraderCompany(String traderCompany) {
+      this.traderCompany = traderCompany;
+   }
+
+   public Object getConnection() {
+      return connection;
+   }
+
+   public void setConnection(Object connection) {
+      this.connection = connection;
+   }
 }

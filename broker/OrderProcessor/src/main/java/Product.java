@@ -15,4 +15,33 @@ public class Product {
    /** @pdOid d7ecbf62-83b4-424b-b265-a12596492f50 */
    private String productPeriod;
 
+   public Product(String productId,String productName,String productPeriod){
+      this.setProductId(productId);
+      this.setProductName(productName);
+      this.setProductPeriod(productPeriod);
+   }
+
+   public String getProductId() {
+      return productId;
+   }
+
+   public void setProductId(String productId) {
+      this.productId = productId;
+   }
+
+   public String getProductName() {
+      return productName;
+   }
+
+   public void setProductName(String productName) {
+      this.productName = productName;
+   }
+
+   public String getProductPeriod() {
+      return productPeriod;
+   }
+
+   public void setProductPeriod(String productPeriod) {
+      this.productPeriod = productPeriod;
+   }
 }
