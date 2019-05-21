@@ -62,6 +62,9 @@ public class PriceNodeList {
       int flag = 0;
 
       if(order.getSellOrBuy().equals("sell")){
+         if(depth == temp){
+            flag = 1;
+         }
          if(price < temp.getPrice()){ //新的订单的价格小于队首第一个节点的价格，于是新订单的价格是当前价格优先级最高
             PriceNode newHead = new PriceNode(price);
             //newHead.lock();
@@ -114,7 +117,9 @@ public class PriceNodeList {
          return newTail.addOrder(order);
       }
       else{
-
+         if(depth == temp){
+            flag = 1;
+         }
          if(price > temp.getPrice()){ //新的订单的价格大于队首第一个节点的价格，于是新订单的价格是当前价格优先级最高
             PriceNode newHead = new PriceNode(price);
             newHead.setNext(head);
