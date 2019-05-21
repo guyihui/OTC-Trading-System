@@ -5,11 +5,22 @@
  ***********************************************************************/
 
 import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class PriceNodeList {
 
    private PriceNode head;
    private PriceNode depth;
+   private Lock lock = new ReentrantLock();
+
+   public void lock() {
+      this.lock.lock();
+   }
+
+   public void unlock() {
+      this.lock.unlock();
+   }
 
    public PriceNode getHead() {
       return head;
@@ -27,34 +38,43 @@ public class PriceNodeList {
       this.depth = depth;
    }
 
-   public PriceNodeList(PriceNode head, PriceNode depth) {
-      this.head = head;
-      this.depth = depth;
-   }
+   public PriceNodeList() {}
 
    public Boolean addOrder(Order order) {
       Integer price = order.getPrice();
+      //this.lock();
       if(head == null){
          PriceNode newHead = new PriceNode(price);
          head = newHead;
+         //head.lock();
          if(order.getOrderType().equals("limit")){
             depth = newHead;
          }
-         return head.addOrder(order);
+
+         Boolean temp = head.addOrder(order);
+         //head.unlock();
+         //this.unlock();
+         return temp;
       }
 
+      //head.lock();
       PriceNode temp = head;
       int flag = 0;
 
       if(order.getSellOrBuy().equals("sell")){
          if(price < temp.getPrice()){ //新的订单的价格小于队首第一个节点的价格，于是新订单的价格是当前价格优先级最高
             PriceNode newHead = new PriceNode(price);
+            //newHead.lock();
             newHead.setNext(head);
             head = newHead;
             if(order.getOrderType().equals("limit")){
                depth = newHead;
             }
-            return head.addOrder(order);
+            Boolean tempAddOrder = head.addOrder(order);
+            //newHead.unlock();
+            //head.unlock();
+
+            return tempAddOrder;
          }
 
          while(temp.getNext() != null){
@@ -166,6 +186,20 @@ public class PriceNodeList {
                while(temp != null){
                   if(temp.isEmpty() > 1){
                      depth = temp;
+                     break;
+                  }
+                  temp = temp.getNext();
+               }
+            }
+         }
+         else if(temp.isEmpty() == 1){
+           if(temp==depth){
+               depth = null;
+               temp = head.getNext();
+               while(temp != null){
+                  if(temp.isEmpty() > 1){
+                     depth = temp;
+                     break;
                   }
                   temp = temp.getNext();
                }
@@ -188,6 +222,20 @@ public class PriceNodeList {
                   while(temp != null){
                      if(temp.isEmpty() > 1){
                         depth = temp;
+                        break;
+                     }
+                     temp = temp.getNext();
+                  }
+               }
+            }
+            else if(temp.getNext().isEmpty() == 1){
+               if(temp.getNext()==depth){
+                  depth = null;
+                  temp = temp.getNext().getNext();
+                  while(temp != null){
+                     if(temp.isEmpty() > 1){
+                        depth = temp;
+                        break;
                      }
                      temp = temp.getNext();
                   }
@@ -232,6 +280,20 @@ public class PriceNodeList {
                while(temp != null){
                   if(temp.isEmpty() > 1){
                      depth = temp;
+                     break;
+                  }
+                  temp = temp.getNext();
+               }
+            }
+         }
+         else if(temp.isEmpty() == 1){
+            if(temp==depth){
+               depth = null;
+               temp = head.getNext();
+               while(temp != null){
+                  if(temp.isEmpty() > 1){
+                     depth = temp;
+                     break;
                   }
                   temp = temp.getNext();
                }
@@ -254,6 +316,20 @@ public class PriceNodeList {
                   while(temp != null){
                      if(temp.isEmpty() > 1){
                         depth = temp;
+                        break;
+                     }
+                     temp = temp.getNext();
+                  }
+               }
+            }
+            else if(temp.getNext().isEmpty() == 1){
+               if(temp.getNext()==depth){
+                  depth = null;
+                  temp = temp.getNext().getNext();
+                  while(temp != null){
+                     if(temp.isEmpty() > 1){
+                        depth = temp;
+                        break;
                      }
                      temp = temp.getNext();
                   }
@@ -270,6 +346,29 @@ public class PriceNodeList {
    public Boolean removeLevel() {
       // TODO: implement
       return null;
+   }
+
+   public String toString(){
+      PriceNode node = this.head;
+      int count = 0;
+      StringBuilder str = new StringBuilder();
+      while (node != null) {
+         if(node!=depth) {
+            str.append("PriceNode_");
+         }
+         else{
+            str.append("DepthNode_");
+         }
+         str.append(++count);
+         str.append(": ");
+         str.append(node.getPrice()+" ");
+         str.append(node.getLimitOrders().toString());
+         str.append("------------------------------");
+         str.append(node.getStopOrders().toString());
+         str.append("\n");
+         node = node.getNext();
+      }
+      return str.toString();
    }
 
 }
