@@ -95,11 +95,11 @@ public class AAASomeTest {
     private static void singleThreadPriceNodeTest(){
         String divider = "=========================";
 
-        Order order1 = new Order("test1", "limit",1050,"sell");
-        Order order2 = new Order("test2", "limit",1000,"sell");
-        Order order3 = new Order("test3", "limit",1061,"sell");
-        Order order4 = new Order("test4", "limit",1030,"sell");
-        Order order5 = new Order("test5", "limit",1050,"sell");
+        Order order1 = new Order("test1", "limit",1050,"buy");
+        Order order2 = new Order("test2", "limit",1050,"buy");
+        Order order3 = new Order("test3", "limit",1061,"buy");
+        Order order4 = new Order("test4", "limit",1030,"buy");
+        Order order5 = new Order("test5", "limit",1050,"buy");
 
         System.out.println(divider);
         //System.out.println("isEmpty: " + list.isEmpty());
@@ -117,6 +117,7 @@ public class AAASomeTest {
         System.out.println(priceList.toString());
         priceList.addOrder(order5);
         System.out.println(priceList.toString());
+        System.out.println("Candidate: "+priceList.candidateOrder().getOrderId());
         priceList.removeOrder(order1);
         System.out.println(priceList.toString());
         Order cancel = new Order("cancel_test", "cancel");
