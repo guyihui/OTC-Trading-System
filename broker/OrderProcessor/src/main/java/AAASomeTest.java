@@ -3,29 +3,30 @@
 public class AAASomeTest {
 
     private static OrderNodeList list = new OrderNodeList();
+    private static PriceNodeList priceList = new PriceNodeList();
 
     public static void main(String[] args) {
-//        singleThreadTest();
+        singleThreadPriceNodeTest();
 
-//        for (int i = 0; i < 10; i++) {
-//            list.add(new Order("test" + i, "limit"));
+////        for (int i = 0; i < 10; i++) {
+////            list.add(new Order("test" + i, "limit"));
+////        }
+//        Thread thread1 = new Thread(new TestThread1());
+//        thread1.start();
+//        Thread thread2 = new Thread(new TestThread2());
+//        thread2.start();
+//        for (int i = 0; i < 20; i++) {
+////            System.out.println("insert" + i);
+//            list.add(new Order("insert" + i, "limit"));
 //        }
-        Thread thread1 = new Thread(new TestThread1());
-        thread1.start();
-        Thread thread2 = new Thread(new TestThread2());
-        thread2.start();
-        for (int i = 0; i < 20; i++) {
-//            System.out.println("insert" + i);
-            list.add(new Order("insert" + i, "limit"));
-        }
-        try {
-            thread1.join();
-            thread2.join();
-            System.out.println(list);
-            System.out.println(list.activateStop());
-        } catch (Exception e) {
-            System.out.println(e.toString());
-        }
+//        try {
+//            thread1.join();
+//            thread2.join();
+//            System.out.println(list);
+//            System.out.println(list.activateStop());
+//        } catch (Exception e) {
+//            System.out.println(e.toString());
+//        }
     }
 
     static class TestThread1 implements Runnable {
@@ -80,6 +81,47 @@ public class AAASomeTest {
         list.concat(anotherList);
         System.out.println(list);
 
+    }
+
+    private static void singleThreadPriceNodeTest(){
+        String divider = "=========================";
+
+        Order order1 = new Order("test1", "limit",1050,"sell");
+        Order order2 = new Order("test2", "limit",1000,"sell");
+        Order order3 = new Order("test3", "limit",1061,"sell");
+        Order order4 = new Order("test4", "limit",1030,"sell");
+        Order order5 = new Order("test5", "limit",1050,"sell");
+
+        System.out.println(divider);
+        //System.out.println("isEmpty: " + list.isEmpty());
+        priceList.addOrder(order1);
+        System.out.println(priceList.toString());
+        priceList.addOrder(order2);
+        System.out.println(priceList.toString());
+        priceList.addOrder(order3);
+//        System.out.println("isEmpty: " + list.isEmpty());
+//        System.out.println(list.toString());
+//        System.out.println("Candidate:" + list.candidateOrder());
+        System.out.println(priceList.toString());
+
+        priceList.addOrder(order4);
+        System.out.println(priceList.toString());
+        priceList.addOrder(order5);
+        System.out.println(priceList.toString());
+        priceList.removeOrder(order1);
+        System.out.println(priceList.toString());
+        Order cancel = new Order("cancel_test", "cancel");
+        cancel.setCancelId("test2");
+        cancel.setPrice(1000);
+        priceList.cancelOrder(cancel);
+        System.out.println(priceList.toString());
+
+//        OrderNodeList anotherList = new OrderNodeList();
+//        anotherList.add(new Order("test6", "limit"));
+//        anotherList.add(new Order("test7", "limit"));
+//        anotherList.add(new Order("test8", "limit"));
+//        list.concat(anotherList);
+//        System.out.println(list);
     }
 
 }

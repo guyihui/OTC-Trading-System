@@ -27,7 +27,8 @@ public class PriceNode {
 
    public PriceNode(int price){
       this.price=price;
-
+      limitOrders=new OrderNodeList();
+      stopOrders=new OrderNodeList();
    }
 
    public Boolean addOrder(Order order) {
