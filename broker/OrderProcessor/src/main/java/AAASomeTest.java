@@ -2,6 +2,7 @@
 
 public class AAASomeTest {
 
+
     private static OrderNodeList list = new OrderNodeList();
 
     public static void main(String[] args) {
@@ -46,6 +47,14 @@ public class AAASomeTest {
                 list.add(new Order("test" + i, "limit"));
             }
         }
+    }
+
+    static class dealThread implements Runnable{
+        public void run() {
+
+        }
+
+
     }
 
     private static void singleThreadTest() {
