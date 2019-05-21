@@ -77,10 +77,14 @@ public class Orderbook {
     }
 
 
-    public Boolean deal() {
+    public void deal() {
         while (true) {
             Order limitBuy = buyOrders.candidateOrder();
             Order limitSell = sellOrders.candidateOrder();
+
+            System.out.println("candidate limit: "+limitBuy.getOrderId()+" and "+limitSell.getOrderId());
+            System.out.flush();
+
             Order market = waitingQueue.peekMarket();
 
             int market_flag = -1;
@@ -167,10 +171,15 @@ public class Orderbook {
                 }
             }
             if ( candidateSell == null || candidateBuy==null) {
-                continue;      // no deal
+
+                break;  //test
+          //      continue;      // no deal
             }
 
             //start deal
+
+            System.out.println("deal: "+candidateBuy.getOrderId()+" and "+candidateSell.getOrderId());
+            System.out.flush();
 
             int quantity = Math.min(candidateBuy.getRemainingQuantity(), candidateSell.getRemainingQuantity());
             int tempBuyQuantity = candidateBuy.getRemainingQuantity() - quantity;
@@ -196,8 +205,7 @@ public class Orderbook {
                 candidateSell.setRemainingQuantity(tempSellQuantity);
             }
 
-            System.out.println("deal: "+candidateBuy.getOrderId()+" and "+candidateSell.getOrderId());
-            System.out.flush();
+
             candidateBuy.unlock();
             candidateSell.unlock();
             //交易结束
@@ -210,14 +218,57 @@ public class Orderbook {
     public static void main(String []args){
 
         Product product=new Product("1","testProduct","j1");
-        
-      //  Orderbook orderbook=new Orderbook();
-        class dealThread implements Runnable{
+        PriceNodeList buyList=new PriceNodeList();
+        PriceNodeList sellList=new PriceNodeList();
+        Order order1 = new Order("test1", "limit",1000,"sell");
+        order1.setRemainingQuantity(10);
+        order1.setTime(10L);
+        Order order2 = new Order("test2", "limit",1000,"sell");
+        order2.setRemainingQuantity(10);
+        order2.setTime(11L);
+        Order order3 = new Order("test3", "limit",1061,"sell");
+        order3.setRemainingQuantity(10);
+        order3.setTime(12L);
+        Order order4 = new Order("test4", "limit",1030,"sell");
+        order4.setRemainingQuantity(10);
+        order4.setTime(13L);
+        Order order5 = new Order("test5", "limit",1050,"sell");
+        order5.setRemainingQuantity(10);
+        order5.setTime(14L);
+        sellList.addOrder(order1);
+        sellList.addOrder(order2);
+        sellList.addOrder(order3);
+        sellList.addOrder(order4);
+        sellList.addOrder(order5);
 
-            public void run() {
 
-            }
-        }
+
+
+        Order order6 = new Order("test6", "limit",1050,"buy");
+        order6.setRemainingQuantity(20);
+        order6.setTime(15L);
+        Order order7 = new Order("test7", "limit",1000,"buy");
+        order7.setRemainingQuantity(10);
+        order7.setTime(16L);
+        Order order8 = new Order("test8", "limit",1061,"buy");
+        order8.setRemainingQuantity(10);
+        order8.setTime(17L);
+        Order order9 = new Order("test9", "limit",1030,"buy");
+        order9.setRemainingQuantity(10);
+        order9.setTime(18L);
+        Order order10 = new Order("test10", "limit",1050,"buy");
+        order10.setRemainingQuantity(10);
+        order10.setTime(19L);
+        buyList.addOrder(order6);
+        buyList.addOrder(order7);
+        buyList.addOrder(order8);
+        buyList.addOrder(order9);
+        buyList.addOrder(order10);
+        WaitingOrders waitingOrders=new WaitingOrders(product);
+
+        Order candidateSell=sellList.candidateOrder();
+        System.out.println(candidateSell.getOrderId());
+
     }
 
 
