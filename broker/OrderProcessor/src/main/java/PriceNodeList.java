@@ -42,22 +42,22 @@ public class PriceNodeList {
 
    public Boolean addOrder(Order order) {
       Integer price = order.getPrice();
-      //this.lock();
+      this.lock();
       if(head == null){
          PriceNode newHead = new PriceNode(price);
          head = newHead;
-         //head.lock();
+         head.lock();
          if(order.getOrderType().equals("limit")){
             depth = newHead;
          }
 
          Boolean temp = head.addOrder(order);
-         //head.unlock();
-         //this.unlock();
+         head.unlock();
+         this.unlock();
          return temp;
       }
 
-      //head.lock();
+      head.lock();
       PriceNode temp = head;
       int flag = 0;
 
@@ -67,20 +67,22 @@ public class PriceNodeList {
          }
          if(price < temp.getPrice()){ //新的订单的价格小于队首第一个节点的价格，于是新订单的价格是当前价格优先级最高
             PriceNode newHead = new PriceNode(price);
-            //newHead.lock();
+            newHead.lock();
             newHead.setNext(head);
             head = newHead;
             if(order.getOrderType().equals("limit")){
                depth = newHead;
             }
             Boolean tempAddOrder = head.addOrder(order);
-            //newHead.unlock();
-            //head.unlock();
+            newHead.unlock();
+            temp.unlock();
 
             return tempAddOrder;
          }
 
          while(temp.getNext() != null){
+            temp.getNext().lock();
+            PriceNode tempNext = temp.getNext();
             if(depth == temp){
                flag = 1;
             }
@@ -88,33 +90,48 @@ public class PriceNodeList {
                if(flag == 0 && order.getOrderType().equals("limit")){
                   depth = temp;
                }
-               return temp.addOrder(order);
+               Boolean tempAddOrder = temp.addOrder(order);
+               temp.unlock();
+               tempNext.unlock();
+               return tempAddOrder;
             }
             else if(price > temp.getPrice() && price < temp.getNext().getPrice()){ //新的订单的价格介于原price node list中两个节点之间，则插入新节点
-                  PriceNode newMedium = new PriceNode(price);
-                  newMedium.setNext(temp.getNext());
-                  temp.setNext(newMedium);
+               PriceNode newMedium = new PriceNode(price);
+               newMedium.setNext(temp.getNext());
+               temp.setNext(newMedium);
                if(flag == 0 && order.getOrderType().equals("limit")){
                   depth = newMedium;
                }
-                  return newMedium.addOrder(order);
+               Boolean tempAddOrder = newMedium.addOrder(order);
+               temp.unlock();
+               tempNext.unlock();
+               return tempAddOrder;
             }
+            PriceNode tempPrev = temp;
             temp = temp.getNext();
+            tempPrev.unlock();
+            temp.lock();
          }
 
          if(price == temp.getPrice()){ //判断最后一个节点的price值是否与新订单的price相等
             if(flag == 0 && order.getOrderType().equals("limit")){
                depth = temp;
             }
-            return temp.addOrder(order);
+            Boolean tempAddOrder = temp.addOrder(order);
+            temp.unlock();
+            return tempAddOrder;
          }
 
          PriceNode newTail = new PriceNode(price);
+         newTail.lock();
          temp.setNext(newTail);
          if(flag == 0 && order.getOrderType().equals("limit")){
             depth = newTail;
          }
-         return newTail.addOrder(order);
+         Boolean tempAddOrder = newTail.addOrder(order);
+         temp.unlock();
+         newTail.unlock();
+         return tempAddOrder;
       }
       else{
          if(depth == temp){
@@ -122,15 +139,22 @@ public class PriceNodeList {
          }
          if(price > temp.getPrice()){ //新的订单的价格大于队首第一个节点的价格，于是新订单的价格是当前价格优先级最高
             PriceNode newHead = new PriceNode(price);
+            newHead.lock();
             newHead.setNext(head);
             head = newHead;
             if(order.getOrderType().equals("limit")){
                depth = newHead;
             }
-            return head.addOrder(order);
+            Boolean tempAddOrder = head.addOrder(order);
+            newHead.unlock();
+            temp.unlock();
+
+            return tempAddOrder;
          }
 
          while(temp.getNext() != null){
+            temp.getNext().lock();
+            PriceNode tempNext = temp.getNext();
             if(depth == temp){
                flag = 1;
             }
@@ -138,7 +162,10 @@ public class PriceNodeList {
                if(flag == 0 && order.getOrderType().equals("limit")){
                   depth = temp;
                }
-               return temp.addOrder(order);
+               Boolean tempAddOrder = temp.addOrder(order);
+               temp.unlock();
+               tempNext.unlock();
+               return tempAddOrder;
             }
             else if(price < temp.getPrice() && price > temp.getNext().getPrice()){
                PriceNode newMedium = new PriceNode(price);
@@ -149,24 +176,36 @@ public class PriceNodeList {
                      depth = newMedium;
                   }
                }
-               return newMedium.addOrder(order);
+               Boolean tempAddOrder = newMedium.addOrder(order);
+               temp.unlock();
+               tempNext.unlock();
+               return tempAddOrder;
             }
+            PriceNode tempPrev = temp;
             temp = temp.getNext();
+            tempPrev.unlock();
+            temp.lock();
          }
 
          if(price == temp.getPrice()){ //判断最后一个节点的price值是否与新订单的price相等
             if(flag == 0 && order.getOrderType().equals("limit")){
                depth = temp;
             }
-            return temp.addOrder(order);
+            Boolean tempAddOrder = temp.addOrder(order);
+            temp.unlock();
+            return tempAddOrder;
          }
 
          PriceNode newTail = new PriceNode(price);
+         newTail.lock();
          temp.setNext(newTail);
          if(flag == 0 && order.getOrderType().equals("limit")){
             depth = newTail;
          }
-         return newTail.addOrder(order);
+         Boolean tempAddOrder = newTail.addOrder(order);
+         temp.unlock();
+         newTail.unlock();
+         return tempAddOrder;
 
       }
 
@@ -178,6 +217,7 @@ public class PriceNodeList {
          return null;
       }
       PriceNode temp = head;
+      temp.lock();
       if(temp.getPrice() == price){
          Order canceledOrder = temp.cancelOrder(order);
          if(temp.isEmpty() == 0){
@@ -187,13 +227,18 @@ public class PriceNodeList {
             else{
                depth = null;
                head = head.getNext();
+               head.lock();
+               temp.unlock();
                temp = head;
                while(temp != null){
                   if(temp.isEmpty() > 1){
                      depth = temp;
                      break;
                   }
+                  PriceNode tempPrev = temp;
                   temp = temp.getNext();
+                  temp.lock();
+                  tempPrev.unlock();
                }
             }
          }
@@ -201,55 +246,83 @@ public class PriceNodeList {
            if(temp==depth){
                depth = null;
                temp = head.getNext();
+               temp.lock();
+               head.unlock();
                while(temp != null){
                   if(temp.isEmpty() > 1){
                      depth = temp;
                      break;
                   }
+                  PriceNode tempPrev = temp;
                   temp = temp.getNext();
+                  temp.lock();
+                  tempPrev.unlock();
                }
             }
          }
+         temp.unlock();
          return canceledOrder;
       }
 
       while(temp.getNext() != null){
-         if(temp.getNext().getPrice() == price){
-            Order canceledOrder = temp.getNext().cancelOrder(order);
-            if(temp.getNext().isEmpty() == 0){
-               if(temp.getNext() != depth){
-                  temp.setNext(temp.getNext().getNext());
+         PriceNode tempNext = temp.getNext();
+         tempNext.lock();
+         if(tempNext.getPrice() == price){
+            Order canceledOrder = tempNext.cancelOrder(order);
+            if(tempNext.isEmpty() == 0){
+               if(tempNext != depth){
+                  temp.setNext(tempNext.getNext());
+                  tempNext.unlock();
                }
                else{
                   depth = null;
-                  temp.setNext(temp.getNext().getNext());
+                  temp.setNext(tempNext.getNext());
+                  tempNext.unlock();
+                  PriceNode tempPrev = temp;
                   temp = temp.getNext();
+                  temp.lock();
+                  tempPrev.unlock();
                   while(temp != null){
                      if(temp.isEmpty() > 1){
                         depth = temp;
                         break;
                      }
+                     tempPrev = temp;
                      temp = temp.getNext();
+                     temp.lock();
+                     tempPrev.unlock();
                   }
                }
             }
-            else if(temp.getNext().isEmpty() == 1){
-               if(temp.getNext()==depth){
+            else if(tempNext.isEmpty() == 1){
+               if(tempNext==depth){
                   depth = null;
-                  temp = temp.getNext().getNext();
+                  PriceNode tempPrev = temp;
+                  temp = tempNext.getNext();
+                  temp.lock();
+                  tempNext.unlock();
+                  tempPrev.unlock();
                   while(temp != null){
                      if(temp.isEmpty() > 1){
                         depth = temp;
                         break;
                      }
+                     tempPrev = temp;
                      temp = temp.getNext();
+                     temp.lock();
+                     tempPrev.unlock();
                   }
                }
             }
+            temp.unlock();
             return canceledOrder;
          }
+         PriceNode tempPrev = temp;
          temp = temp.getNext();
+         temp.lock();
+         tempPrev.unlock();
       }
+      temp.unlock();
 
       return null;
    }
@@ -267,11 +340,13 @@ public class PriceNodeList {
    }
 
    public Boolean removeOrder(Order order) {
+
       Integer price = order.getPrice();
       if(head == null){
          return null;
       }
       PriceNode temp = head;
+      temp.lock();
       if(temp.getPrice() == price){
          Boolean removedOrder = temp.removeOrder(order);
          if(temp.isEmpty() == 0){
@@ -281,13 +356,18 @@ public class PriceNodeList {
             else{
                depth = null;
                head = head.getNext();
+               head.lock();
+               temp.unlock();
                temp = head;
                while(temp != null){
                   if(temp.isEmpty() > 1){
                      depth = temp;
                      break;
                   }
+                  PriceNode tempPrev = temp;
                   temp = temp.getNext();
+                  temp.lock();
+                  tempPrev.unlock();
                }
             }
          }
@@ -295,55 +375,83 @@ public class PriceNodeList {
             if(temp==depth){
                depth = null;
                temp = head.getNext();
+               temp.lock();
+               head.unlock();
                while(temp != null){
                   if(temp.isEmpty() > 1){
                      depth = temp;
                      break;
                   }
+                  PriceNode tempPrev = temp;
                   temp = temp.getNext();
+                  temp.lock();
+                  tempPrev.unlock();
                }
             }
          }
+         temp.unlock();
          return removedOrder;
       }
 
       while(temp.getNext() != null){
-         if(temp.getNext().getPrice() == price){
-            Boolean removedOrder = temp.getNext().removeOrder(order);
-            if(temp.getNext().isEmpty() == 0){
-               if(temp.getNext() != depth){
-                  temp.setNext(temp.getNext().getNext());
+         PriceNode tempNext = temp.getNext();
+         tempNext.lock();
+         if(tempNext.getPrice() == price){
+            Boolean removedOrder = tempNext.removeOrder(order);
+            if(tempNext.isEmpty() == 0){
+               if(tempNext != depth){
+                  temp.setNext(tempNext.getNext());
+                  tempNext.unlock();
                }
                else{
                   depth = null;
-                  temp.setNext(temp.getNext().getNext());
+                  temp.setNext(tempNext.getNext());
+                  tempNext.unlock();
+                  PriceNode tempPrev = temp;
                   temp = temp.getNext();
+                  temp.lock();
+                  tempPrev.unlock();
                   while(temp != null){
                      if(temp.isEmpty() > 1){
                         depth = temp;
                         break;
                      }
+                     tempPrev = temp;
                      temp = temp.getNext();
+                     temp.lock();
+                     tempPrev.unlock();
                   }
                }
             }
-            else if(temp.getNext().isEmpty() == 1){
-               if(temp.getNext()==depth){
+            else if(tempNext.isEmpty() == 1){
+               if(tempNext==depth){
                   depth = null;
-                  temp = temp.getNext().getNext();
+                  PriceNode tempPrev = temp;
+                  temp = tempNext.getNext();
+                  temp.lock();
+                  tempNext.unlock();
+                  tempPrev.unlock();
                   while(temp != null){
                      if(temp.isEmpty() > 1){
                         depth = temp;
                         break;
                      }
+                     tempPrev = temp;
                      temp = temp.getNext();
+                     temp.lock();
+                     tempPrev.unlock();
                   }
                }
             }
+            temp.unlock();
             return removedOrder;
          }
+         PriceNode tempPrev = temp;
          temp = temp.getNext();
+         temp.lock();
+         tempPrev.unlock();
       }
+      temp.unlock();
 
       return null;
    }
