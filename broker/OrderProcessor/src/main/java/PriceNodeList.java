@@ -56,9 +56,11 @@ public class PriceNodeList {
          this.unlock();
          return temp;
       }
+      this.unlock();
 
       head.lock();
-      PriceNode temp = head;
+      PriceNode temp;
+      temp = head;
       int flag = 0;
 
       if(order.getSellOrBuy().equals("sell")){
@@ -74,8 +76,8 @@ public class PriceNodeList {
                depth = newHead;
             }
             Boolean tempAddOrder = head.addOrder(order);
-            newHead.unlock();
             temp.unlock();
+            newHead.unlock();
 
             return tempAddOrder;
          }
@@ -91,26 +93,27 @@ public class PriceNodeList {
                   depth = temp;
                }
                Boolean tempAddOrder = temp.addOrder(order);
-               temp.unlock();
                tempNext.unlock();
+               temp.unlock();
                return tempAddOrder;
             }
             else if(price > temp.getPrice() && price < temp.getNext().getPrice()){ //新的订单的价格介于原price node list中两个节点之间，则插入新节点
                PriceNode newMedium = new PriceNode(price);
-               newMedium.setNext(temp.getNext());
+               newMedium.setNext(tempNext);
                temp.setNext(newMedium);
                if(flag == 0 && order.getOrderType().equals("limit")){
                   depth = newMedium;
                }
                Boolean tempAddOrder = newMedium.addOrder(order);
-               temp.unlock();
                tempNext.unlock();
+               temp.unlock();
                return tempAddOrder;
             }
-            PriceNode tempPrev = temp;
+            PriceNode tempPrev;
+            tempPrev = temp;
             temp = temp.getNext();
-            tempPrev.unlock();
             temp.lock();
+            tempPrev.unlock();
          }
 
          if(price == temp.getPrice()){ //判断最后一个节点的price值是否与新订单的price相等
@@ -146,8 +149,8 @@ public class PriceNodeList {
                depth = newHead;
             }
             Boolean tempAddOrder = head.addOrder(order);
-            newHead.unlock();
             temp.unlock();
+            newHead.unlock();
 
             return tempAddOrder;
          }
@@ -163,8 +166,8 @@ public class PriceNodeList {
                   depth = temp;
                }
                Boolean tempAddOrder = temp.addOrder(order);
-               temp.unlock();
                tempNext.unlock();
+               temp.unlock();
                return tempAddOrder;
             }
             else if(price < temp.getPrice() && price > temp.getNext().getPrice()){
@@ -177,14 +180,14 @@ public class PriceNodeList {
                   }
                }
                Boolean tempAddOrder = newMedium.addOrder(order);
-               temp.unlock();
                tempNext.unlock();
+               temp.unlock();
                return tempAddOrder;
             }
             PriceNode tempPrev = temp;
             temp = temp.getNext();
-            tempPrev.unlock();
             temp.lock();
+            tempPrev.unlock();
          }
 
          if(price == temp.getPrice()){ //判断最后一个节点的price值是否与新订单的price相等
