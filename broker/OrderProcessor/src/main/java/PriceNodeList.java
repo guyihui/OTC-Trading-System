@@ -226,6 +226,11 @@ public class PriceNodeList {
             }
             else{
                depth = null;
+               if(head.getNext()==null){
+                  head = null;
+                  temp.unlock();
+                  return canceledOrder;
+               }
                head = head.getNext();
                head.lock();
                temp.unlock();
@@ -334,7 +339,7 @@ public class PriceNodeList {
       return depth.candidateOrder();
    }
 
-   public Integer checkStop() {
+   public Integer checkStop(Integer stopPrice) {
       // TODO: implement
       return null;
    }
@@ -355,6 +360,11 @@ public class PriceNodeList {
             }
             else{
                depth = null;
+               if(head.getNext()==null){
+                  head = null;
+                  temp.unlock();
+                  return removedOrder;
+               }
                head = head.getNext();
                head.lock();
                temp.unlock();
@@ -465,6 +475,7 @@ public class PriceNodeList {
       PriceNode node = this.head;
       int count = 0;
       StringBuilder str = new StringBuilder();
+      str.append("Test:\n");
       while (node != null) {
          if(node!=depth) {
             str.append("PriceNode_");
