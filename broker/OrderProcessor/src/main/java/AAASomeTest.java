@@ -7,7 +7,7 @@ public class AAASomeTest {
     private static PriceNodeList priceList = new PriceNodeList();
 
     public static void main(String[] args) {
-        singleThreadPriceNodeTest();
+    //    singleThreadPriceNodeTest();
 
 ////        for (int i = 0; i < 10; i++) {
 ////            list.add(new Order("test" + i, "limit"));
@@ -28,6 +28,18 @@ public class AAASomeTest {
 //        } catch (Exception e) {
 //            System.out.println(e.toString());
 //        }
+
+        Thread thread1 = new Thread(new TestPriceNodeThread1());
+        thread1.start();
+        Thread thread2 = new Thread(new TestPriceNodeThread2());
+        thread2.start();
+        try {
+            thread1.join();
+            thread2.join();
+            System.out.println(priceList.toString());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     static class TestThread1 implements Runnable {
@@ -56,6 +68,32 @@ public class AAASomeTest {
         }
 
 
+    }
+
+    static class TestPriceNodeThread1 implements Runnable {
+        public void run() {
+            for (int i = 0; i < 10; i++) {
+                priceList.addOrder(new Order("T1_" + i, "limit",1000+i%3,"sell"));
+                System.out.println(priceList.toString()+"\n"+"11111111111111111111\n");
+            }
+//            Order candi = priceList.candidateOrder();
+//            while(candi != null) {
+//                priceList.removeOrder(candi);
+//                candi.unlock();
+//                candi = priceList.candidateOrder();
+//            }
+//            candi.unlock();
+            System.out.println(priceList.toString()+"\n"+"11111111111111111111\n");
+        }
+    }
+
+    static class TestPriceNodeThread2 implements Runnable {
+        public void run() {
+            for (int i = 0; i < 10; i++) {
+                priceList.addOrder(new Order("T2_" + i, "limit",1000+i%3,"sell"));
+                System.out.println(priceList.toString()+"\n"+"22222222222222222222\n");;
+            }
+        }
     }
 
     private static void singleThreadTest() {
@@ -95,11 +133,11 @@ public class AAASomeTest {
     private static void singleThreadPriceNodeTest(){
         String divider = "=========================";
 
-        Order order1 = new Order("test1", "limit",1040,"buy");
-        Order order2 = new Order("test2", "limit",1050,"buy");
-        Order order3 = new Order("test3", "limit",1061,"buy");
-        Order order4 = new Order("test4", "limit",1030,"buy");
-        Order order5 = new Order("test5", "limit",1035,"buy");
+        Order order1 = new Order("test1", "limit",1040,"sell");
+        Order order2 = new Order("test2", "limit",1061,"sell");
+        Order order3 = new Order("test3", "limit",1030,"sell");
+        Order order4 = new Order("test4", "limit",1030,"sell");
+        Order order5 = new Order("test5", "limit",1035,"sell");
 
         System.out.println(divider);
         //System.out.println("isEmpty: " + list.isEmpty());
@@ -122,7 +160,7 @@ public class AAASomeTest {
         System.out.println(priceList.toString());
         Order cancel = new Order("cancel_test", "cancel");
         cancel.setCancelId("test2");
-        cancel.setPrice(1050);
+        cancel.setPrice(1061);
         priceList.cancelOrder(cancel);
         System.out.println(priceList.toString());
         priceList.removeOrder(order3);
