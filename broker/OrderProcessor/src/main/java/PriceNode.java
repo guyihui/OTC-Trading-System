@@ -77,6 +77,12 @@ public class PriceNode {
       }
    }
 
+   public Integer checkStop() {
+      limitOrders.concat(stopOrders.activateStop());
+      stopOrders = null;
+      return 0;
+   }
+
    public int getPrice() {
       return price;
    }
