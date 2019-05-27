@@ -5,21 +5,21 @@ public class AAASomeTest {
 
     private static OrderNodeList list = new OrderNodeList();
     private static PriceNodeList priceList = new PriceNodeList();
-    private static Order order0 = new Order("test0", "limit",1000,"sell");
-    private static Order order1 = new Order("test1", "limit",1000,"sell");
-    private static Order order2 = new Order("test2", "limit",1000,"sell");
-    private static Order order3 = new Order("test3", "limit",1000,"sell");
-    private static Order order4 = new Order("test4", "limit",1000,"sell");
-    private static Order order5 = new Order("test5", "limit",1000,"sell");
-    private static Order order6 = new Order("test6", "limit",1000,"sell");
-    private static Order order7 = new Order("test7", "limit",1050,"sell");
-    private static Order order8 = new Order("test8", "limit",1050,"sell");
-    private static Order order9 = new Order("test9", "limit",1050,"sell");
-    private static Order order10 = new Order("test10", "limit",1050,"sell");
-    private static Order order11 = new Order("test11", "limit",1060,"sell");
-    private static Order order12 = new Order("test12", "limit",1060,"sell");
-    private static Order order13 = new Order("test13", "limit",1055,"sell");
-    private static Order order14 = new Order("test14", "limit",1060,"sell");
+    private static Order order0 = new Order("test0", "limit",1000,"buy");
+    private static Order order1 = new Order("test1", "limit",1000,"buy");
+    private static Order order2 = new Order("test2", "limit",1000,"buy");
+    private static Order order3 = new Order("test3", "limit",1000,"buy");
+    private static Order order4 = new Order("test4", "limit",1000,"buy");
+    private static Order order5 = new Order("test5", "limit",1000,"buy");
+    private static Order order6 = new Order("test6", "limit",1000,"buy");
+    private static Order order7 = new Order("test7", "limit",1050,"buy");
+    private static Order order8 = new Order("test8", "limit",1050,"buy");
+    private static Order order9 = new Order("test9", "limit",1050,"buy");
+    private static Order order10 = new Order("test10", "limit",1050,"buy");
+    private static Order order11 = new Order("test11", "limit",1060,"buy");
+    private static Order order12 = new Order("test12", "limit",1060,"buy");
+    private static Order order13 = new Order("test13", "limit",1055,"buy");
+    private static Order order14 = new Order("test14", "limit",1060,"buy");
 
     public static void main(String[] args) {
     //    singleThreadPriceNodeTest();

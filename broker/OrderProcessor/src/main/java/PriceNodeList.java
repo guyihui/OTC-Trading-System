@@ -153,9 +153,11 @@ public class PriceNodeList {
             Boolean tempAddOrder = head.addOrder(order);
             temp.unlock();
             newHead.unlock();
+            this.unlock();
 
             return tempAddOrder;
          }
+         this.unlock();
 
          while(temp.getNext() != null){
             temp.getNext().lock();
@@ -183,12 +185,12 @@ public class PriceNodeList {
                }
                Boolean tempAddOrder = newMedium.addOrder(order);
                tempNext.unlock();
-               //temp.unlock();
+               temp.unlock();
                return tempAddOrder;
             }
             PriceNode tempPrev = temp;
             temp = temp.getNext();
-            temp.lock();
+            //temp.lock();
             tempPrev.unlock();
          }
 
