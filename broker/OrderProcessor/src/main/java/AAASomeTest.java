@@ -159,7 +159,7 @@ public class AAASomeTest {
 //            System.out.println("22222222222222222222start");
 //            System.out.println(priceList.toString());
 //            System.out.flush();
-            priceList.cancelOrder(order0);
+            priceList.removeOrder(order0);
             priceList.removeOrder(order1);
 //            System.out.println("22222222222222222222");
 //            System.out.println(priceList.toString());
@@ -181,7 +181,9 @@ public class AAASomeTest {
             priceList.removeOrder(order10);
             priceList.removeOrder(order11);
 
-            priceList.cancelOrder(order12);
+            Order canceledOrder = new Order("cancel1","limit",1060,"sell");
+            canceledOrder.setCancelId("test12");
+            priceList.cancelOrder(canceledOrder);
 
             priceList.removeOrder(order13);
             priceList.removeOrder(order14);
