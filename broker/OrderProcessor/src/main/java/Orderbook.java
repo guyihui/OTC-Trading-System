@@ -329,6 +329,7 @@ public class Orderbook {
             public void run() {
                 int id = 0;
                 while (true) {
+                    id++;
 //                    Product product = new Product("1", "testProduct", "j1");
                     Random random = new Random();
                     int flag = random.nextInt(2);
@@ -350,6 +351,7 @@ public class Orderbook {
             public void run() {
                 int id = 0;
                 while (true) {
+                    id++;
 //                    Product product = new Product("1", "testProduct", "j1");
                     Random random = new Random();
                     int flag = random.nextInt(2);
@@ -376,6 +378,7 @@ public class Orderbook {
             public void run() {
                 int id = 0;
                 while (true) {
+                    id++;
 //                    Product product = new Product("1", "testProduct", "j1");
                     Random random = new Random();
                     int flag = random.nextInt(2);
@@ -418,24 +421,28 @@ public class Orderbook {
             }
         }
 
-//        Thread thread_create_market=new Thread(new th_create_market());
-//        Thread thread_create_limit=new Thread(new th_create_limit());
-//        Thread thread_add_buy=new Thread(new th_add_buylimit());
-//        Thread thread_add_sell=new Thread(new th_add_selllimit());
+        Thread thread_create_market=new Thread(new th_create_market());
+        Thread thread_create_limit=new Thread(new th_create_limit());
+        Thread thread_add_buy=new Thread(new th_add_buylimit());
+        Thread thread_add_sell=new Thread(new th_add_selllimit());
         Thread thread_deal=new Thread(new th_deal());
 
-//        thread_create_market.start();
-//        thread_create_limit.start();
-//        thread_add_buy.start();
-//        thread_add_sell.start();
+        thread_create_market.start();
+        thread_create_limit.start();
+        thread_add_buy.start();
+        thread_add_sell.start();
 
 
         thread_deal.start();
         try {
             thread_deal.join();
+            thread_create_market.join();
+            thread_create_limit.join();
+            thread_add_buy.join();
+            thread_add_sell.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
- //       orderbook.deal();
+
     }
 }
