@@ -202,9 +202,6 @@ public class Orderbook {
             if (candidateSell == null || candidateBuy == null) {
 
 
-                System.out.println("no deal");
-                System.out.flush();
-
                       continue;      // no deal
             }
 
@@ -325,7 +322,7 @@ public class Orderbook {
         waitingOrders.addMarket(mark2);
         orderbook = new Orderbook(product, buyList, sellList, waitingOrders);
 
-     //   orderbook.deal();
+
 
 
         class th_create_market implements Runnable {
@@ -439,6 +436,6 @@ public class Orderbook {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-//        orderbook.deal();
+ //       orderbook.deal();
     }
 }
