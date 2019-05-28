@@ -12,6 +12,8 @@ public class PriceNodeList {
 
    private PriceNode head;
    private PriceNode depth;
+   private String sellOrBuy;
+   private PriceNodeList other;
    private Lock lock = new ReentrantLock();
 
    public void lock() {
@@ -30,6 +32,14 @@ public class PriceNodeList {
       this.head = head;
    }
 
+   public void setOther(PriceNodeList otherList) {
+      this.other = otherList;
+   }
+
+   public String getSellOrBuy(){
+      return sellOrBuy;
+   }
+
    public PriceNode getDepth() {
       return depth;
    }
@@ -38,11 +48,24 @@ public class PriceNodeList {
       this.depth = depth;
    }
 
-   public PriceNodeList() {}
+   public PriceNodeList(String sellOrBuy) {
+      this.sellOrBuy = sellOrBuy;
+   }
 
    public Boolean addOrder(Order order) {
       Integer price = order.getPrice();
       this.lock();
+      if(other.getDepth() != null) {
+         if (order.getSellOrBuy().equals("sell") && order.getOrderType().equals("stop")) {
+            if (order.getPrice() >= other.getDepth().getPrice()) {
+               order.setOrderType("limit");
+            }
+         } else if (order.getSellOrBuy().equals("buy") && order.getOrderType().equals("stop")) {
+            if (order.getPrice() <= other.getDepth().getPrice()) {
+               order.setOrderType("limit");
+            }
+         }
+      }
       if(head == null){
          PriceNode newHead = new PriceNode(price);
          head = newHead;
@@ -220,8 +243,11 @@ public class PriceNodeList {
 
    public Order cancelOrder(Order order) {
       Integer price = order.getPrice();
+      Integer oldDepth;
+      Integer newDepth;
       this.lock();
       if(head == null){
+         this.unlock();
          return null;
       }
       PriceNode temp = head;
@@ -233,6 +259,7 @@ public class PriceNodeList {
                head = head.getNext();
             }
             else{
+               oldDepth = depth.getPrice();
                depth = null;
                if(head.getNext()==null){
                   head = null;
@@ -247,6 +274,8 @@ public class PriceNodeList {
                while(temp != null){
                   if(temp.isEmpty() > 1){
                      depth = temp;
+                     newDepth = depth.getPrice();
+                     other.checkStop(oldDepth,newDepth);
                      break;
                   }
                   PriceNode tempPrev = temp;
@@ -258,6 +287,7 @@ public class PriceNodeList {
          }
          else if(temp.isEmpty() == 1){
            if(temp==depth){
+              oldDepth = depth.getPrice();
                depth = null;
                temp = head.getNext();
                temp.lock();
@@ -265,6 +295,8 @@ public class PriceNodeList {
                while(temp != null){
                   if(temp.isEmpty() > 1){
                      depth = temp;
+                     newDepth = depth.getPrice();
+                     other.checkStop(oldDepth,newDepth);
                      break;
                   }
                   PriceNode tempPrev = temp;
@@ -292,6 +324,8 @@ public class PriceNodeList {
                   tempNext.unlock();
                }
                else{
+                  this.lock();
+                  oldDepth = depth.getPrice();
                   depth = null;
                   temp.setNext(tempNext.getNext());
                   tempNext.unlock();
@@ -302,6 +336,8 @@ public class PriceNodeList {
                   while(temp != null){
                      if(temp.isEmpty() > 1){
                         depth = temp;
+                        newDepth = depth.getPrice();
+                        other.checkStop(oldDepth,newDepth);
                         break;
                      }
                      tempPrev = temp;
@@ -309,10 +345,13 @@ public class PriceNodeList {
                      temp.lock();
                      tempPrev.unlock();
                   }
+                  this.unlock();
                }
             }
             else if(tempNext.isEmpty() == 1){
                if(tempNext==depth){
+                  this.lock();
+                  oldDepth = depth.getPrice();
                   depth = null;
                   PriceNode tempPrev = temp;
                   temp = tempNext.getNext();
@@ -322,6 +361,8 @@ public class PriceNodeList {
                   while(temp != null){
                      if(temp.isEmpty() > 1){
                         depth = temp;
+                        newDepth = depth.getPrice();
+                        other.checkStop(oldDepth,newDepth);
                         break;
                      }
                      tempPrev = temp;
@@ -329,6 +370,7 @@ public class PriceNodeList {
                      temp.lock();
                      tempPrev.unlock();
                   }
+                  this.unlock();
                }
             }
             else{
@@ -354,16 +396,108 @@ public class PriceNodeList {
       return depth.candidateOrder();
    }
 
-   public Integer checkStop(Integer stopPrice) {
-      // TODO: implement
-      return null;
+   public Boolean checkStop(int oldStopPrice,int newStopPrice) {
+      this.lock();
+      if(head == null){
+         this.unlock();
+         return false;
+      }
+      head.lock();
+      if(this.getSellOrBuy().equals("sell")){
+         if(head.getPrice() >= oldStopPrice){
+            head.unlock();
+            this.unlock();
+            return false;
+         }
+         if(head.getPrice() >= newStopPrice){
+            head.checkStop();
+         }
+         PriceNode temp = head.getNext();
+         if(temp==null){
+            head.unlock();
+            this.unlock();
+            return true;
+         }
+         temp.lock();
+         head.unlock();
+         this.unlock();
+         while(temp!=null){
+            if(temp.getPrice() >= newStopPrice && temp.getPrice() < oldStopPrice) {
+               temp.checkStop();
+               PriceNode tempPrev = temp;
+               temp = temp.getNext();
+               if (temp != null) {
+                  temp.lock();
+               }
+               tempPrev.unlock();
+            }
+            else if(temp.getPrice() < newStopPrice){
+               PriceNode tempPrev = temp;
+               temp = temp.getNext();
+               if (temp != null) {
+                  temp.lock();
+               }
+               tempPrev.unlock();
+            }
+            else{
+               temp.unlock();
+               break;
+            }
+         }
+      }
+      else{
+         if(head.getPrice() <= oldStopPrice){
+            head.unlock();
+            this.unlock();
+            return false;
+         }
+         if(head.getPrice() <= newStopPrice){
+            head.checkStop();
+         }
+         PriceNode temp = head.getNext();
+         if(temp==null){
+            head.unlock();
+            this.unlock();
+            return true;
+         }
+         temp.lock();
+         head.unlock();
+         this.unlock();
+         while(temp!=null){
+            if(temp.getPrice() <= newStopPrice && temp.getPrice() > oldStopPrice) {
+               temp.checkStop();
+               PriceNode tempPrev = temp;
+               temp = temp.getNext();
+               if (temp != null) {
+                  temp.lock();
+               }
+               tempPrev.unlock();
+            }
+            else if(temp.getPrice() > newStopPrice){
+               PriceNode tempPrev = temp;
+               temp = temp.getNext();
+               if (temp != null) {
+                  temp.lock();
+               }
+               tempPrev.unlock();
+            }
+            else{
+               temp.unlock();
+               break;
+            }
+         }
+      }
+      return true;
    }
 
    public Boolean removeOrder(Order order) {
 
       Integer price = order.getPrice();
+      Integer oldDepth;
+      Integer newDepth;
       this.lock();
       if(head == null){
+         this.unlock();
          return null;
       }
       PriceNode temp = head;
@@ -385,6 +519,7 @@ public class PriceNodeList {
                head = head.getNext();
             }
             else{
+               oldDepth = depth.getPrice();
                depth = null;
                if(head.getNext()==null){
                   head = null;
@@ -409,6 +544,8 @@ public class PriceNodeList {
                while(temp != null){
                   if(temp.isEmpty() > 1){
                      depth = temp;
+                     newDepth = depth.getPrice();
+                     other.checkStop(oldDepth,newDepth);
                      break;
                   }
                   PriceNode tempPrev = temp;
@@ -424,6 +561,7 @@ public class PriceNodeList {
          }
          else if(temp.isEmpty() == 1){
             if(temp==depth){
+               oldDepth = depth.getPrice();
                depth = null;
                temp = head.getNext();
                System.out.println("11");
@@ -435,6 +573,8 @@ public class PriceNodeList {
                while(temp != null){
                   if(temp.isEmpty() > 1){
                      depth = temp;
+                     newDepth = depth.getPrice();
+                     other.checkStop(oldDepth,newDepth);
                      break;
                   }
                   PriceNode tempPrev = temp;
@@ -471,6 +611,8 @@ public class PriceNodeList {
                   tempNext.unlock();
                }
                else{
+                  this.lock();
+                  oldDepth = depth.getPrice();
                   depth = null;
                   temp.setNext(tempNext.getNext());
                   System.out.println("18");
@@ -487,6 +629,8 @@ public class PriceNodeList {
                   while(temp != null){
                      if(temp.isEmpty() > 1){
                         depth = temp;
+                        newDepth = depth.getPrice();
+                        other.checkStop(oldDepth,newDepth);
                         break;
                      }
                      tempPrev = temp;
@@ -494,10 +638,13 @@ public class PriceNodeList {
                      temp.lock();
                      tempPrev.unlock();
                   }
+                  this.unlock();
                }
             }
             else if(tempNext.isEmpty() == 1){
                if(tempNext==depth){
+                  this.lock();
+                  oldDepth = depth.getPrice();
                   depth = null;
                   PriceNode tempPrev = temp;
                   temp = tempNext.getNext();
@@ -507,6 +654,8 @@ public class PriceNodeList {
                   while(temp != null){
                      if(temp.isEmpty() > 1){
                         depth = temp;
+                        newDepth = depth.getPrice();
+                        other.checkStop(oldDepth,newDepth);
                         break;
                      }
                      tempPrev = temp;
@@ -514,6 +663,7 @@ public class PriceNodeList {
                      temp.lock();
                      tempPrev.unlock();
                   }
+                  this.unlock();
                }
             }
             else{
@@ -551,11 +701,16 @@ public class PriceNodeList {
          }
          str.append(++count);
          str.append(": ");
-         str.append(node.getPrice()+" ");
+         str.append(node.getPrice()+"\n");
+         str.append("Limit:\n");
          str.append(node.getLimitOrders().toString());
-         str.append("------------------------------");
-         str.append(node.getStopOrders().toString());
-         str.append("\n");
+         str.append("------------------------------\n");
+         str.append("Stop:\n");
+         if(node.getStopOrders()!=null) {
+            str.append(node.getStopOrders().toString());
+         }
+         str.append("------------------------------\n");
+         str.append("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
          node = node.getNext();
       }
       return str.toString();

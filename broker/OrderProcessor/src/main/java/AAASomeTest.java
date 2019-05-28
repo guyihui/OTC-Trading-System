@@ -4,22 +4,23 @@ public class AAASomeTest {
 
 
     private static OrderNodeList list = new OrderNodeList();
-    private static PriceNodeList priceList = new PriceNodeList();
+    private static PriceNodeList priceList = new PriceNodeList("buy");
+    private static PriceNodeList sellPriceList = new PriceNodeList("sell");
     private static Order order0 = new Order("test0", "limit",1000,"buy");
     private static Order order1 = new Order("test1", "limit",1000,"buy");
     private static Order order2 = new Order("test2", "limit",1000,"buy");
     private static Order order3 = new Order("test3", "limit",1000,"buy");
     private static Order order4 = new Order("test4", "limit",1000,"buy");
-    private static Order order5 = new Order("test5", "limit",1000,"buy");
-    private static Order order6 = new Order("test6", "limit",1000,"buy");
+    private static Order order5 = new Order("test5", "stop",1000,"buy");
+    private static Order order6 = new Order("test6", "stop",1000,"buy");
     private static Order order7 = new Order("test7", "limit",1050,"buy");
     private static Order order8 = new Order("test8", "limit",1050,"buy");
     private static Order order9 = new Order("test9", "limit",1050,"buy");
-    private static Order order10 = new Order("test10", "limit",1050,"buy");
-    private static Order order11 = new Order("test11", "limit",1060,"buy");
-    private static Order order12 = new Order("test12", "limit",1060,"buy");
-    private static Order order13 = new Order("test13", "limit",1055,"buy");
-    private static Order order14 = new Order("test14", "limit",1060,"buy");
+    private static Order order10 = new Order("test10", "stop",1050,"buy");
+    private static Order order11 = new Order("test11", "limit",1060,"sell");
+    private static Order order12 = new Order("test12", "limit",1045,"sell");
+    private static Order order13 = new Order("test13", "limit",1060,"sell");
+    private static Order order14 = new Order("test14", "stop",1060,"sell");
 
     public static void main(String[] args) {
     //    singleThreadPriceNodeTest();
@@ -54,6 +55,7 @@ public class AAASomeTest {
 //        Order order8 = new Order("test3", "limit",1030,"sell");
 //        Order order9 = new Order("test4", "limit",1030,"sell");
 //        Order order10 = new Order("test5", "limit",1035,"sell");
+        priceList.setOther(sellPriceList);
         priceList.addOrder(order0);
         priceList.addOrder(order1);
         priceList.addOrder(order2);
@@ -72,11 +74,11 @@ public class AAASomeTest {
 //        }
         Thread thread1 = new Thread(new TestPriceNodeThread1());
         thread1.start();
-        Thread thread2 = new Thread(new TestPriceNodeThread2());
-        thread2.start();
+        //Thread thread2 = new Thread(new TestPriceNodeThread2());
+        //thread2.start();
         try {
             thread1.join();
-            thread2.join();
+            //thread2.join();
             System.out.println(priceList.toString());
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -116,19 +118,21 @@ public class AAASomeTest {
 //            System.out.println("11111111111111111111start");
 //            System.out.println(priceList.toString());
 //            System.out.flush();
-            priceList.addOrder(order11);
+            sellPriceList.setOther(priceList);
+            sellPriceList.addOrder(order11);
 //            System.out.println("11111111111111111111");
 //            System.out.println(priceList.toString());
 //            System.out.flush();
-            priceList.addOrder(order12);
+            sellPriceList.addOrder(order12);
 //            System.out.println("11111111111111111111");
 //            System.out.println(priceList.toString());
 //            System.out.flush();
-            priceList.addOrder(order13);
+            sellPriceList.addOrder(order13);
 //            System.out.println("11111111111111111111");
 //            System.out.println(priceList.toString());
 //            System.out.flush();
-            priceList.addOrder(order14);
+            sellPriceList.addOrder(order14);
+            sellPriceList.removeOrder(order12);
 //            System.out.println("11111111111111111111");
 //            System.out.println(priceList.toString());
 //            System.out.flush();
@@ -151,6 +155,7 @@ public class AAASomeTest {
 //                candi = priceList.candidateOrder();
 //            }
 //            candi.unlock();
+            System.out.println(sellPriceList.toString());
         }
     }
 

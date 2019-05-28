@@ -265,8 +265,8 @@ public class Orderbook {
     private static WaitingOrders waitingOrders;
     public static void main(String[] args) {
         Product product = new Product("1", "testProduct", "j1");
-        PriceNodeList buyList = new PriceNodeList();
-        PriceNodeList sellList = new PriceNodeList();
+        PriceNodeList buyList = new PriceNodeList("buy");
+        PriceNodeList sellList = new PriceNodeList("sell");
         Order order1 = new Order("test1", "limit", 1000, "sell");
         order1.setRemainingQuantity(10);
         order1.setTime(10L);

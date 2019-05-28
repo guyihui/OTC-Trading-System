@@ -77,10 +77,13 @@ public class PriceNode {
       }
    }
 
-   public Integer checkStop() {
+   public Boolean checkStop() {
+      if(stopOrders.isEmpty() == true){
+         return false;
+      }
       limitOrders.concat(stopOrders.activateStop());
       stopOrders = null;
-      return 0;
+      return true;
    }
 
    public int getPrice() {
