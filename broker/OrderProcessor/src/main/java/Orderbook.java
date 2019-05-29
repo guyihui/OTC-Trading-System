@@ -21,6 +21,16 @@ public class Orderbook {
     private WaitingOrders waitingQueue;
 
 
+    public Orderbook(Product product) {
+        this.product = product;
+        this.buyOrders = new PriceNodeList("buy");
+        this.sellOrders = new PriceNodeList("sell");
+        buyOrders.setOther(sellOrders);
+        sellOrders.setOther(buyOrders);
+        this.waitingQueue = new WaitingOrders(product);
+        setUpOrderBook();
+    }
+
     public Orderbook(Product product, PriceNodeList buyOrders, PriceNodeList sellOrders, WaitingOrders waitingQueue) {
         this.product = product;
         this.buyOrders = buyOrders;
@@ -261,13 +271,69 @@ public class Orderbook {
         }
     }
 
+    public Boolean addWOBuyLimit(Order order){
+        return waitingQueue.addBuyLimit(order);
+    }
+    public Boolean addWOSellLimit(Order order){
+        return waitingQueue.addSellLimit(order);
+    }
+    public Boolean addWOStop(Order order){
+        return waitingQueue.addStop(order);
+    }
+    public Boolean addWOCancel(Order order){
+        return waitingQueue.addCancel(order);
+    }
+    public Boolean addWOMarket(Order order){
+        return waitingQueue.addMarket(order);
+    }
+
+    public void setUpOrderBook(){
+        Thread addBuyLimitThread = new Thread(new AddBuyLimitThread());
+        Thread addSellLimitThread = new Thread(new AddSellLimitThread());
+        Thread addStopThread = new Thread(new AddStopThread());
+        Thread cancelOrderThread = new Thread(new CancelOrderThread());
+        Thread dealThread = new Thread(new DealThread());
+        addBuyLimitThread.start();
+        addSellLimitThread.start();
+        addStopThread.start();
+        cancelOrderThread.start();
+        dealThread.start();
+
+    }
+
+    class AddBuyLimitThread implements Runnable {
+        public void run() {
+            addBuyLimit();
+        }
+    }
+    class AddSellLimitThread implements Runnable {
+        public void run() {
+            addSellLimit();
+        }
+    }
+    class AddStopThread implements Runnable {
+        public void run() {
+            addStop();
+        }
+    }
+    class CancelOrderThread implements Runnable {
+        public void run() {
+            cancelOrder();
+        }
+    }
+    class DealThread implements Runnable {
+        public void run() {
+            deal();
+        }
+    }
+
 
     private static Orderbook orderbook;
     private static WaitingOrders waitingOrders;
     public static void main(String[] args) {
         Product product = new Product("1", "testProduct", "j1");
-        PriceNodeList buyList = new PriceNodeList();
-        PriceNodeList sellList = new PriceNodeList();
+        PriceNodeList buyList = new PriceNodeList("buy");
+        PriceNodeList sellList = new PriceNodeList("sell");
         Order order1 = new Order("test1", "limit", 1000, "sell");
         order1.setRemainingQuantity(10);
         order1.setTime(10L);
