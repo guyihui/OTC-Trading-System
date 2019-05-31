@@ -42,4 +42,15 @@ public class Product {
       this.productPeriod = productPeriod;
    }
 
+   public boolean equals(Object obj){
+       if(obj instanceof Product){
+          return (((Product)obj).getProductId()).equals(this.productId);
+       }
+       return false;
+   }
+
+   @Override
+   public int hashCode() {
+      return this.productId.hashCode();
+   }
 }

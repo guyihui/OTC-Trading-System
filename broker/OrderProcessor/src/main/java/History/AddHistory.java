@@ -24,12 +24,17 @@ public class AddHistory {
     private LinkedBlockingQueue<DoneOrderRaw> doneOrders;
     private IdGenerator idGenerator;
 
-    public AddHistory(LinkedBlockingQueue<DoneOrderRaw> doneOrderRaws) {
-        this.doneOrders = doneOrderRaws;
+    public AddHistory() {
         this.idGenerator = new IdGenerator();
+        this.doneOrders=new LinkedBlockingQueue<DoneOrderRaw>();
     }
 
-    public void add() throws InterruptedException {
+    public void add_order(DoneOrderRaw orderRaw){
+        doneOrders.offer(orderRaw);
+    }
+    public void add_DB() throws InterruptedException {
+        System.out.println("order waiting to insert DB num: "+doneOrders.size());
+        System.out.flush();
         DoneOrderRaw orderRaw = doneOrders.take();
         Session s = HibernateUtils.getCurrentSession();
         //   Product
@@ -38,8 +43,7 @@ public class AddHistory {
         Tradehistory u = orderRaw.createHistory(id);
         s.save(u);
         t.commit();
-        System.out.println("add complete");
-        System.out.flush();
+
     }
 
 
@@ -53,15 +57,15 @@ public class AddHistory {
         DoneOrderRaw doneOrderRaw1=new DoneOrderRaw("1","01","june1",10,10,"A","corpA","buy","B","corpB","sell","123123213");
 
 
-        addH = new AddHistory(testOrders);
-        addH2=new AddHistory(testOrders2);
-        addH3=new AddHistory(testOrders3);
+        addH = new AddHistory();
+        addH2=new AddHistory();
+        addH3=new AddHistory();
         class th_test implements Runnable{
 
             public void run() {
                 while(true){
                     try {
-                        addH.add();
+                        addH.add_DB();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -72,7 +76,7 @@ public class AddHistory {
 
             public void run() {
                 while (true){
-                    testOrders.offer(new DoneOrderRaw("1","01","june1",10,10,"A","corpA","buy","B","corpB","sell","123123213"));
+                    addH.add_order(new DoneOrderRaw("1","01","june1",10,10,"A","corpA","buy","B","corpB","sell","123123213"));
                     System.out.println("waiting order num: "+testOrders.size());
                     System.out.flush();
                     try {
@@ -89,7 +93,7 @@ public class AddHistory {
             public void run() {
                 while(true){
                     try {
-                        addH2.add();
+                        addH2.add_DB();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -100,7 +104,7 @@ public class AddHistory {
 
             public void run() {
                 while (true){
-                    testOrders2.offer(new DoneOrderRaw("1","02","june1",10,10,"A","corpA","buy","B","corpB","sell","123123213"));
+                    addH2.add_order(new DoneOrderRaw("1","02","june1",10,10,"A","corpA","buy","B","corpB","sell","123123213"));
                     System.out.println("waiting order2 num: "+testOrders2.size());
                     System.out.flush();
                     try {
@@ -116,7 +120,7 @@ public class AddHistory {
             public void run() {
                 while(true){
                     try {
-                        addH3.add();
+                        addH3.add_DB();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -127,7 +131,7 @@ public class AddHistory {
 
             public void run() {
                 while (true){
-                    testOrders3.offer(new DoneOrderRaw("1","03","june1",10,10,"A","corpA","buy","B","corpB","sell","123123213"));
+                    addH3.add_order(new DoneOrderRaw("1","03","june1",10,10,"A","corpA","buy","B","corpB","sell","123123213"));
                     System.out.println("waiting order3 num: "+testOrders3.size());
                     System.out.flush();
                     try {

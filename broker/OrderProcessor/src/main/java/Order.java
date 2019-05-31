@@ -9,6 +9,7 @@ public class Order {
     private String sellOrBuy;
     private String broker;
     private Trader trader;
+    private String traderName;
     private Integer totalQuantity;
     private Integer remainingQuantity;
     private Integer price;
@@ -149,5 +150,13 @@ public class Order {
 
     public void setTime(Long time) {
         this.time = time;
+    }
+
+    public String getTraderName() {
+        return traderName;
+    }
+
+    public void setTraderName(String traderName) {
+        this.traderName = traderName;
     }
 }
