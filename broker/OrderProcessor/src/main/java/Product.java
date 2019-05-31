@@ -43,7 +43,7 @@ public class Product {
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Product) {
-            return obj.hashCode() == this.hashCode();
+            return (((Product) obj).getProductId()).equals(this.productId);
         }
         return false;
     }

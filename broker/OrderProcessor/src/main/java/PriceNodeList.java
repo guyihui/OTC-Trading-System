@@ -501,19 +501,19 @@ public class PriceNodeList {
          return null;
       }
       PriceNode temp = head;
-      System.out.println("1");
-      System.out.flush();
-      System.out.println("caocaocao"+temp.getLimitOrders().toString());
-      System.out.flush();
+//      System.out.println("1");
+//      System.out.flush();
+//      System.out.println("caocaocao"+temp.getLimitOrders().toString());
+//      System.out.flush();
       temp.lock();
-      System.out.println("2");
-      System.out.flush();
+//      System.out.println("2");
+//      System.out.flush();
       if(temp.getPrice() == price){
-         System.out.println("3");
-         System.out.flush();
+//         System.out.println("3");
+//         System.out.flush();
          Boolean removedOrder = temp.removeOrder(order);
-         System.out.println("4");
-         System.out.flush();
+//         System.out.println("4");
+//         System.out.flush();
          if(temp.isEmpty() == 0){
             if(temp != depth){
                head = head.getNext();
@@ -523,22 +523,22 @@ public class PriceNodeList {
                depth = null;
                if(head.getNext()==null){
                   head = null;
-                  System.out.println("5");
-                  System.out.flush();
+//                  System.out.println("5");
+//                  System.out.flush();
                   temp.unlock();
-                  System.out.println("6");
-                  System.out.flush();
+//                  System.out.println("6");
+//                  System.out.flush();
                   this.unlock();
                   return removedOrder;
                }
                head = head.getNext();
-               System.out.println("7");
-               System.out.flush();
-               System.out.println(head.getLimitOrders());
-               System.out.flush();
+//               System.out.println("7");
+//               System.out.flush();
+//               System.out.println(head.getLimitOrders());
+//               System.out.flush();
                head.lock();
-               System.out.println("8");
-               System.out.flush();
+//               System.out.println("8");
+//               System.out.flush();
                temp.unlock();
                temp = head;
                while(temp != null){
@@ -550,11 +550,11 @@ public class PriceNodeList {
                   }
                   PriceNode tempPrev = temp;
                   temp = temp.getNext();
-                  System.out.println("9");
-                  System.out.flush();
+//                  System.out.println("9");
+//                  System.out.flush();
                   temp.lock();
-                  System.out.println("10");
-                  System.out.flush();
+//                  System.out.println("10");
+//                  System.out.flush();
                   tempPrev.unlock();
                }
             }
@@ -564,11 +564,11 @@ public class PriceNodeList {
                oldDepth = depth.getPrice();
                depth = null;
                temp = head.getNext();
-               System.out.println("11");
-               System.out.flush();
+//               System.out.println("11");
+//               System.out.flush();
                temp.lock();
-               System.out.println("12");
-               System.out.flush();
+//               System.out.println("12");
+//               System.out.flush();
                head.unlock();
                while(temp != null){
                   if(temp.isEmpty() > 1){
@@ -579,17 +579,17 @@ public class PriceNodeList {
                   }
                   PriceNode tempPrev = temp;
                   temp = temp.getNext();
-                  System.out.println("13");
-                  System.out.flush();
+//                  System.out.println("13");
+//                  System.out.flush();
                   temp.lock();
-                  System.out.println("14");
-                  System.out.flush();
+//                  System.out.println("14");
+//                  System.out.flush();
                   tempPrev.unlock();
                }
             }
          }
-         System.out.println("15");
-         System.out.flush();
+//         System.out.println("15");
+//         System.out.flush();
          temp.unlock();
          this.unlock();
          return removedOrder;
@@ -598,16 +598,16 @@ public class PriceNodeList {
 
       while(temp.getNext() != null){
          PriceNode tempNext = temp.getNext();
-         System.out.println("16");
-         System.out.flush();
+//         System.out.println("16");
+//         System.out.flush();
          tempNext.lock();
          if(tempNext.getPrice() == price){
             Boolean removedOrder = tempNext.removeOrder(order);
             if(tempNext.isEmpty() == 0){
                if(tempNext != depth){
                   temp.setNext(tempNext.getNext());
-                  System.out.println("17");
-                  System.out.flush();
+//                  System.out.println("17");
+//                  System.out.flush();
                   tempNext.unlock();
                }
                else{
@@ -615,16 +615,16 @@ public class PriceNodeList {
                   oldDepth = depth.getPrice();
                   depth = null;
                   temp.setNext(tempNext.getNext());
-                  System.out.println("18");
-                  System.out.flush();
+//                  System.out.println("18");
+//                  System.out.flush();
                   tempNext.unlock();
                   PriceNode tempPrev = temp;
                   temp = temp.getNext();
-                  System.out.println("19");
-                  System.out.flush();
+//                  System.out.println("19");
+//                  System.out.flush();
                   temp.lock();
-                  System.out.println("20");
-                  System.out.flush();
+//                  System.out.println("20");
+//                  System.out.flush();
                   tempPrev.unlock();
                   while(temp != null){
                      if(temp.isEmpty() > 1){

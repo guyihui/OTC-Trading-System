@@ -18,6 +18,8 @@ public class Trader {
 
    public Trader(String traderId,String traderCompany){
 
+      this.setTraderCompany(traderCompany);
+      this.setTraderId(traderId);
    }
 
    public String getTraderId() {
