@@ -22,7 +22,8 @@ public class Broker {
     }
 
     private static void initializeOrderBookMap() {
-        products.put(new Product("test"), new Orderbook());
+        Product testProduct = new Product("test");
+        products.put(testProduct, new Orderbook(testProduct));
     }
 
     private static void startupGateway() {

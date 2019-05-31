@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>sjtu</groupId>
-    <artifactId>java-AIO-demo</artifactId>
+    <artifactId>OTC-Trading-System</artifactId>
     <version>1.0-SNAPSHOT</version>
     <properties>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -24,5 +24,16 @@
             </plugin>
         </plugins>
     </build>
+
+    <dependencies>
+        <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-core -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>5.4.2.Final</version>
+        </dependency>
+
+
+    </dependencies>
 
 </project>
