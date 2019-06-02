@@ -1,28 +1,21 @@
-/***********************************************************************
- * Module:  Orderbook.java
- * Author:  gyh
- * Purpose: Defines the Class Orderbook
- ***********************************************************************/
+import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousSocketChannel;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import Entity.DoneOrderRaw;
 import History.AddHistory;
-import com.sun.org.apache.xpath.internal.operations.Bool;
-import com.sun.org.apache.xpath.internal.operations.Or;
 
 import java.util.*;
 
 
 public class Orderbook {
-    private String brokerName="";
+    private String brokerName = "";
 
     private Product product;
-
     private PriceNodeList buyOrders;
-
     private PriceNodeList sellOrders;
-
     private WaitingOrders waitingQueue;
-
+    private CopyOnWriteArraySet<AsynchronousSocketChannel> connections = new CopyOnWriteArraySet<>();
     private AddHistory addHistory;
 
     public Orderbook(Product product) {
@@ -32,18 +25,19 @@ public class Orderbook {
         buyOrders.setOther(sellOrders);
         sellOrders.setOther(buyOrders);
         this.waitingQueue = new WaitingOrders(product);
-        this.addHistory=new AddHistory();
+        this.addHistory = new AddHistory();
         setUpOrderBook();
     }
-    public Orderbook(Product product,String brokerName) {
-        this.brokerName=brokerName;
+
+    public Orderbook(Product product, String brokerName) {
+        this.brokerName = brokerName;
         this.product = product;
         this.buyOrders = new PriceNodeList("buy");
         this.sellOrders = new PriceNodeList("sell");
         buyOrders.setOther(sellOrders);
         sellOrders.setOther(buyOrders);
         this.waitingQueue = new WaitingOrders(product);
-        this.addHistory=new AddHistory();
+        this.addHistory = new AddHistory();
         setUpOrderBook();
     }
 
@@ -55,8 +49,18 @@ public class Orderbook {
 
     }
 
-    public void run(){
+    public void bindConnection(AsynchronousSocketChannel client) {
+        this.connections.add(client);
+    }
 
+    public void removeConnection(AsynchronousSocketChannel client) {
+        this.connections.remove(client);
+    }
+
+    public void broadcast(String message) {
+        for (AsynchronousSocketChannel client : connections) {
+            client.write(ByteBuffer.wrap(message.getBytes()));
+        }
     }
 
     public Boolean addBuyLimit() {
@@ -90,11 +94,9 @@ public class Orderbook {
                 } else {
                     sellOrders.addOrder(temp);
                 }
-
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
         }
     }
 
@@ -108,12 +110,9 @@ public class Orderbook {
                 } else {
                     canceledOrder = sellOrders.cancelOrder(temp);
                 }
-
-
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
         }
     }
 
@@ -121,13 +120,13 @@ public class Orderbook {
     public void deal() {
         while (true) {
             Order limitBuy;
-            limitBuy= buyOrders.candidateOrder();
+            limitBuy = buyOrders.candidateOrder();
             Order limitSell;
-            limitSell= sellOrders.candidateOrder();
+            limitSell = sellOrders.candidateOrder();
 
-            String initFlag="buy";
+            String initFlag = "buy";
 
-            if(limitBuy!=null && limitSell!=null) {
+            if (limitBuy != null && limitSell != null) {
 //                System.out.println("candidate limit: " + limitBuy.getOrderId() + " and " + limitSell.getOrderId());
 //                System.out.flush();
             }
@@ -163,19 +162,18 @@ public class Orderbook {
                                 candidateBuy = market;
                                 limitBuy.unlock();
                                 dealPrice = candidateSell.getPrice();
-                                initFlag="sell";
+                                initFlag = "sell";
 
                             } else {
 //                                System.out.println("limit buy + limit sell");
 //                                System.out.flush();
                                 market.unlock();
-                                if(candidateBuy.getTime() < candidateSell.getTime()){
-                                    dealPrice=candidateBuy.getPrice();
-                                    initFlag="buy";
-                                }
-                                else {
-                                    dealPrice=candidateSell.getPrice();
-                                    initFlag="sell";
+                                if (candidateBuy.getTime() < candidateSell.getTime()) {
+                                    dealPrice = candidateBuy.getPrice();
+                                    initFlag = "buy";
+                                } else {
+                                    dealPrice = candidateSell.getPrice();
+                                    initFlag = "sell";
                                 }
                             }
                             break;
@@ -186,49 +184,46 @@ public class Orderbook {
                                 candidateSell = market;
                                 limitSell.unlock();
                                 dealPrice = candidateBuy.getPrice();
-                                initFlag="buy";
+                                initFlag = "buy";
                             } else {
 //                                System.out.println("limit buy + limit sell");
 //                                System.out.flush();
                                 market.unlock();
-                                if(candidateBuy.getTime() < candidateSell.getTime()){
-                                    dealPrice=candidateBuy.getPrice();
-                                    initFlag="buy";
-                                }
-                                else {
-                                    dealPrice=candidateSell.getPrice();
-                                    initFlag="sell";
+                                if (candidateBuy.getTime() < candidateSell.getTime()) {
+                                    dealPrice = candidateBuy.getPrice();
+                                    initFlag = "buy";
+                                } else {
+                                    dealPrice = candidateSell.getPrice();
+                                    initFlag = "sell";
                                 }
 
                             }
                             break;
                         case 0:
-                            if(candidateBuy.getTime() < candidateSell.getTime()){
-                                dealPrice=candidateBuy.getPrice();
-                                initFlag="buy";
-                            }
-                            else {
-                                dealPrice=candidateSell.getPrice();
-                                initFlag="sell";
+                            if (candidateBuy.getTime() < candidateSell.getTime()) {
+                                dealPrice = candidateBuy.getPrice();
+                                initFlag = "buy";
+                            } else {
+                                dealPrice = candidateSell.getPrice();
+                                initFlag = "sell";
                             }
                             break;
                     }
-                }
-                else {
+                } else {
                     switch (market_flag) {
                         case 1:
                             candidateBuy = market;
                             candidateSell = limitSell;
                             limitBuy.unlock();
                             dealPrice = candidateSell.getPrice();
-                            initFlag="sell";
+                            initFlag = "sell";
                             break;
                         case 2:
                             candidateBuy = limitBuy;
                             candidateSell = market;
                             limitSell.unlock();
                             dealPrice = candidateBuy.getPrice();
-                            initFlag="buy";
+                            initFlag = "buy";
                             break;
                         case 0:
                             limitBuy.unlock();
@@ -241,8 +236,8 @@ public class Orderbook {
                 if (market_flag == 1) {
                     candidateBuy = market;
                     candidateSell = limitSell;
-                    dealPrice=candidateSell.getPrice();
-                    initFlag="sell";
+                    dealPrice = candidateSell.getPrice();
+                    initFlag = "sell";
                 } else {
                     limitSell.unlock();
                 }
@@ -251,47 +246,44 @@ public class Orderbook {
                 if (market_flag == 2) {
                     candidateBuy = limitBuy;
                     candidateSell = market;
-                    dealPrice=candidateBuy.getPrice();
-                    initFlag="buy";
+                    dealPrice = candidateBuy.getPrice();
+                    initFlag = "buy";
                 } else {
                     limitBuy.unlock();
                 }
             }
 
-
             if (candidateSell == null || candidateBuy == null) {
 
-
-                      continue;      // no deal
+                continue;      // no deal
             }
 
             //start deal
 
+            String initTrader = "";
+            String initCompany = "";
+            String initSide = "";
+            String compTrader = "";
+            String compCompany = "";
+            String compSide = "";
+            if (initFlag.equals("buy")) {
+                initTrader = candidateBuy.getTraderName();
+                initCompany = candidateBuy.getTrader().getTraderCompany();
+                initSide = "buy";
+                compTrader = candidateSell.getTraderName();
+                compCompany = candidateSell.getTrader().getTraderCompany();
+                compSide = "sell";
+            } else {
+                compTrader = candidateBuy.getTraderName();
+                compCompany = candidateBuy.getTrader().getTraderCompany();
+                compSide = "buy";
+                initTrader = candidateSell.getTraderName();
+                initCompany = candidateSell.getTrader().getTraderCompany();
+                initSide = "sell";
+            }
 
-            String initTrader="";
-            String initCompany="";
-            String initSide="";
-            String compTrader="";
-            String compCompany="";
-            String compSide="";
-            if(initFlag.equals("buy")){
-                initTrader=candidateBuy.getTraderName();
-                initCompany=candidateBuy.getTrader().getTraderCompany();
-                initSide="buy";
-                compTrader=candidateSell.getTraderName();
-                compCompany=candidateSell.getTrader().getTraderCompany();
-                compSide="sell";
-            }
-            else {
-                compTrader=candidateBuy.getTraderName();
-                compCompany=candidateBuy.getTrader().getTraderCompany();
-                compSide="buy";
-                initTrader=candidateSell.getTraderName();
-                initCompany=candidateSell.getTrader().getTraderCompany();
-                initSide="sell";
-            }
             int quantity = Math.min(candidateBuy.getRemainingQuantity(), candidateSell.getRemainingQuantity());
-            System.out.println("deal: " + candidateBuy.getOrderId() + " and " + candidateSell.getOrderId() + "  at price: " + dealPrice+ " at quantity: "+quantity);
+            System.out.println("deal: " + candidateBuy.getOrderId() + " and " + candidateSell.getOrderId() + "  at price: " + dealPrice + " at quantity: " + quantity);
             System.out.flush();
             int tempBuyQuantity = candidateBuy.getRemainingQuantity() - quantity;
             int tempSellQuantity = candidateSell.getRemainingQuantity() - quantity;
@@ -331,41 +323,44 @@ public class Orderbook {
             System.out.flush();
 
 
-
             candidateBuy.unlock();
             candidateSell.unlock();
             //交易结束
-            Long time=System.currentTimeMillis();
+            Long time = System.currentTimeMillis();
             addHistory.add_order
-                    (new DoneOrderRaw( brokerName, product.getProductId(),product.getProductPeriod(),dealPrice,quantity,initTrader,initCompany,initSide,compTrader,compCompany,compSide,time+""));
+                    (new DoneOrderRaw(brokerName, product.getProductId(), product.getProductPeriod(), dealPrice, quantity, initTrader, initCompany, initSide, compTrader, compCompany, compSide, time + ""));
 
 
         }
     }
 
-    public Boolean addWOBuyLimit(Order order){
+    public Boolean addWOBuyLimit(Order order) {
         return waitingQueue.addBuyLimit(order);
     }
-    public Boolean addWOSellLimit(Order order){
+
+    public Boolean addWOSellLimit(Order order) {
         return waitingQueue.addSellLimit(order);
     }
-    public Boolean addWOStop(Order order){
+
+    public Boolean addWOStop(Order order) {
         return waitingQueue.addStop(order);
     }
-    public Boolean addWOCancel(Order order){
+
+    public Boolean addWOCancel(Order order) {
         return waitingQueue.addCancel(order);
     }
-    public Boolean addWOMarket(Order order){
+
+    public Boolean addWOMarket(Order order) {
         return waitingQueue.addMarket(order);
     }
 
-    public void setUpOrderBook(){
+    public void setUpOrderBook() {
         Thread addBuyLimitThread = new Thread(new AddBuyLimitThread());
         Thread addSellLimitThread = new Thread(new AddSellLimitThread());
         Thread addStopThread = new Thread(new AddStopThread());
         Thread cancelOrderThread = new Thread(new CancelOrderThread());
         Thread dealThread = new Thread(new DealThread());
-        Thread addDbThread=new Thread(new AddDbThread());
+        Thread addDbThread = new Thread(new AddDbThread());
         addBuyLimitThread.start();
         addSellLimitThread.start();
         addStopThread.start();
@@ -388,29 +383,34 @@ public class Orderbook {
             addBuyLimit();
         }
     }
+
     class AddSellLimitThread implements Runnable {
         public void run() {
             addSellLimit();
         }
     }
+
     class AddStopThread implements Runnable {
         public void run() {
             addStop();
         }
     }
+
     class CancelOrderThread implements Runnable {
         public void run() {
             cancelOrder();
         }
     }
+
     class DealThread implements Runnable {
         public void run() {
             deal();
         }
     }
-    class AddDbThread implements Runnable{
+
+    class AddDbThread implements Runnable {
         public void run() {
-            while (true){
+            while (true) {
                 try {
                     addHistory.add_DB();
                 } catch (InterruptedException e) {
@@ -423,6 +423,7 @@ public class Orderbook {
 
     private static Orderbook orderbook;
     private static WaitingOrders waitingOrders;
+
     public static void main(String[] args) {
         Product product = new Product("1", "testProduct", "j1");
         PriceNodeList buyList = new PriceNodeList("buy");
@@ -447,8 +448,6 @@ public class Orderbook {
         sellList.addOrder(order3);
         sellList.addOrder(order4);
         sellList.addOrder(order5);
-
-
 
 
         Order order6 = new Order("test6", "limit", 1050, "buy");
@@ -486,8 +485,6 @@ public class Orderbook {
         orderbook = new Orderbook(product, buyList, sellList, waitingOrders);
 
 
-
-
         class th_create_market implements Runnable {
             public void run() {
                 int id = 0;
@@ -522,7 +519,7 @@ public class Orderbook {
                     Order newOrder = new Order("limit" + id, "limit", price, sellorbuy);
                     newOrder.setRemainingQuantity(10 + random.nextInt(10));
                     newOrder.setTime(System.currentTimeMillis());
-                    if (sellorbuy .equals("buy")) {
+                    if (sellorbuy.equals("buy")) {
                         waitingOrders.addBuyLimit(newOrder);
                     } else {
                         waitingOrders.addSellLimit(newOrder);
@@ -576,18 +573,18 @@ public class Orderbook {
                 orderbook.addStop();
             }
         }
-        class th_deal implements Runnable{
+        class th_deal implements Runnable {
 
             public void run() {
                 orderbook.deal();
             }
         }
 
-        Thread thread_create_market=new Thread(new th_create_market());
-        Thread thread_create_limit=new Thread(new th_create_limit());
-        Thread thread_add_buy=new Thread(new th_add_buylimit());
-        Thread thread_add_sell=new Thread(new th_add_selllimit());
-        Thread thread_deal=new Thread(new th_deal());
+        Thread thread_create_market = new Thread(new th_create_market());
+        Thread thread_create_limit = new Thread(new th_create_limit());
+        Thread thread_add_buy = new Thread(new th_add_buylimit());
+        Thread thread_add_sell = new Thread(new th_add_selllimit());
+        Thread thread_deal = new Thread(new th_deal());
 
         thread_create_market.start();
         thread_create_limit.start();

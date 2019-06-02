@@ -1,56 +1,55 @@
-/***********************************************************************
- * Module:  Product.java
- * Author:  gyh
- * Purpose: Defines the Class Product
- ***********************************************************************/
 
-import java.util.*;
 
 public class Product {
 
-   private String productId;
-   private String productName;
-   private String productPeriod;
+    private String productId;
+    private String productName;
+    private String productPeriod;
 
-   public Product(String pId,String pName,String pPeriod){
-      this.productId = pId;
-      this.productName = pName;
-      this.productPeriod = pPeriod;
-   }
+    public Product(String productId) {
+        this.productId = productId;
+    }
 
-   public String getProductId() {
-      return productId;
-   }
+    public Product(String pId, String pName, String pPeriod) {
+        this.productId = pId;
+        this.productName = pName;
+        this.productPeriod = pPeriod;
+    }
 
-   public void setProductId(String productId) {
-      this.productId = productId;
-   }
+    public String getProductId() {
+        return productId;
+    }
 
-   public String getProductName() {
-      return productName;
-   }
+    public void setProductId(String productId) {
+        this.productId = productId;
+    }
 
-   public void setProductName(String productName) {
-      this.productName = productName;
-   }
+    public String getProductName() {
+        return productName;
+    }
 
-   public String getProductPeriod() {
-      return productPeriod;
-   }
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
 
-   public void setProductPeriod(String productPeriod) {
-      this.productPeriod = productPeriod;
-   }
+    public String getProductPeriod() {
+        return productPeriod;
+    }
 
-   public boolean equals(Object obj){
-       if(obj instanceof Product){
-          return (((Product)obj).getProductId()).equals(this.productId);
-       }
-       return false;
-   }
+    public void setProductPeriod(String productPeriod) {
+        this.productPeriod = productPeriod;
+    }
 
-   @Override
-   public int hashCode() {
-      return this.productId.hashCode();
-   }
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Product) {
+            return (((Product) obj).getProductId()).equals(this.productId);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return productId.hashCode() + "product".hashCode();
+    }
 }
