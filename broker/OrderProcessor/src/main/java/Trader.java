@@ -1,48 +1,52 @@
-/***********************************************************************
- * Module:  Trader.java
- * Author:  gyh
- * Purpose: Defines the Class Trader
- ***********************************************************************/
+import java.nio.channels.AsynchronousSocketChannel;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
-import java.util.*;
-
-/** @pdOid 7373a996-c0c5-4f35-b296-50322d629344 */
 public class Trader {
-   /** @pdOid 4567beab-9ee8-454a-813a-7fdfa09f0ee9 */
-   private String traderId;
-   /** @pdOid c28f8105-015f-4587-81ca-39a3afca4896 */
-   private String traderCompany;
-   /** @pdOid 270a91ec-d4a6-4e39-9ff6-add624d25523 */
-   private Object connection;
 
+    private String traderId;
+    private String traderCompany;
+    private AsynchronousSocketChannel connection;
+    private Set<Product> subscribedProducts = new CopyOnWriteArraySet<>();
 
-   public Trader(String traderId,String traderCompany){
+    public Trader(AsynchronousSocketChannel channel) {
+        this.connection = channel;
+    }
 
-      this.setTraderCompany(traderCompany);
-      this.setTraderId(traderId);
-   }
+    public Trader(String traderId, String traderCompany) {
+        this.setTraderCompany(traderCompany);
+        this.setTraderId(traderId);
+    }
 
-   public String getTraderId() {
-      return traderId;
-   }
+    public String getTraderId() {
+        return traderId;
+    }
 
-   public void setTraderId(String traderId) {
-      this.traderId = traderId;
-   }
+    public void setTraderId(String traderId) {
+        this.traderId = traderId;
+    }
 
-   public String getTraderCompany() {
-      return traderCompany;
-   }
+    public String getTraderCompany() {
+        return traderCompany;
+    }
 
-   public void setTraderCompany(String traderCompany) {
-      this.traderCompany = traderCompany;
-   }
+    public void setTraderCompany(String traderCompany) {
+        this.traderCompany = traderCompany;
+    }
 
-   public Object getConnection() {
-      return connection;
-   }
+    public AsynchronousSocketChannel getConnection() {
+        return connection;
+    }
 
-   public void setConnection(Object connection) {
-      this.connection = connection;
-   }
+    public void setConnection(AsynchronousSocketChannel connection) {
+        this.connection = connection;
+    }
+
+    public Set<Product> getSubscribedProducts() {
+        return subscribedProducts;
+    }
+
+    public void addSubscribedProduct(Product product) {
+        subscribedProducts.add(product);
+    }
 }

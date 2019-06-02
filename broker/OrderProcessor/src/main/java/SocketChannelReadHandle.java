@@ -1,8 +1,4 @@
-import com.sun.org.apache.xpath.internal.operations.Bool;
-
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
@@ -20,26 +16,25 @@ import java.util.Map;
  * 所以不用担心在服务器端会出现“窜对象”这种情况，因为JAVA AIO框架已经帮您组织好了。<p>
  * <p>
  * 但是最重要的，用于生成channel的对象：AsynchronousChannelProvider是单例模式，无论在哪组socketchannel，
- * 对是一个对象引用（但这没关系，因为您不会直接操作这个AsynchronousChannelProvider对象）。
- *
- * @author keep_trying
+ * 都是一个对象引用（但这没关系，因为您不会直接操作这个AsynchronousChannelProvider对象）。
  */
 public class SocketChannelReadHandle implements CompletionHandler<Integer, ByteBuffer> {
 
     /**
      * 专门用于进行这个通道数据缓存操作的ByteBuffer<br>
-     * 当然，您也可以作为CompletionHandler的attachment形式传入。<br>
-     * 这是，在这段示例代码中，attachment被我们用来记录所有传送过来的Stringbuffer了。
+     * 也可以作为CompletionHandler的attachment形式传入。<br>
      */
 //    private ByteBuffer byteBuffer;
+    private Trader trader;
     private AsynchronousSocketChannel client;
     private Map<Product, Orderbook> products;
     private volatile Boolean isConnected = false;
 
-    public SocketChannelReadHandle(AsynchronousSocketChannel socketChannel,
+    public SocketChannelReadHandle(Trader traderWithSocketChannel,
                                    ByteBuffer byteBuffer,
                                    Map<Product, Orderbook> products) {
-        this.client = socketChannel;
+        this.trader = traderWithSocketChannel;
+        this.client = traderWithSocketChannel.getConnection();
 //        this.byteBuffer = byteBuffer;
         this.products = products;
     }
@@ -54,20 +49,40 @@ public class SocketChannelReadHandle implements CompletionHandler<Integer, ByteB
         attachment.clear();
         client.read(attachment, attachment, this);
         String data = new String(charBuffer.array(), 0, charBuffer.limit());
+//        System.out.println("[" + client + "]" + data);
 
         //TODO: 根据不同消息做相应处理
-        //第一次接收，初始化 trader company 信息，若失败则直接关闭连接。
-        if (data.length() < 9999) {
-            Product product = new Product("test");
+        //第一次接收，初始化 trader company 信息。
+        if (data.indexOf("company:") == 0) {
             if (!this.isConnected) {
-                this.products.get(product).bindConnection(this.client);
+                this.trader.setTraderId(data.substring("company:".length()));
+                this.trader.setTraderCompany(data.substring("company:".length()));
                 this.isConnected = true;
+                System.out.println(client + data);
+                client.write(ByteBuffer.wrap("Got your company.".getBytes()));
             } else {
-                this.products.get(product).broadcast("you say:" + data);
+                System.out.println("Already connected.");
+                client.write(ByteBuffer.wrap("Already connected.".getBytes()));
             }
-            System.out.println("read data:" + data);
+        } else if (this.isConnected) {
+            //TODO: switch by request type
+            //订阅 product
+            if (data.indexOf("subscribe:") == 0) {
+                Product product = new Product(data.substring("subscribe:".length()));
+                Orderbook orderbook = this.products.get(product);
+                if (orderbook != null) {
+                    orderbook.bindConnection(this.trader);
+                    //TODO: give response
+                } else {
+                    System.err.println(data);
+                }
+            } else {
+                System.err.println(data);
+//                this.failed(null, null);
+            }
         } else {
-            this.failed(null, null);
+            System.out.println(data);
+            client.write(ByteBuffer.wrap("Please tell me your company first. e.g. company:xxx".getBytes()));
         }
 
 //        //TODO: 以下作废
@@ -106,6 +121,9 @@ public class SocketChannelReadHandle implements CompletionHandler<Integer, ByteB
             System.err.println(exc.toString());
         }
         try {
+            for (Product product : this.products.keySet()) {
+                this.products.get(product).removeConnection(this.trader);
+            }
             this.client.close();
             System.err.println(client + " closed.");
         } catch (IOException e) {

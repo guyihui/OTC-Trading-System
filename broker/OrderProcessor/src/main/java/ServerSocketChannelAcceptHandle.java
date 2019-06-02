@@ -26,7 +26,8 @@ public class ServerSocketChannelAcceptHandle implements CompletionHandler<Asynch
 
         //为这个新的socketChannel注册“read”事件，以便操作系统在收到数据并准备好后，主动通知应用程序
         ByteBuffer buffer = ByteBuffer.allocate(2048);
-        client.read(buffer, buffer, new SocketChannelReadHandle(client, buffer, this.products));
+        Trader connectedTrader = new Trader(client);
+        client.read(buffer, buffer, new SocketChannelReadHandle(connectedTrader, buffer, this.products));
 
     }
 

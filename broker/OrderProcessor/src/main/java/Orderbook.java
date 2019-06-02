@@ -1,5 +1,4 @@
 import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousSocketChannel;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import Entity.DoneOrderRaw;
@@ -15,7 +14,7 @@ public class Orderbook {
     private PriceNodeList buyOrders;
     private PriceNodeList sellOrders;
     private WaitingOrders waitingQueue;
-    private CopyOnWriteArraySet<AsynchronousSocketChannel> connections = new CopyOnWriteArraySet<>();
+    private CopyOnWriteArraySet<Trader> connectedTraders = new CopyOnWriteArraySet<>();
     private AddHistory addHistory;
 
     public Orderbook(Product product) {
@@ -49,17 +48,23 @@ public class Orderbook {
 
     }
 
-    public void bindConnection(AsynchronousSocketChannel client) {
-        this.connections.add(client);
+    public void bindConnection(Trader trader) {
+        this.connectedTraders.add(trader);
     }
 
-    public void removeConnection(AsynchronousSocketChannel client) {
-        this.connections.remove(client);
+    public void removeConnection(Trader trader) {
+        this.connectedTraders.remove(trader);
     }
 
     public void broadcast(String message) {
-        for (AsynchronousSocketChannel client : connections) {
-            client.write(ByteBuffer.wrap(message.getBytes()));
+        for (Trader trader : connectedTraders) {
+            synchronized (trader.getConnection()) {
+                try {
+                    trader.getConnection().write(ByteBuffer.wrap(message.getBytes())).get();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
