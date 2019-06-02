@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class TradehistoryaccessApplication {
 
     public static void main(String[] args) {
+
         SpringApplication.run(TradehistoryaccessApplication.class, args);
     }
 
