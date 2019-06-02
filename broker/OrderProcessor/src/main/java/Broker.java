@@ -18,12 +18,29 @@ public class Broker {
 
         startupGateway();
 
-        block();
+        int count = 0;
+        while (true) {
+            count++;
+            try {
+                Thread.sleep(1000);
+                System.out.printf("count changed to _%d_\n", count);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            for (Product product : products.keySet()) {
+                products.get(product).broadcast(product.getProductId() + ":" + count);
+            }
+        }
+//        block();
     }
 
     private static void initializeOrderBookMap() {
         Product testProduct = new Product("test");
-        products.put(testProduct, new Orderbook(testProduct));
+        products.putIfAbsent(testProduct, new Orderbook(testProduct));
+        Product testProduct1 = new Product("test1");
+        products.putIfAbsent(testProduct1, new Orderbook(testProduct1));
+        Product testProduct2 = new Product("test2");
+        products.putIfAbsent(testProduct2, new Orderbook(testProduct2));
     }
 
     private static void startupGateway() {
