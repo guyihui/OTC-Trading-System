@@ -1,24 +1,20 @@
-package com.tradehistoryaccess.Service.BrokerService.OrderBook; /***********************************************************************
- * Module:  Orderbook.java
- * Author:  gyh
- * Purpose: Defines the Class Orderbook
- ***********************************************************************/
+package com.tradehistoryaccess.Service.BrokerService.OrderBook;
 
 import com.tradehistoryaccess.Entity.DoneOrderRaw;
 import com.tradehistoryaccess.Service.BrokerService.History.AddHistory;
+
+import java.nio.ByteBuffer;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 
 public class Orderbook {
     private String brokerName = "";
 
     private Product product;
-
     private PriceNodeList buyOrders;
-
     private PriceNodeList sellOrders;
-
     private WaitingOrders waitingQueue;
-
+    private CopyOnWriteArraySet<Trader> connectedTraders = new CopyOnWriteArraySet<>();
     private AddHistory addHistory;
 
     public Orderbook(Product product) {
@@ -52,8 +48,24 @@ public class Orderbook {
 
     }
 
-    public void run() {
+    public void bindConnection(Trader trader) {
+        this.connectedTraders.add(trader);
+    }
 
+    public void removeConnection(Trader trader) {
+        this.connectedTraders.remove(trader);
+    }
+
+    public void broadcast(String message) {
+        for (Trader trader : connectedTraders) {
+            synchronized (trader.getConnection()) {
+                try {
+                    trader.getConnection().write(ByteBuffer.wrap(message.getBytes())).get();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     public Boolean addBuyLimit() {
@@ -337,7 +349,7 @@ public class Orderbook {
     public Boolean addWOOrder(Order order) {
         String type = order.getOrderType();
         String buyOrSell = order.getSellOrBuy();
-        System.out.println("add order type"+type);
+        System.out.println("add order type" + type);
         switch (type) {
 
             case "limit":

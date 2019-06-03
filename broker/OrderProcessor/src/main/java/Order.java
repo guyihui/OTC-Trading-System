@@ -22,12 +22,12 @@ public class Order {
         this.orderType = type;
     }
 
-   public Order(String id, String type, Integer price,String sellOrBuy) {
-      this.orderId = id;
-      this.orderType = type;
-      this.price = price;
-      this.sellOrBuy = sellOrBuy;
-   }
+    public Order(String id, String type, Integer price, String sellOrBuy) {
+        this.orderId = id;
+        this.orderType = type;
+        this.price = price;
+        this.sellOrBuy = sellOrBuy;
+    }
 
     public Order(String id, String type, Product product, String sellOrBuy, Trader trader,
                  Integer total, Integer price, String cancelId) {

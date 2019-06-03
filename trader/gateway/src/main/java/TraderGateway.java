@@ -10,9 +10,9 @@ public class TraderGateway {
 
     public static void main(String[] args) {
         //init map entry
-        Product product1 = new Product("test1");
+        Product product1 = new Product("01");
         connectionMap.putIfAbsent(product1, new ProductChannels(product1));
-        Product product2 = new Product("test2");
+        Product product2 = new Product("02");
         connectionMap.putIfAbsent(product2, new ProductChannels(product2));
 
         BrokerChannel brokerChannel = getBrokerChannel(new InetSocketAddress("127.0.0.1", 8888));
