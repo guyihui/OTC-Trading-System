@@ -1,14 +1,14 @@
 package com.tradehistoryaccess.Service.BrokerService;
 
-import com.tradehistoryaccess.Service.BrokerService.OrderBook.Order;
-import com.tradehistoryaccess.Service.BrokerService.OrderBook.Orderbook;
-import com.tradehistoryaccess.Service.BrokerService.OrderBook.Product;
-import com.tradehistoryaccess.Service.BrokerService.OrderBook.ServerSocketChannelAcceptHandle;
+import com.tradehistoryaccess.Service.BrokerService.OrderBook.*;
+import com.tradehistoryaccess.Service.BrokerService.Backend2UiSocket.WebSocketTest;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousServerSocketChannel;
@@ -25,6 +25,9 @@ public class Broker implements InitializingBean {
     private static ConcurrentHashMap<Product, Orderbook> orderBookMap = new ConcurrentHashMap<>();
     private static final String brokerName = "RedPanda-broker-prototype";
     private static final Object waitObject = new Object();
+
+    @Autowired
+    private static WebSocketTest websocketTest;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -43,20 +46,9 @@ public class Broker implements InitializingBean {
 
 
         startupGateway();
-        int count = 0;
-        while (true) {
-            count++;
-            try {
-                Thread.sleep(1000);
-                System.out.printf("count changed to _%d_\n", count);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            for (Product product : orderBookMap.keySet()) {
-                orderBookMap.get(product).broadcast(product.getProductId() + ":" + count);
-            }
-        }
-//        block();
+        Thread thread1 = new Thread(new TestSocketThread());
+        thread1.start();
+
     }
 
     public Boolean addOrder(Order order) {
@@ -97,6 +89,39 @@ public class Broker implements InitializingBean {
                 waitObject.wait();
             } catch (InterruptedException e) {
                 e.printStackTrace();
+            }
+        }
+    }
+
+    static class TestSocketThread implements Runnable{
+        public void run(){
+            int count = 0;
+            try {
+                Thread.sleep(4000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            while (true) {
+                System.out.println("count:"+count);
+                Order testOrder =new Order("test"+count, "limit",(count%2==0)?(1000+count%20):(1031-count%20),(count%2==0)?"buy":"sell");
+                testOrder.setRemainingQuantity(50+count%20);
+                testOrder.setTotalQuantity(100+count%20);
+                Trader trader=new Trader("1","CorpA");
+                testOrder.setTrader(trader);
+                testOrder.setTime(System.currentTimeMillis());
+                //orderBookMap.get(new Product((count%2==0)?"01":"02")).addWOBuyLimit(testOrder);
+                orderBookMap.get(new Product((count%3==0)?"02":"01")).addWOOrder(testOrder);
+//                try {
+//                    websocketTest.sendMessage(orderBookMap.get(new Product((count%3==0)?"02":"01")).getBuyOrders(),orderBookMap.get(new Product((count%3==0)?"02":"01")).getSellOrders(),new Product((count%3==0)?"02":"01"));
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                count++;
             }
         }
     }

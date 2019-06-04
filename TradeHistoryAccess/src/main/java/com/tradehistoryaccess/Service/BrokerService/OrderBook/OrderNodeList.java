@@ -1,5 +1,9 @@
 package com.tradehistoryaccess.Service.BrokerService.OrderBook;
 
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 public class OrderNodeList {
 
     private final OrderNode head = new OrderNode(null);
@@ -165,6 +169,23 @@ public class OrderNodeList {
             node = node.getNext();
         }
         return str.toString();
+    }
+
+    public JsonArray orderListToJsonArray() {
+        OrderNode node = this.head.getNext();
+        JsonArray orderArray = new JsonArray();
+        while (node != null) {
+            JsonObject jsonOrder = new JsonObject();
+            Order temp = node.getOrder();
+            jsonOrder.addProperty("orderId",temp.getOrderId());
+            jsonOrder.addProperty("company",temp.getTrader().getTraderCompany());
+            jsonOrder.addProperty("totalQuantity",temp.getTotalQuantity());
+            jsonOrder.addProperty("remainingQuantity",temp.getRemainingQuantity());
+            orderArray.add(jsonOrder);
+            node = node.getNext();
+        }
+        return orderArray;
+
     }
 
 }

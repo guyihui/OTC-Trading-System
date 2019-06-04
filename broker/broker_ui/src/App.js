@@ -127,20 +127,39 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
+let ws = new WebSocket("ws://localhost:8080/WebSocket");
+
+let msg = [
+    {
+        productId:"01",
+        productName:"gold",
+        productPeriod:"201907",
+    },
+    {
+        productId:"02",
+        productName:"oil",
+        productPeriod:"201908",
+    }];
+
 function App() {
     const classes = useStyles();
 
     const [selectedIndex, setSelectedIndex] = React.useState(0);
     const [values, setValues] = React.useState(dates[selectedIndex][0]);
+    const [orders, setOrders] = React.useState(
+        {
+            buyList: [],
+            sellList:[],
+        });
 
-    let ws = new WebSocket("ws://localhost:8080/WebSocket");
     ws.onopen = function() {
         console.log("open");
-        ws.send("company:A");
+        ws.send(JSON.stringify(msg[selectedIndex%2]));
     };
 
     ws.onmessage = function(evt) {
-        console.log(evt.data)
+        console.log(evt.data);
+        setOrders(JSON.parse(evt.data));
     };
 
     ws.onclose = function(evt) {
@@ -153,8 +172,11 @@ function App() {
     };
 
     function handleListItemClick(event, index) {
+        ws.close();
         setSelectedIndex(index);
         setValues(dates[index][0]);
+        ws = new WebSocket("ws://localhost:8080/WebSocket");
+        //ws.send(msg[index%2].toString());
     }
 
     function handleChange(event) {
@@ -236,7 +258,7 @@ function App() {
                     </div>
                     :
                     <div>
-                        <Orderbook buyList={orders[selectedIndex].buyOrders} sellList={orders[selectedIndex].sellOrders}/>
+                        <Orderbook buyList={orders.buyList} sellList={orders.sellList}/>
                     </div>
                 }
             </main>

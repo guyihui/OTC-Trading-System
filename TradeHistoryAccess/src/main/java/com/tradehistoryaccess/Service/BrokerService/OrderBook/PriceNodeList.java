@@ -4,6 +4,11 @@ package com.tradehistoryaccess.Service.BrokerService.OrderBook; /***************
  * Purpose: Defines the Class PriceNodeList
  ***********************************************************************/
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -392,7 +397,10 @@ public class PriceNodeList {
       if(depth == null){
          return null;
       }
-      return depth.candidateOrder();
+      this.lock();
+      Order ord = depth.candidateOrder();
+      this.unlock();
+      return ord;
    }
 
    public Boolean checkStop(int oldStopPrice,int newStopPrice) {
@@ -713,6 +721,25 @@ public class PriceNodeList {
          node = node.getNext();
       }
       return str.toString();
+   }
+
+   public JsonArray orderBooktoString(){
+      PriceNode node = this.depth;
+      if(node == null){
+          return null;
+      }
+       JsonArray nodeList = new JsonArray();
+          while (node != null) {
+              JsonObject priceNode = new JsonObject();
+              JsonArray temp = node.getLimitOrders().orderListToJsonArray();
+              if(temp != null){
+                  priceNode.addProperty("price", node.getPrice());
+                  priceNode.add("orderList",temp);
+                  nodeList.add(priceNode);
+              }
+              node = node.getNext();
+          }
+      return nodeList;
    }
 
 }
