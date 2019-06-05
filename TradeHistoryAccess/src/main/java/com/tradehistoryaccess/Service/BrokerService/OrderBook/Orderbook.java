@@ -14,9 +14,29 @@ public class Orderbook {
     @Autowired
     private static WebSocketTest websocketTest;
 
-    private String brokerName = "";
-
+    private String brokerName;
     private Product product;
+    private PriceNodeList buyOrders;
+    private PriceNodeList sellOrders;
+    private WaitingOrders waitingQueue;
+    private CopyOnWriteArraySet<Trader> connectedTraders = new CopyOnWriteArraySet<>();
+    private AddHistory addHistory;
+
+    public Orderbook(Product product, String brokerName) {
+        this.brokerName = brokerName;
+        this.product = product;
+        this.buyOrders = new PriceNodeList("buy", this);
+        this.sellOrders = new PriceNodeList("sell", this);
+        buyOrders.setOther(sellOrders);
+        sellOrders.setOther(buyOrders);
+        this.waitingQueue = new WaitingOrders(product);
+        this.addHistory = new AddHistory();
+        setUpOrderBook();
+    }
+
+    public Product getProduct() {
+        return product;
+    }
 
     public PriceNodeList getBuyOrders() {
         return buyOrders;
@@ -24,43 +44,6 @@ public class Orderbook {
 
     public PriceNodeList getSellOrders() {
         return sellOrders;
-    }
-
-    private PriceNodeList buyOrders;
-    private PriceNodeList sellOrders;
-    private WaitingOrders waitingQueue;
-    private CopyOnWriteArraySet<Trader> connectedTraders = new CopyOnWriteArraySet<>();
-    private AddHistory addHistory;
-
-    public Orderbook(Product product) {
-        this.product = product;
-        this.buyOrders = new PriceNodeList("buy");
-        this.sellOrders = new PriceNodeList("sell");
-        buyOrders.setOther(sellOrders);
-        sellOrders.setOther(buyOrders);
-        this.waitingQueue = new WaitingOrders(product);
-        this.addHistory = new AddHistory();
-        setUpOrderBook();
-    }
-
-    public Orderbook(Product product, String brokerName) {
-        this.brokerName = brokerName;
-        this.product = product;
-        this.buyOrders = new PriceNodeList("buy");
-        this.sellOrders = new PriceNodeList("sell");
-        buyOrders.setOther(sellOrders);
-        sellOrders.setOther(buyOrders);
-        this.waitingQueue = new WaitingOrders(product);
-        this.addHistory = new AddHistory();
-        setUpOrderBook();
-    }
-
-    public Orderbook(Product product, PriceNodeList buyOrders, PriceNodeList sellOrders, WaitingOrders waitingQueue) {
-        this.product = product;
-        this.buyOrders = buyOrders;
-        this.sellOrders = sellOrders;
-        this.waitingQueue = waitingQueue;
-
     }
 
     public void bindConnection(Trader trader) {
@@ -90,7 +73,7 @@ public class Orderbook {
                 buyOrders.addOrder(temp);
                 //尝试推送
                 try {
-                    websocketTest.sendMessage(buyOrders,sellOrders,product);
+                    websocketTest.sendMessage(buyOrders, sellOrders, product);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -107,7 +90,7 @@ public class Orderbook {
                 sellOrders.addOrder(temp);
                 //尝试推送
                 try {
-                    websocketTest.sendMessage(buyOrders,sellOrders,product);
+                    websocketTest.sendMessage(buyOrders, sellOrders, product);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -290,15 +273,11 @@ public class Orderbook {
                 }
             }
 
-
             if (candidateSell == null || candidateBuy == null) {
-
-
                 continue;      // no deal
             }
 
             //start deal
-
 
             String initTrader = "";
             String initCompany = "";
@@ -338,7 +317,7 @@ public class Orderbook {
                     //交易完成，移除现有market
                     //尝试推送
                     try {
-                        websocketTest.sendMessage(buyOrders,sellOrders,product);
+                        websocketTest.sendMessage(buyOrders, sellOrders, product);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -401,26 +380,6 @@ public class Orderbook {
                 return waitingQueue.addCancel(order);
         }
         return false;
-    }
-
-    public Boolean addWOBuyLimit(Order order) {
-        return waitingQueue.addBuyLimit(order);
-    }
-
-    public Boolean addWOSellLimit(Order order) {
-        return waitingQueue.addSellLimit(order);
-    }
-
-    public Boolean addWOStop(Order order) {
-        return waitingQueue.addStop(order);
-    }
-
-    public Boolean addWOCancel(Order order) {
-        return waitingQueue.addCancel(order);
-    }
-
-    public Boolean addWOMarket(Order order) {
-        return waitingQueue.addMarket(order);
     }
 
     public void setUpOrderBook() {

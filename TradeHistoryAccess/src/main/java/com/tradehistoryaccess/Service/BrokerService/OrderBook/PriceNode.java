@@ -1,8 +1,4 @@
-package com.tradehistoryaccess.Service.BrokerService.OrderBook; /***********************************************************************
- * Module:  PriceNode.java
- * Author:  gyh
- * Purpose: Defines the Class PriceNode
- ***********************************************************************/
+package com.tradehistoryaccess.Service.BrokerService.OrderBook;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -10,80 +6,79 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class PriceNode {
 
-   private int price;
-   private OrderNodeList orders;
-   private PriceNode next;
-   private Lock lock = new ReentrantLock();
+    private int price;
+    private OrderNodeList orders;
+    private PriceNode next;
+    private Lock lock = new ReentrantLock();
 
-   public void lock() {
-      this.lock.lock();
-   }
+    public void lock() {
+        this.lock.lock();
+    }
 
-   public void unlock() {
-      this.lock.unlock();
-   }
+    public void unlock() {
+        this.lock.unlock();
+    }
 
-   public PriceNode(int price){
-      this.price=price;
-      orders=new OrderNodeList();
-   }
+    public PriceNode(int price) {
+        this.price = price;
+        orders = new OrderNodeList();
+    }
 
-   public PriceNode(){
+    public PriceNode() {
 
-   }
+    }
 
-   public Boolean addOrder(Order order) {
-      return orders.add(order);
-   }
+    public Boolean addOrder(Order order) {
+        return orders.add(order);
+    }
 
-   public Order cancelOrder(Order order) {
-      return orders.cancelOrder(order);
-   }
+    public Order cancelOrder(Order order) {
+        return orders.cancelOrder(order);
+    }
 
-   public Order candidateOrder() {
-      return orders.candidateOrder();
-   }
+    public Order candidateOrder() {
+        return orders.candidateOrder();
+    }
 
-   public Boolean removeOrder(Order order) {
-      return orders.removeOrder(order);
-   }
+    public Boolean removeOrder(Order order) {
+        return orders.removeOrder(order);
+    }
 
-   public int isEmpty(){
-      if(orders.isEmpty()){
-         return 1;
-      }
-      else{
-         return 0;
-      }
-   }
+    public int isEmpty() {
+        if (orders.isEmpty()) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
 
-   public Boolean checkStop() {
-      return null;
-   }
+    public Boolean activateStop() {
+        return orders.activateStop() != null;
+    }
 
-   public int getPrice() {
-      return price;
-   }
+    public int getPrice() {
+        return price;
+    }
 
-   public void setPrice(int price) {
-      this.price = price;
-   }
+    public void setPrice(int price) {
+        this.price = price;
+    }
 
-   public OrderNodeList getOrders() {
-      return orders;
-   }
+    public OrderNodeList getOrders() {
+        return orders;
+    }
 
-   public void setOrders(OrderNodeList orders) {
-      this.orders = orders;
-   }
+    public void setOrders(OrderNodeList orders) {
+        this.orders = orders;
+    }
 
 
-   public PriceNode getNext() {
-      return next;
-   }
+    public PriceNode getNext() {
+        return next;
+    }
 
-   public void setNext(PriceNode next) {
-      this.next = next;
-   }
+    public void setNext(PriceNode next) {
+        this.next = next;
+    }
 
 }
