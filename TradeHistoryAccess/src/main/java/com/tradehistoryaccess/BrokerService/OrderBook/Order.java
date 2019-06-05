@@ -24,12 +24,12 @@ public class Order {
         this.orderType = type;
     }
 
-   public Order(String id, String type, Integer price,String sellOrBuy) {
-      this.orderId = id;
-      this.orderType = type;
-      this.price = price;
-      this.sellOrBuy = sellOrBuy;
-   }
+    public Order(String id, String type, Integer price, String sellOrBuy) {
+        this.orderId = id;
+        this.orderType = type;
+        this.price = price;
+        this.sellOrBuy = sellOrBuy;
+    }
 
     public Order(String id, String type, Product product, String sellOrBuy, Trader trader,
                  Integer total, Integer price, String cancelId) {
@@ -45,6 +45,16 @@ public class Order {
         this.cancelId = cancelId;
     }
 
+    public boolean priceBetterThan(int anotherPrice) {
+        if (this.getSellOrBuy().equals("sell")) {
+            return this.price < anotherPrice;
+        } else if (this.getSellOrBuy().equals("buy")) {
+            return this.price > anotherPrice;
+        } else {
+            return false;
+        }
+    }
+
     public void lock() {
         this.lock.lock();
     }
@@ -58,12 +68,7 @@ public class Order {
     }
 
     public void stopToLimit() {
-        this.orderType = "stop->limit";
-    }
-
-    public Integer fill() {
-        // TODO: implement
-        return null;
+        this.orderType = "limit";
     }
 
     public String getOrderId() {

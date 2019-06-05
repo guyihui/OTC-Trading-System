@@ -1,16 +1,31 @@
-package com.tradehistoryaccess.BrokerService.OrderBook;
+package com.tradehistoryaccess.Service.BrokerService.OrderBook;
 
-import com.tradehistoryaccess.BrokerService.History.AddHistory;
 import com.tradehistoryaccess.Entity.DoneOrderRaw;
+import com.tradehistoryaccess.Service.BrokerService.Backend2UiSocket.WebSocketTest;
+import com.tradehistoryaccess.Service.BrokerService.History.AddHistory;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 
 public class Orderbook {
+    @Autowired
+    private static WebSocketTest websocketTest;
+
     private String brokerName = "";
 
     private Product product;
+
+    public PriceNodeList getBuyOrders() {
+        return buyOrders;
+    }
+
+    public PriceNodeList getSellOrders() {
+        return sellOrders;
+    }
+
     private PriceNodeList buyOrders;
     private PriceNodeList sellOrders;
     private WaitingOrders waitingQueue;
@@ -73,6 +88,12 @@ public class Orderbook {
             try {
                 Order temp = waitingQueue.getBuyLimit();
                 buyOrders.addOrder(temp);
+                //尝试推送
+                try {
+                    websocketTest.sendMessage(buyOrders,sellOrders,product);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -84,6 +105,12 @@ public class Orderbook {
             try {
                 Order temp = waitingQueue.getSellLimit();
                 sellOrders.addOrder(temp);
+                //尝试推送
+                try {
+                    websocketTest.sendMessage(buyOrders,sellOrders,product);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -309,6 +336,12 @@ public class Orderbook {
 //                    System.out.flush();
                     waitingQueue.getMarket();
                     //交易完成，移除现有market
+                    //尝试推送
+                    try {
+                        websocketTest.sendMessage(buyOrders,sellOrders,product);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             } else {
 //                System.out.println("buy reset quantity");
