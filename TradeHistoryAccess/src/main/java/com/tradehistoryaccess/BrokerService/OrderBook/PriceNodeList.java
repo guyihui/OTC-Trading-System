@@ -839,55 +839,43 @@ public class PriceNodeList {
    }
 
    public String toString(){
-//      PriceNode node = this.head;
-//      int count = 0;
-//      StringBuilder str = new StringBuilder();
-//      str.append("Test:"+Thread.currentThread().toString()+"\n");
-//      while (node != null) {
-//         if(node!=depth) {
-//            str.append("PriceNode_");
-//         }
-//         else{
-//            str.append("DepthNode_");
-//         }
-//         str.append(++count);
-//         str.append(": ");
-//         str.append(node.getPrice()+"\n");
-//         str.append("Limit:\n");
-//         str.append(node.getLimitOrders().toString());
-//         str.append("------------------------------\n");
-//         str.append("Stop:\n");
-//         if(node.getStopOrders()!=null) {
-//            str.append(node.getStopOrders().toString());
-//         }
-//         str.append("------------------------------\n");
-//         str.append("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-//         node = node.getNext();
-//      }
-//      return str.toString();
+      PriceNode node = this.limitHead;
+      int count = 0;
+      StringBuilder str = new StringBuilder();
+      str.append("Test:"+Thread.currentThread().toString()+"\n");
+      while (node.getNext() != null) {
+         if(node!=limitHead) {
+            str.append("PriceNode_");
+         }
+         else{
+            str.append("DepthNode_");
+         }
+         str.append(++count);
+         str.append(": ");
+         str.append(node.getPrice()+"\n");
+         str.append("Limit:\n");
+         str.append(node.getOrders().toString());
+         str.append("------------------------------\n");
+         str.append("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+         node = node.getNext();
+      }
+      return str.toString();
 
-       return null;
    }
 
    public JsonArray orderBooktoString(){
-//      PriceNode node = this.depth;
-//      if(node == null){
-//          return null;
-//      }
-//       JsonArray nodeList = new JsonArray();
-//          while (node != null) {
-//              JsonObject priceNode = new JsonObject();
-//              JsonArray temp = node.getLimitOrders().orderListToJsonArray();
-//              if(temp != null){
-//                  priceNode.addProperty("price", node.getPrice());
-//                  priceNode.add("orderList",temp);
-//                  nodeList.add(priceNode);
-//              }
-//              node = node.getNext();
-//          }
-//      return nodeList;
-//   }
-
-       return null;
+       PriceNode node = this.limitHead;
+       JsonArray nodeList = new JsonArray();
+       while (node.getNext() != null) {
+           JsonObject priceNode = new JsonObject();
+           JsonArray temp = node.getNext().getOrders().orderListToJsonArray();
+           if(temp != null){
+               priceNode.addProperty("price", node.getNext().getPrice());
+               priceNode.add("orderList",temp);
+               nodeList.add(priceNode);
+           }
+           node = node.getNext();
+       }
+       return nodeList;
     }
 }
