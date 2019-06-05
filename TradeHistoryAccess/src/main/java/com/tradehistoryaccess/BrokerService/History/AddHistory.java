@@ -1,4 +1,4 @@
-package com.tradehistoryaccess.Service.BrokerService.History;
+package com.tradehistoryaccess.BrokerService.History;
 
 
 import com.tradehistoryaccess.Entity.DoneOrderRaw;

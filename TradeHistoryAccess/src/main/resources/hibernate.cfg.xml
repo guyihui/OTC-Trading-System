@@ -8,7 +8,7 @@
         <property name="connection.url">jdbc:mysql://localhost:3306/otc</property>
         <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
         <property name="connection.username">root</property>
-        <property name="connection.password">980421</property>
+        <property name="connection.password">123456</property>
         <property name="hibernate.current_session_context_class">thread</property>
         <mapping class="com.tradehistoryaccess.Entity.Tradehistory"/>
 

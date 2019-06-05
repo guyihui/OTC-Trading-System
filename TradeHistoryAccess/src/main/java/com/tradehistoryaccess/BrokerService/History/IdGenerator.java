@@ -1,4 +1,4 @@
-package com.tradehistoryaccess.Service.BrokerService.History;
+package com.tradehistoryaccess.BrokerService.History;
 
 public class IdGenerator {
     private final long startTime=0L;

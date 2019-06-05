@@ -1,4 +1,4 @@
-package com.tradehistoryaccess.Service.BrokerService.OrderBook;
+package com.tradehistoryaccess.BrokerService.OrderBook;
 
 public class OrderNodeList {
 

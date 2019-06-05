@@ -1,9 +1,9 @@
-package com.tradehistoryaccess.Service.BrokerService;
+package com.tradehistoryaccess.BrokerService;
 
-import com.tradehistoryaccess.Service.BrokerService.OrderBook.Order;
-import com.tradehistoryaccess.Service.BrokerService.OrderBook.Orderbook;
-import com.tradehistoryaccess.Service.BrokerService.OrderBook.Product;
-import com.tradehistoryaccess.Service.BrokerService.OrderBook.ServerSocketChannelAcceptHandle;
+import com.tradehistoryaccess.BrokerService.OrderBook.Order;
+import com.tradehistoryaccess.BrokerService.OrderBook.Product;
+import com.tradehistoryaccess.BrokerService.OrderBook.ServerSocketChannelAcceptHandle;
+import com.tradehistoryaccess.BrokerService.OrderBook.Orderbook;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
@@ -12,8 +12,6 @@ import org.springframework.stereotype.Service;
 import java.net.InetSocketAddress;
 import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousServerSocketChannel;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -43,20 +41,11 @@ public class Broker implements InitializingBean {
 
 
         startupGateway();
-        int count = 0;
-        while (true) {
-            count++;
-            try {
-                Thread.sleep(1000);
-                System.out.printf("count changed to _%d_\n", count);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            for (Product product : orderBookMap.keySet()) {
-                orderBookMap.get(product).broadcast(product.getProductId() + ":" + count);
-            }
-        }
-//        block();
+
+        Thread th=new Thread(new testBroadcastTh());
+        th.start();
+
+
     }
 
     public Boolean addOrder(Order order) {
@@ -97,6 +86,25 @@ public class Broker implements InitializingBean {
                 waitObject.wait();
             } catch (InterruptedException e) {
                 e.printStackTrace();
+            }
+        }
+    }
+    class testBroadcastTh implements Runnable{
+
+        @Override
+        public void run() {
+            int count = 0;
+            while (true) {
+                count++;
+                try {
+                    Thread.sleep(1000);
+                    System.out.printf("count changed to _%d_\n", count);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                for (Product product : orderBookMap.keySet()) {
+                    orderBookMap.get(product).broadcast(product.getProductId() + ":" + count);
+                }
             }
         }
     }
