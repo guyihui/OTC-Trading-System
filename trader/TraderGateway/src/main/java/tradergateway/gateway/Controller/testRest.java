@@ -19,8 +19,9 @@ public class testRest {
 
     @GetMapping(value = "/test")
     public String test(){
-         orderService.sendLimitOrder("01","buy",1000,15,"01","gold","201907","SB1");
-         orderService.sendLimitOrder("01","sell",1000,15,"01","gold","201907","SB2");
+         String id=orderService.sendLimitOrder("01","buy",1000,15,"01","gold","201907","aaa1");
+         orderService.sendCancel("01","buy",1000,"01","gold","201907",id,"aaa1");
+         orderService.sendLimitOrder("01","sell",1000,15,"01","gold","201907","aaa2");
 
          return "";
     }
