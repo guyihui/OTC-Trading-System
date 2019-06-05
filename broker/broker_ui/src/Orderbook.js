@@ -42,54 +42,58 @@ function createData(sellLevel, sellAmount, sellOrders, price, buyOrders, buyAmou
 }
 
 const buyList = [
-    {price:1260,orders:[{lastAmount:50,totalAmount:100,company:"Morgan Stanley"},{lastAmount:150,totalAmount:150,company:"Morgan Stanley"}]},
-    {price:1251,orders:[{lastAmount:50,totalAmount:100,company:"Morgan Stanley"},{lastAmount:50,totalAmount:100,company:"Morgan Stanley"},{lastAmount:50,totalAmount:100,company:"Morgan Stanley"}]},
-    {price:1179,orders:[{lastAmount:50,totalAmount:100,company:"Morgan Stanley"},{lastAmount:52,totalAmount:100,company:"Morgan Stanley"},{lastAmount:51,totalAmount:100,company:"Smith"}]},
-    {price:1177,orders:[{lastAmount:50,totalAmount:100,company:"Morgan Stanley"},{lastAmount:50,totalAmount:100,company:"Morgan Stanley"},{lastAmount:50,totalAmount:100,company:"Morgan Stanley"}]},
-    {price:1176,orders:[{lastAmount:50,totalAmount:100,company:"Morgan Stanley"},{lastAmount:50,totalAmount:100,company:"Morgan Stanley"},{lastAmount:50,totalAmount:100,company:"Morgan Stanley"}]},
-    {price:1150,orders:[{lastAmount:50,totalAmount:100,company:"Morgan Stanley"},{lastAmount:50,totalAmount:100,company:"Morgan Stanley"},{lastAmount:50,totalAmount:100,company:"Morgan Stanley"}]},
-    {price:1145,orders:[{lastAmount:50,totalAmount:100,company:"Morgan Stanley"},{lastAmount:50,totalAmount:100,company:"Morgan Stanley"},{lastAmount:50,totalAmount:100,company:"Morgan Stanley"}]},
-    {price:1144,orders:[{lastAmount:50,totalAmount:100,company:"Morgan Stanley"},{lastAmount:50,totalAmount:100,company:"Morgan Stanley"},{lastAmount:50,totalAmount:100,company:"Morgan Stanley"}]},
-    {price:1135,orders:[{lastAmount:50,totalAmount:100,company:"Morgan Stanley"},{lastAmount:50,totalAmount:100,company:"Morgan Stanley"},{lastAmount:50,totalAmount:100,company:"Morgan Stanley"}]}];
+    {price:1260,orders:[{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"},{remainingQuantity:150,totalQuantity:150,company:"Morgan Stanley"}]},
+    {price:1251,orders:[{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"},{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"},{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"}]},
+    {price:1179,orders:[{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"},{remainingQuantity:52,totalQuantity:100,company:"Morgan Stanley"},{remainingQuantity:51,totalQuantity:100,company:"Smith"}]},
+    {price:1177,orders:[{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"},{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"},{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"}]},
+    {price:1176,orders:[{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"},{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"},{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"}]},
+    {price:1150,orders:[{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"},{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"},{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"}]},
+    {price:1145,orders:[{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"},{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"},{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"}]},
+    {price:1144,orders:[{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"},{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"},{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"}]},
+    {price:1135,orders:[{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"},{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"},{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"}]}];
 const sellList = [
-    {price:1235,orders:[{lastAmount:50,totalAmount:100,company:"Morgan Stanley"},{lastAmount:103,totalAmount:130,company:"Morgan Stanley"},{lastAmount:50,totalAmount:100,company:"Morgan Stanley"}]},
-    {price:1251,orders:[{lastAmount:50,totalAmount:100,company:"Morgan Stanley"},{lastAmount:80,totalAmount:100,company:"Morgan Stanley"},{lastAmount:50,totalAmount:100,company:"Morgan Stanley"}]},
-    {price:1266,orders:[{lastAmount:50,totalAmount:100,company:"Morgan Stanley"},{lastAmount:3,totalAmount:100,company:"Morgan Stanley"},{lastAmount:50,totalAmount:100,company:"Morgan Stanley"}]},
-    {price:1268,orders:[{lastAmount:50,totalAmount:100,company:"Morgan Stanley"},{lastAmount:50,totalAmount:100,company:"Morgan Stanley"},{lastAmount:50,totalAmount:100,company:"Morgan Stanley"}]},
-    {price:1270,orders:[{lastAmount:50,totalAmount:100,company:"Morgan Stanley"},{lastAmount:50,totalAmount:100,company:"Morgan Stanley"},{lastAmount:50,totalAmount:100,company:"Morgan Stanley"}]},
-    {price:1350,orders:[{lastAmount:50,totalAmount:100,company:"Morgan Stanley"},{lastAmount:50,totalAmount:100,company:"Morgan Stanley"},{lastAmount:50,totalAmount:100,company:"Morgan Stanley"}]},
-    {price:1399,orders:[{lastAmount:50,totalAmount:100,company:"Morgan Stanley"},{lastAmount:50,totalAmount:100,company:"Morgan Stanley"},{lastAmount:50,totalAmount:100,company:"Morgan Stanley"}]},
-    {price:1400,orders:[{lastAmount:50,totalAmount:100,company:"Morgan Stanley"},{lastAmount:50,totalAmount:100,company:"Morgan Stanley"},{lastAmount:50,totalAmount:100,company:"Morgan Stanley"}]}];
+    {price:1235,orders:[{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"},{remainingQuantity:103,totalQuantity:130,company:"Morgan Stanley"},{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"}]},
+    {price:1251,orders:[{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"},{remainingQuantity:80,totalQuantity:100,company:"Morgan Stanley"},{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"}]},
+    {price:1266,orders:[{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"},{remainingQuantity:3,totalQuantity:100,company:"Morgan Stanley"},{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"}]},
+    {price:1268,orders:[{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"},{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"},{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"}]},
+    {price:1270,orders:[{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"},{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"},{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"}]},
+    {price:1350,orders:[{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"},{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"},{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"}]},
+    {price:1399,orders:[{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"},{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"},{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"}]},
+    {price:1400,orders:[{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"},{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"},{remainingQuantity:50,totalQuantity:100,company:"Morgan Stanley"}]}];
 
 function createOrderList(buyList, sellList) {
-    let orderList = {};
-    for(let i=0;i<sellList.length;i++){
-        let amount = 0;
-        for(let j=0;j<sellList[i].orders.length;j++){
-            amount += sellList[i].orders[j].lastAmount;
-        }
-        orderList[sellList[i].price] = [amount,sellList[i].orders,i+1,null,null,null];
-    }
-    for(let i=0;i<buyList.length;i++){
-        if(orderList.hasOwnProperty(buyList[i].price)){
+    let orderll = {};
+    if(sellList!=null) {
+        for (let i = 0; i < sellList.length; i++) {
             let amount = 0;
-            for(let j=0;j<buyList[i].orders.length;j++){
-                amount += buyList[i].orders[j].lastAmount;
+            for (let j = 0; j < sellList[i].orderList.length; j++) {
+                amount += sellList[i].orderList[j].remainingQuantity;
             }
-            orderList[buyList[i].price][3] = amount;
-            orderList[buyList[i].price][4] = buyList[i].orders;
-            orderList[buyList[i].price][5] = i+1;
-        }
-        else{
-            let amount = 0;
-            for(let j=0;j<buyList[i].orders.length;j++){
-                amount += buyList[i].orders[j].lastAmount;
-            }
-            orderList[buyList[i].price] = [null,null,null,amount,buyList[i].orders,i+1];
+            orderll[sellList[i].price] = [amount, sellList[i].orderList, i + 1, null, null, null];
         }
     }
-    console.log(orderList);
-    return orderList;
+    if(buyList!=null) {
+        for (let i = 0; i < buyList.length; i++) {
+            if (orderll.hasOwnProperty(buyList[i].price)) {
+                let amount = 0;
+                for (let j = 0; j < buyList[i].orderList.length; j++) {
+                    amount += buyList[i].orderList[j].remainingQuantity;
+                }
+                orderll[buyList[i].price][3] = amount;
+                orderll[buyList[i].price][4] = buyList[i].orderList;
+                orderll[buyList[i].price][5] = i + 1;
+            }
+            else {
+                let amount = 0;
+                for (let j = 0; j < buyList[i].orderList.length; j++) {
+                    amount += buyList[i].orderList[j].remainingQuantity;
+                }
+                orderll[buyList[i].price] = [null, null, null, amount, buyList[i].orderList, i + 1];
+            }
+        }
+    }
+    console.log(orderll);
+    return orderll;
 }
 
 function createOrderbook(orderList){
@@ -221,10 +225,10 @@ class Orderbook extends Component{
                                         <ListItem>
                                             <Grid container spacing={1}>
                                                 <Grid item xs={4}>
-                                                    {order.lastAmount}
+                                                    {order.remainingQuantity}
                                                 </Grid>
                                                 <Grid item xs={4}>
-                                                    {order.totalAmount}
+                                                    {order.totalQuantity}
                                                 </Grid>
                                                 <Grid item xs={4}>
                                                     {order.company}
@@ -253,10 +257,10 @@ class Orderbook extends Component{
                                         <ListItem>
                                             <Grid container spacing={1}>
                                                 <Grid item xs={4}>
-                                                    {order.lastAmount}
+                                                    {order.remainingQuantity}
                                                 </Grid>
                                                 <Grid item xs={4}>
-                                                    {order.totalAmount}
+                                                    {order.totalQuantity}
                                                 </Grid>
                                                 <Grid item xs={4}>
                                                     {order.company}

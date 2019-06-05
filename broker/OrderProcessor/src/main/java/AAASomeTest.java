@@ -155,7 +155,7 @@ public class AAASomeTest {
 //                candi = priceList.candidateOrder();
 //            }
 //            candi.unlock();
-            System.out.println(sellPriceList.toString());
+            //System.out.println(sellPriceList.toString());
         }
     }
 

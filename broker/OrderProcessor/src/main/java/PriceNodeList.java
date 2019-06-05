@@ -4,6 +4,8 @@
  * Purpose: Defines the Class PriceNodeList
  ***********************************************************************/
 
+import com.google.gson.Gson;
+
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -693,24 +695,27 @@ public class PriceNodeList {
       StringBuilder str = new StringBuilder();
       str.append("Test:"+Thread.currentThread().toString()+"\n");
       while (node != null) {
-         if(node!=depth) {
-            str.append("PriceNode_");
-         }
-         else{
-            str.append("DepthNode_");
-         }
-         str.append(++count);
-         str.append(": ");
-         str.append(node.getPrice()+"\n");
-         str.append("Limit:\n");
-         str.append(node.getLimitOrders().toString());
-         str.append("------------------------------\n");
-         str.append("Stop:\n");
-         if(node.getStopOrders()!=null) {
-            str.append(node.getStopOrders().toString());
-         }
-         str.append("------------------------------\n");
-         str.append("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+//         if(node!=depth) {
+//            str.append("PriceNode_");
+//         }
+//         else{
+//            str.append("DepthNode_");
+//         }
+//         str.append(++count);
+//         str.append(": ");
+//         str.append(node.getPrice()+"\n");
+//         str.append("Limit:\n");
+//         str.append(node.getLimitOrders().toString());
+//         str.append("------------------------------\n");
+//         str.append("Stop:\n");
+//         if(node.getStopOrders()!=null) {
+//            str.append(node.getStopOrders().toString());
+//         }
+//         str.append("------------------------------\n");
+//         str.append("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+         Gson gson = new Gson();
+         String json = gson.toJson(node);
+         str.append(json);
          node = node.getNext();
       }
       return str.toString();

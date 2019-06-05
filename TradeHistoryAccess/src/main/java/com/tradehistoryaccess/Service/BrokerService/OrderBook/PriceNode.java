@@ -11,8 +11,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class PriceNode {
 
    private int price;
-   private OrderNodeList limitOrders;
-   private OrderNodeList stopOrders;
+   private OrderNodeList orders;
    private PriceNode next;
    private Lock lock = new ReentrantLock();
 
@@ -26,63 +25,40 @@ public class PriceNode {
 
    public PriceNode(int price){
       this.price=price;
-      limitOrders=new OrderNodeList();
-      stopOrders=new OrderNodeList();
+      orders=new OrderNodeList();
+   }
+
+   public PriceNode(){
+
    }
 
    public Boolean addOrder(Order order) {
-      if(order.getOrderType().equals("stop")){
-         return stopOrders.add(order);
-      }
-      else{
-         return limitOrders.add(order);
-      }
+      return orders.add(order);
    }
 
    public Order cancelOrder(Order order) {
-      if(order.getOrderType().equals("stop")){
-         return stopOrders.cancelOrder(order);
-      }
-      else{
-         return limitOrders.cancelOrder(order);
-      }
+      return orders.cancelOrder(order);
    }
 
    public Order candidateOrder() {
-      return limitOrders.candidateOrder();
+      return orders.candidateOrder();
    }
 
    public Boolean removeOrder(Order order) {
-      if(order.getOrderType().equals("stop")){
-         return stopOrders.removeOrder(order);
-      }
-      else{
-         return limitOrders.removeOrder(order);
-      }
+      return orders.removeOrder(order);
    }
 
    public int isEmpty(){
-      if(limitOrders.isEmpty() == true && stopOrders.isEmpty() == true){
-         return 0;
-      }
-      if(limitOrders.isEmpty() == true){
+      if(orders.isEmpty()){
          return 1;
       }
-      else if(stopOrders.isEmpty() == true){
-         return 2;
-      }
       else{
-         return 3;
+         return 0;
       }
    }
 
    public Boolean checkStop() {
-      if(stopOrders.isEmpty() == true){
-         return false;
-      }
-      limitOrders.concat(stopOrders.activateStop());
-      stopOrders = null;
-      return true;
+      return null;
    }
 
    public int getPrice() {
@@ -93,21 +69,14 @@ public class PriceNode {
       this.price = price;
    }
 
-   public OrderNodeList getLimitOrders() {
-      return limitOrders;
+   public OrderNodeList getOrders() {
+      return orders;
    }
 
-   public void setLimitOrders(OrderNodeList limitOrders) {
-      this.limitOrders = limitOrders;
+   public void setOrders(OrderNodeList orders) {
+      this.orders = orders;
    }
 
-   public OrderNodeList getStopOrders() {
-      return stopOrders;
-   }
-
-   public void setStopOrders(OrderNodeList stopOrders) {
-      this.stopOrders = stopOrders;
-   }
 
    public PriceNode getNext() {
       return next;
