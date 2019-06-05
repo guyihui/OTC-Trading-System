@@ -24,46 +24,32 @@ import java.util.concurrent.Executors;
 public class Broker implements InitializingBean {
     private static ConcurrentHashMap<Product, Orderbook> orderBookMap = new ConcurrentHashMap<>();
     private static final String brokerName = "RedPanda-broker-prototype";
-    private static final Object waitObject = new Object();
 
     @Override
     public void afterPropertiesSet() throws Exception {
 
         Product gold = new Product("01", "gold", "201907");
-        Orderbook goldOrderbook = new Orderbook(gold);
-        goldOrderbook.setBrokerName("Broker1");
+        Orderbook goldOrderbook = new Orderbook(gold, brokerName);
 
         Product oil = new Product("02", "oil", "201908");
-        Orderbook oilOrderbook = new Orderbook(oil);
-        oilOrderbook.setBrokerName("Broker1");
+        Orderbook oilOrderbook = new Orderbook(oil, brokerName);
 
         orderBookMap.putIfAbsent(gold, goldOrderbook);
         orderBookMap.putIfAbsent(oil, oilOrderbook);
         System.out.println("initialize broker  complete");
 
-
         startupGateway();
-        int count = 0;
-        while (true) {
-            count++;
-            try {
-                Thread.sleep(1000);
-                System.out.printf("count changed to _%d_\n", count);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            for (Product product : orderBookMap.keySet()) {
-                orderBookMap.get(product).broadcast(product.getProductId() + ":" + count);
-            }
-        }
-//        block();
+
     }
 
     public Boolean addOrder(Order order) {
         Product product = order.getProduct();
+        if (product == null) {
+            return false;
+        }
         Orderbook orderbook = orderBookMap.get(product);
-        System.out.println("addorder broker name:" + orderbook.getBrokerName());
-        return orderbook.addWOOrder(order);
+        System.out.println("addOrder broker name:" + orderbook.getBrokerName());
+        return orderBookMap.containsKey(product) ? orderbook.addWOOrder(order) : false;
     }
 
     private void startupGateway() {
@@ -91,13 +77,4 @@ public class Broker implements InitializingBean {
         }
     }
 
-    private void block() {
-        synchronized (waitObject) {
-            try {
-                waitObject.wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 }
