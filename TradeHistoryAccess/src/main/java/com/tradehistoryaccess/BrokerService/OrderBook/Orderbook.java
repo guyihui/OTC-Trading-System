@@ -1,8 +1,8 @@
-package com.tradehistoryaccess.Service.BrokerService.OrderBook;
+package com.tradehistoryaccess.BrokerService.OrderBook;
 
 import com.tradehistoryaccess.Entity.DoneOrderRaw;
-import com.tradehistoryaccess.Service.BrokerService.Backend2UiSocket.WebSocketTest;
-import com.tradehistoryaccess.Service.BrokerService.History.AddHistory;
+import com.tradehistoryaccess.BrokerService.Backend2UiSocket.WebSocketTest;
+import com.tradehistoryaccess.BrokerService.History.AddHistory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -346,6 +346,11 @@ public class Orderbook {
             System.out.println("remove complete");
             System.out.flush();
 
+            try {
+                websocketTest.sendMessage(buyOrders,sellOrders,product);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
             candidateBuy.unlock();
             candidateSell.unlock();

@@ -1,7 +1,7 @@
-package com.tradehistoryaccess.Service.BrokerService;
+package com.tradehistoryaccess.BrokerService;
 
-import com.tradehistoryaccess.Service.BrokerService.OrderBook.*;
-import com.tradehistoryaccess.Service.BrokerService.Backend2UiSocket.WebSocketTest;
+import com.tradehistoryaccess.BrokerService.OrderBook.*;
+import com.tradehistoryaccess.BrokerService.Backend2UiSocket.WebSocketTest;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;

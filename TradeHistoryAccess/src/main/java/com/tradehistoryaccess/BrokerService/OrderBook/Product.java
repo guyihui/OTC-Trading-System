@@ -1,8 +1,4 @@
-package com.tradehistoryaccess.Service.BrokerService.OrderBook; /***********************************************************************
- * Module:  Product.java
- * Author:  gyh
- * Purpose: Defines the Class Product
- ***********************************************************************/
+package com.tradehistoryaccess.BrokerService.OrderBook;
 
 public class Product {
 
