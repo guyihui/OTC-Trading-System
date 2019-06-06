@@ -14,9 +14,29 @@ public class Orderbook {
     @Autowired
     private static WebSocketTest websocketTest;
 
-    private String brokerName = "";
-
+    private String brokerName;
     private Product product;
+    private PriceNodeList buyOrders;
+    private PriceNodeList sellOrders;
+    private WaitingOrders waitingQueue;
+    private CopyOnWriteArraySet<Trader> connectedTraders = new CopyOnWriteArraySet<>();
+    private AddHistory addHistory;
+
+    public Orderbook(Product product, String brokerName) {
+        this.brokerName = brokerName;
+        this.product = product;
+        this.buyOrders = new PriceNodeList("buy", this);
+        this.sellOrders = new PriceNodeList("sell", this);
+        buyOrders.setOther(sellOrders);
+        sellOrders.setOther(buyOrders);
+        this.waitingQueue = new WaitingOrders(product);
+        this.addHistory = new AddHistory();
+        setUpOrderBook();
+    }
+
+    public Product getProduct() {
+        return product;
+    }
 
     public PriceNodeList getBuyOrders() {
         return buyOrders;
@@ -24,43 +44,6 @@ public class Orderbook {
 
     public PriceNodeList getSellOrders() {
         return sellOrders;
-    }
-
-    private PriceNodeList buyOrders;
-    private PriceNodeList sellOrders;
-    private WaitingOrders waitingQueue;
-    private CopyOnWriteArraySet<Trader> connectedTraders = new CopyOnWriteArraySet<>();
-    private AddHistory addHistory;
-
-    public Orderbook(Product product) {
-        this.product = product;
-        this.buyOrders = new PriceNodeList("buy");
-        this.sellOrders = new PriceNodeList("sell");
-        buyOrders.setOther(sellOrders);
-        sellOrders.setOther(buyOrders);
-        this.waitingQueue = new WaitingOrders(product);
-        this.addHistory = new AddHistory();
-        setUpOrderBook();
-    }
-
-    public Orderbook(Product product, String brokerName) {
-        this.brokerName = brokerName;
-        this.product = product;
-        this.buyOrders = new PriceNodeList("buy");
-        this.sellOrders = new PriceNodeList("sell");
-        buyOrders.setOther(sellOrders);
-        sellOrders.setOther(buyOrders);
-        this.waitingQueue = new WaitingOrders(product);
-        this.addHistory = new AddHistory();
-        setUpOrderBook();
-    }
-
-    public Orderbook(Product product, PriceNodeList buyOrders, PriceNodeList sellOrders, WaitingOrders waitingQueue) {
-        this.product = product;
-        this.buyOrders = buyOrders;
-        this.sellOrders = sellOrders;
-        this.waitingQueue = waitingQueue;
-
     }
 
     public void bindConnection(Trader trader) {
@@ -84,16 +67,18 @@ public class Orderbook {
     }
 
     public Boolean addBuyLimit() {
+        long count = 0;
         while (true) {
+            System.err.println("add buy limit:" + count++);
             try {
                 Order temp = waitingQueue.getBuyLimit();
                 buyOrders.addOrder(temp);
                 //尝试推送
-                try {
-                    websocketTest.sendMessage(buyOrders,sellOrders,product);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+//                try {
+//                    websocketTest.sendMessage(buyOrders, sellOrders, product);
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -101,16 +86,18 @@ public class Orderbook {
     }
 
     public Boolean addSellLimit() {
+        long count = 0;
         while (true) {
+            System.err.println("add sell limit:" + count++);
             try {
                 Order temp = waitingQueue.getSellLimit();
                 sellOrders.addOrder(temp);
                 //尝试推送
-                try {
-                    websocketTest.sendMessage(buyOrders,sellOrders,product);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+//                try {
+//                    websocketTest.sendMessage(buyOrders, sellOrders, product);
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -118,7 +105,9 @@ public class Orderbook {
     }
 
     public void addStop() {
+        long count = 0;
         while (true) {
+            System.err.println("add stop:" + count++);
             try {
                 Order temp = waitingQueue.getStop();
                 if (temp.getSellOrBuy().equals("buy")) {
@@ -155,7 +144,13 @@ public class Orderbook {
 
 
     public void deal() {
+        long count = 0;
         while (true) {
+
+            if ((count++) % 5000000 == 0) {
+                System.err.println("deal:" + count);
+            }
+
             Order limitBuy;
             limitBuy = buyOrders.candidateOrder();
             Order limitSell;
@@ -164,8 +159,15 @@ public class Orderbook {
             String initFlag = "buy";
 
             if (limitBuy != null && limitSell != null) {
-//                System.out.println("candidate limit: " + limitBuy.getOrderId() + " and " + limitSell.getOrderId());
-//                System.out.flush();
+                if (limitBuy.getPrice() >= limitSell.getPrice()) {
+                    System.out.println(
+                            "candidate limit: "
+                                    + limitBuy.getOrderId() + "(" + limitBuy.getRemainingQuantity() + "," + limitBuy.getPrice() + ")"
+                                    + " and "
+                                    + limitSell.getOrderId() + "(" + limitSell.getRemainingQuantity() + "," + limitSell.getPrice() + ")"
+                    );
+                }
+                System.out.flush();
             }
             Order market = waitingQueue.peekMarket();
 
@@ -290,15 +292,11 @@ public class Orderbook {
                 }
             }
 
-
             if (candidateSell == null || candidateBuy == null) {
-
-
                 continue;      // no deal
             }
 
             //start deal
-
 
             String initTrader = "";
             String initCompany = "";
@@ -336,7 +334,6 @@ public class Orderbook {
 //                    System.out.flush();
                     waitingQueue.getMarket();
                     //交易完成，移除现有market
-                    //尝试推送
 
                 }
             } else {
@@ -362,19 +359,19 @@ public class Orderbook {
             }
             System.out.println("remove complete");
             System.out.flush();
-
-            try {
-                websocketTest.sendMessage(buyOrders,sellOrders,product);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
             candidateBuy.unlock();
             candidateSell.unlock();
+
             //交易结束
             Long time = System.currentTimeMillis();
             addHistory.add_order
                     (new DoneOrderRaw(brokerName, product.getProductId(), product.getProductPeriod(), dealPrice, quantity, initTrader, initCompany, initSide, compTrader, compCompany, compSide, time + ""));
+
+//            try {
+//                websocketTest.sendMessage(buyOrders, sellOrders, product);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
 
 
         }
@@ -383,7 +380,7 @@ public class Orderbook {
     public Boolean addWOOrder(Order order) {
         String type = order.getOrderType();
         String buyOrSell = order.getSellOrBuy();
-        System.out.println("add order type" + type);
+        System.out.println("add order type" + type + ",price:" + order.getPrice());
         switch (type) {
 
             case "limit":
@@ -402,26 +399,6 @@ public class Orderbook {
                 return waitingQueue.addCancel(order);
         }
         return false;
-    }
-
-    public Boolean addWOBuyLimit(Order order) {
-        return waitingQueue.addBuyLimit(order);
-    }
-
-    public Boolean addWOSellLimit(Order order) {
-        return waitingQueue.addSellLimit(order);
-    }
-
-    public Boolean addWOStop(Order order) {
-        return waitingQueue.addStop(order);
-    }
-
-    public Boolean addWOCancel(Order order) {
-        return waitingQueue.addCancel(order);
-    }
-
-    public Boolean addWOMarket(Order order) {
-        return waitingQueue.addMarket(order);
     }
 
     public void setUpOrderBook() {
@@ -488,7 +465,9 @@ public class Orderbook {
     class AddDbThread implements Runnable {
         public void run() {
             System.out.println("add history to DB thread  start....");
+            long count = 0;
             while (true) {
+                System.err.println("add DB:" + count++);
                 try {
                     addHistory.add_DB();
                 } catch (InterruptedException e) {
