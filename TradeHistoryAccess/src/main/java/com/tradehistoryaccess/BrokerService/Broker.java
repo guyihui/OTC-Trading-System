@@ -134,10 +134,13 @@ public class Broker implements InitializingBean {
                 double random = Math.random();
                 Order testOrder = new Order(
                         "test" + count,
-                        random < 0.2 ? "stop" : "limit",
+                        random < 0.2 ? "stop" : random < 0.4 ? "cancel" : "limit",
                         995 + (int) (11 * Math.random()),
                         Math.random() < 0.5 ? "buy" : "sell"
                 );
+                if (testOrder.getOrderType().equals("cancel")) {
+                    testOrder.setCancelId("test" + (int) count * Math.random());
+                }
                 int qqqq = Math.random() < 0.5 ? 20 + (int) (10 * Math.random()) : 1 + (int) (100 * Math.random());
                 testOrder.setRemainingQuantity(qqqq);
                 testOrder.setTotalQuantity(qqqq);
@@ -153,14 +156,14 @@ public class Broker implements InitializingBean {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                try {
-                    websocketTest.sendMessage(
-                            orderBookMap.get(new Product("01")).getBuyOrders(),
-                            orderBookMap.get(new Product("01")).getSellOrders(),
-                            new Product("01"));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+//                try {
+//                    websocketTest.sendMessage(
+//                            orderBookMap.get(new Product("01")).getBuyOrders(),
+//                            orderBookMap.get(new Product("01")).getSellOrders(),
+//                            new Product("01"));
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
                 count++;
             }
 
