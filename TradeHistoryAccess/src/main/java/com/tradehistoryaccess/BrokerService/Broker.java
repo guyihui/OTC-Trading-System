@@ -137,21 +137,25 @@ public class Broker implements InitializingBean {
 //                    e.printStackTrace();
 //                }
 
-//                double random = Math.random();
-//                Order testOrder = new Order(
-//                        "test" + count,
-//                        random < 0.2 ? "stop" : "limit",
-//                        995 + (int) (11 * Math.random()),
-//                        Math.random() < 0.5 ? "buy" : "sell"
-//                );
-//                int qqqq = Math.random() < 0.5 ? 20 + (int) (10 * Math.random()) : 1 + (int) (100 * Math.random());
-//                testOrder.setRemainingQuantity(qqqq);
-//                testOrder.setTotalQuantity(qqqq);
-//                Trader trader = new Trader("1", "CorpA");
-//                testOrder.setTrader(trader);
-//                testOrder.setTime(System.currentTimeMillis());
-//                //orderBookMap.get(new Product((count%2==0)?"01":"02")).addWOBuyLimit(testOrder);
-//                orderBookMap.get(new Product("01")).addWOOrder(testOrder);
+
+                double random = Math.random();
+                Order testOrder = new Order(
+                        "test" + count,
+                        random < 0.2 ? "stop" : random < 0.4 ? "cancel" : "limit",
+                        995 + (int) (11 * Math.random()),
+                        Math.random() < 0.5 ? "buy" : "sell"
+                );
+                if (testOrder.getOrderType().equals("cancel")) {
+                    testOrder.setCancelId("test" + (int) count * Math.random());
+                }
+                int qqqq = Math.random() < 0.5 ? 20 + (int) (10 * Math.random()) : 1 + (int) (100 * Math.random());
+                testOrder.setRemainingQuantity(qqqq);
+                testOrder.setTotalQuantity(qqqq);
+                Trader trader = new Trader("1", "CorpA");
+                testOrder.setTrader(trader);
+                testOrder.setTime(System.currentTimeMillis());
+                //orderBookMap.get(new Product((count%2==0)?"01":"02")).addWOBuyLimit(testOrder);
+                orderBookMap.get(new Product("01")).addWOOrder(testOrder);
 
 
                 try {
@@ -159,14 +163,15 @@ public class Broker implements InitializingBean {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                try {
-                    websocketTest.sendMessage(
-                            orderBookMap.get(new Product("01")).getBuyOrders(),
-                            orderBookMap.get(new Product("01")).getSellOrders(),
-                            new Product("01"));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+
+//                try {
+//                    websocketTest.sendMessage(
+//                            orderBookMap.get(new Product("01")).getBuyOrders(),
+//                            orderBookMap.get(new Product("01")).getSellOrders(),
+//                            new Product("01"));
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
                 count++;
             }
 

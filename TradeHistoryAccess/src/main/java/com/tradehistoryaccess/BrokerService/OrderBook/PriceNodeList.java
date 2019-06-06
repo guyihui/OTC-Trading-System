@@ -193,19 +193,18 @@ public class PriceNodeList {
 
     public Boolean checkStop(int oldStopPrice, int newStopPrice) {
 
-
-        StringBuilder builder = new StringBuilder();
-        int count = 0;
+//        StringBuilder builder = new StringBuilder();
+//        int count = 0;
 
         PriceNode stop = stopHead;
         stop.lock();
-        count++;
-        builder.append(".1.");
+//        count++;
+//        builder.append(".1.");
 
         while (stop.getNext() != null) {
             stop.getNext().lock();
-            count++;
-            builder.append(".2.");
+//            count++;
+//            builder.append(".2.");
             PriceNode stopNext = stop.getNext();
             if (between(stopNext, oldStopPrice, newStopPrice)) {
                 stop.setNext(stopNext.getNext());
@@ -219,22 +218,21 @@ public class PriceNodeList {
                     this.addOrder(order);
                 }
             } else {
-                builder.append(".-6.");
+//                builder.append(".-6.");
                 stop.unlock();
-                count--;
+//                count--;
                 stop = stopNext;
             }
         }
-        builder.append(".-7.");
+//        builder.append(".-7.");
         stop.unlock();
-        count--;
+//        count--;
 
-        System.err.println("stop lock count:" + count);
-        System.err.println(builder.toString());
+//        System.err.println("stop lock count:" + count);
+//        System.err.println(builder.toString());
         return true;
 
 
-//
 //        int flag = 0;
 //
 //        StringBuilder builder = new StringBuilder();
@@ -371,14 +369,20 @@ public class PriceNodeList {
     }
 
     private void broadcastOnDepthChange(PriceNode newDepth) {
-//        this.orderbook.broadcast(
-//                String.format(
-//                        "depth:%s:%s:%d",
-//                        this.orderbook.getProduct().getProductId(),
-//                        this.getSellOrBuy(),
-//                        newDepth.getPrice()
-//                )
-//        );
+        int price = -1;
+        if (newDepth != null) {
+            newDepth.lock();
+            price = newDepth.getPrice();
+            newDepth.unlock();
+        }
+        this.orderbook.broadcast(
+                String.format(
+                        "depth:%s:%s:%d",
+                        this.orderbook.getProduct().getProductId(),
+                        this.getSellOrBuy(),
+                        price
+                )
+        );
     }
 
     public String toString() {

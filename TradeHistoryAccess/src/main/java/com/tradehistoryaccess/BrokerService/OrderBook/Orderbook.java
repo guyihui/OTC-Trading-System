@@ -72,18 +72,12 @@ public class Orderbook {
     }
 
     public Boolean addBuyLimit() {
-        long count = 0;
         while (true) {
-            System.err.println("add buy limit:" + count++);
             try {
                 Order temp = waitingQueue.getBuyLimit();
                 buyOrders.addOrder(temp);
                 //尝试推送
-//                try {
-//                    websocketTest.sendMessage(buyOrders, sellOrders, product);
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
+                websocketTest.sendMessage(buyOrders, sellOrders, product);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -91,18 +85,12 @@ public class Orderbook {
     }
 
     public Boolean addSellLimit() {
-        long count = 0;
         while (true) {
-            System.err.println("add sell limit:" + count++);
             try {
                 Order temp = waitingQueue.getSellLimit();
                 sellOrders.addOrder(temp);
                 //尝试推送
-//                try {
-//                    websocketTest.sendMessage(buyOrders, sellOrders, product);
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
+                websocketTest.sendMessage(buyOrders, sellOrders, product);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -110,9 +98,7 @@ public class Orderbook {
     }
 
     public void addStop() {
-        long count = 0;
         while (true) {
-            System.err.println("add stop:" + count++);
             try {
                 Order temp = waitingQueue.getStop();
                 if (temp.getSellOrBuy().equals("buy")) {
@@ -156,9 +142,8 @@ public class Orderbook {
 
 
     public void deal() {
+
         while (true) {
-
-
 
             Order limitBuy;
             limitBuy = buyOrders.candidateOrder();
@@ -383,11 +368,8 @@ public class Orderbook {
             addHistory.add_order
                     (new DoneOrderRaw(brokerName, product.getProductId(), product.getProductPeriod(), dealPrice, quantity, initTrader, initCompany, initSide, compTrader, compCompany, compSide, time + ""));
 
-//            try {
-//                websocketTest.sendMessage(buyOrders, sellOrders, product);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
+
+            websocketTest.sendMessage(buyOrders, sellOrders, product);
 
 
         }
@@ -481,9 +463,7 @@ public class Orderbook {
     class AddDbThread implements Runnable {
         public void run() {
             System.out.println("add history to DB thread  start....");
-            long count = 0;
             while (true) {
-                System.err.println("add DB:" + count++);
                 try {
                     addHistory.add_DB();
                 } catch (InterruptedException e) {
