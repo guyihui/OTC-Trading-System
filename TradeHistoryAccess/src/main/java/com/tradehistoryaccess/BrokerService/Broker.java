@@ -2,12 +2,14 @@ package com.tradehistoryaccess.BrokerService;
 
 import com.tradehistoryaccess.BrokerService.OrderBook.*;
 import com.tradehistoryaccess.BrokerService.Backend2UiSocket.WebSocketTest;
+import com.tradehistoryaccess.Redis.RedisTest;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.AsynchronousChannelGroup;
@@ -27,6 +29,9 @@ public class Broker implements InitializingBean {
 
     @Autowired
     private static WebSocketTest websocketTest;
+
+    @Resource
+    private RedisTest redisTest;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -115,7 +120,8 @@ public class Broker implements InitializingBean {
 
 
             while (true) {
-                System.out.println("count:" + count);
+
+  //              System.out.println("count:" + count);
 //                Order testOrder = new Order("test" + count, "limit", (count % 2 == 0) ? (1000 + count % 20) : (1031 - count % 20), (count % 2 == 0) ? "buy" : "sell");
 //                testOrder.setRemainingQuantity(50 + count % 20);
 //                testOrder.setTotalQuantity(100 + count % 20);
@@ -131,21 +137,21 @@ public class Broker implements InitializingBean {
 //                    e.printStackTrace();
 //                }
 
-                double random = Math.random();
-                Order testOrder = new Order(
-                        "test" + count,
-                        random < 0.2 ? "stop" : "limit",
-                        995 + (int) (11 * Math.random()),
-                        Math.random() < 0.5 ? "buy" : "sell"
-                );
-                int qqqq = Math.random() < 0.5 ? 20 + (int) (10 * Math.random()) : 1 + (int) (100 * Math.random());
-                testOrder.setRemainingQuantity(qqqq);
-                testOrder.setTotalQuantity(qqqq);
-                Trader trader = new Trader("1", "CorpA");
-                testOrder.setTrader(trader);
-                testOrder.setTime(System.currentTimeMillis());
-                //orderBookMap.get(new Product((count%2==0)?"01":"02")).addWOBuyLimit(testOrder);
-                orderBookMap.get(new Product("01")).addWOOrder(testOrder);
+//                double random = Math.random();
+//                Order testOrder = new Order(
+//                        "test" + count,
+//                        random < 0.2 ? "stop" : "limit",
+//                        995 + (int) (11 * Math.random()),
+//                        Math.random() < 0.5 ? "buy" : "sell"
+//                );
+//                int qqqq = Math.random() < 0.5 ? 20 + (int) (10 * Math.random()) : 1 + (int) (100 * Math.random());
+//                testOrder.setRemainingQuantity(qqqq);
+//                testOrder.setTotalQuantity(qqqq);
+//                Trader trader = new Trader("1", "CorpA");
+//                testOrder.setTrader(trader);
+//                testOrder.setTime(System.currentTimeMillis());
+//                //orderBookMap.get(new Product((count%2==0)?"01":"02")).addWOBuyLimit(testOrder);
+//                orderBookMap.get(new Product("01")).addWOOrder(testOrder);
 
 
                 try {
@@ -158,7 +164,7 @@ public class Broker implements InitializingBean {
                             orderBookMap.get(new Product("01")).getBuyOrders(),
                             orderBookMap.get(new Product("01")).getSellOrders(),
                             new Product("01"));
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 count++;

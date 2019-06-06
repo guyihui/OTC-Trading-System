@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -48,7 +49,7 @@ public class OrderService {
         Map<String,Object>body=new HashMap<>();
         Object put = body.put("type", "market");
         body.put("traderid",traderid);
-        body.put("compName", traderid)
+        body.put("compName", traderid);
         body.put("productid",productid);
         body.put("prodectName",productName);
         body.put("period",period);
@@ -92,7 +93,7 @@ public class OrderService {
         String url="http://localhost:8080/addOrder";
 
         Map<String,Object>body=new HashMap<>();
-        body.put("type","limit");
+        body.put("type","cancel");
         body.put("traderid",traderid);
         body.put("compName",traderid);
         body.put("productid",productid);
@@ -107,6 +108,20 @@ public class OrderService {
         Map<String,Object> res=restTemplate.postForObject(url,reqEntity,Map.class);
         System.out.println(res.get("id")+" "+res.get("time"));
         return (String)res.get("id");
+    }
+    public Map<String,String>getOrderStates(List<String> orderids){
+        HttpHeaders headers=new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+        //TODO:多个broker
+        String url="http://localhost:8080/getState";
+        Map<String,Object>body=new HashMap<>();
+        body.put("orderids",orderids);
+        HttpEntity<Map<String,Object>> reqEntity=new HttpEntity<>(body,headers);
+        Map<String,String> res=restTemplate.postForObject(url,reqEntity,Map.class);
+        for(String id :orderids){
+            System.out.println(id+"states: "+res.get(id));
+        }
+        return res;
     }
 
 

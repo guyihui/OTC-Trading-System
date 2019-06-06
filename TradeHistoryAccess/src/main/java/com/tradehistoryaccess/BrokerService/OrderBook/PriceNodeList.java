@@ -3,6 +3,7 @@ package com.tradehistoryaccess.BrokerService.OrderBook;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.tradehistoryaccess.Redis.RedisTest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -211,8 +212,9 @@ public class PriceNodeList {
                 OrderNodeList orderNodeList = stopNext.getOrders();
                 while (!orderNodeList.isEmpty()) {
                     Order order = orderNodeList.candidateOrder();
-                    order.unlock();
+                    order.unlock(); //去掉candidate加的锁
                     order.stopToLimit();
+                    RedisTest.setOrderState(order.getOrderId(),"active");
                     orderNodeList.removeOrder(order);
                     this.addOrder(order);
                 }
