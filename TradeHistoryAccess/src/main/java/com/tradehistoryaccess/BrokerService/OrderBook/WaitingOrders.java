@@ -55,8 +55,8 @@ public class WaitingOrders {
 
     public WaitingOrders(Product product) {
         this.product = product;
-        this.buyLimit = new PriorityBlockingQueue<Order>(10, buyComparator);
-        this.sellLimit = new PriorityBlockingQueue<Order>(10, sellComparator);
+        this.buyLimit = new PriorityBlockingQueue<Order>(100, buyComparator);
+        this.sellLimit = new PriorityBlockingQueue<Order>(100, sellComparator);
         this.cancel = new LinkedBlockingQueue<Order>();
         this.stop = new LinkedBlockingQueue<Order>();
         this.market = new ConcurrentLinkedQueue<Order>();

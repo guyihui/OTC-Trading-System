@@ -101,11 +101,10 @@ public class WebSocketTest {
             CopyOnWriteArraySet<WebSocketTest> ws = webSocketMap.get(product);
             for(WebSocketTest socket:ws){
                 System.out.println("Now send a message!");
-                System.out.println(socket);
-                System.out.println(socket.getSession());
-                Session ss = socket.getSession();
-                System.out.println(ss);
-                ss.getAsyncRemote().sendText(result);
+                synchronized (socket) {
+                    socket.getSession().getBasicRemote().sendText(result);
+                }
+//                ss.getBasicRemote().sendText(result);
             }
         }
 
