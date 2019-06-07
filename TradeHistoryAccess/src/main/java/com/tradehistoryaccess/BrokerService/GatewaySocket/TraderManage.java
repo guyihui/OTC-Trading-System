@@ -4,7 +4,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -14,13 +13,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TraderManage {
 
     private static ConcurrentHashMap<String, Trader> allTraders = new ConcurrentHashMap<>();
-
-    public static TraderManage traderManage;
-
-    @PostConstruct
-    public void init() {
-        traderManage = this;
-    }
 
     public Trader buildTraderInstance(AsynchronousSocketChannel channel) {
         Trader trader = new Trader(channel);
