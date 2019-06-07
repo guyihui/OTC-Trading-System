@@ -1,6 +1,5 @@
 package tradergateway.gateway;
 
-import com.sun.org.apache.xpath.internal.operations.Or;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
@@ -20,7 +19,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 @Lazy(value = false)
 public class OrderStorage implements InitializingBean {
 
-    private Map<Broker, Map<User, Map<Product, Set<Order>>>> allOrders = new ConcurrentHashMap<>();
+    private static Map<Broker, Map<User, Map<Product, Set<Order>>>> allOrders = new ConcurrentHashMap<>();
 
     public static OrderStorage orderStorage;
 
