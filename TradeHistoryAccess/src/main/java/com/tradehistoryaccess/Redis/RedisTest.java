@@ -16,12 +16,13 @@ import java.util.List;
 public class RedisTest  {
     @Autowired
     private  RedisTemplate<String,String> redisTemplate;
+
     public static RedisTest redisTest;
 
     public static void setOrderState(String orderid,String state){
         redisTest.redisTemplate.opsForValue().set(orderid,state);
     }
-    public List<String> getOrderState(List<String> orderids){
+    public static List<String> getOrderState(List<String> orderids){
         return redisTest.redisTemplate.opsForValue().multiGet(orderids);
     }
 
