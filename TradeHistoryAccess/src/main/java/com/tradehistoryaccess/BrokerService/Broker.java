@@ -1,5 +1,8 @@
 package com.tradehistoryaccess.BrokerService;
 
+import com.tradehistoryaccess.BrokerService.GatewaySocket.ServerSocketChannelAcceptHandle;
+import com.tradehistoryaccess.BrokerService.GatewaySocket.Trader;
+import com.tradehistoryaccess.BrokerService.GatewaySocket.TraderManage;
 import com.tradehistoryaccess.BrokerService.OrderBook.*;
 import com.tradehistoryaccess.BrokerService.Backend2UiSocket.WebSocketTest;
 import com.tradehistoryaccess.Redis.RedisTest;
@@ -10,12 +13,9 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousServerSocketChannel;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -29,6 +29,9 @@ public class Broker implements InitializingBean {
 
     @Autowired
     private static WebSocketTest websocketTest;
+
+    @Resource
+    private TraderManage traderManage;
 
     @Resource
     private RedisTest redisTest;
@@ -61,13 +64,7 @@ public class Broker implements InitializingBean {
 
     private void startupGateway() {
         try {
-            /*
-             * 1、Executors是线程池生成工具，可以生成“固定大小的线程池”、“调度池”、“可伸缩线程数量的池”。
-             * 2、也可以通过ThreadPoolExecutor直接生成池。
-             * 3、这个线程池是用来得到操作系统的“IO事件通知”的，不是用来进行“得到IO数据后的业务处理的”。
-             *    要进行后者的操作，您可以再使用一个池（最好不要混用）
-             * 4、（不推荐）如果不使用线程池，直接 AsynchronousServerSocketChannel.open()。
-             */
+            //使用线程池管理监听线程
             ExecutorService threadPool = Executors.newFixedThreadPool(20);
             AsynchronousChannelGroup group = AsynchronousChannelGroup.withThreadPool(threadPool);
 
@@ -77,7 +74,7 @@ public class Broker implements InitializingBean {
                     .bind(new InetSocketAddress("0.0.0.0", 8888));
 
             //为AsynchronousServerSocketChannel注册监听
-            channel.accept(null, new ServerSocketChannelAcceptHandle(channel, orderBookMap));
+            channel.accept(null, new ServerSocketChannelAcceptHandle(channel, orderBookMap, traderManage));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -121,7 +118,7 @@ public class Broker implements InitializingBean {
 
             while (true) {
 
-  //              System.out.println("count:" + count);
+                //              System.out.println("count:" + count);
 //                Order testOrder = new Order("test" + count, "limit", (count % 2 == 0) ? (1000 + count % 20) : (1031 - count % 20), (count % 2 == 0) ? "buy" : "sell");
 //                testOrder.setRemainingQuantity(50 + count % 20);
 //                testOrder.setTotalQuantity(100 + count % 20);

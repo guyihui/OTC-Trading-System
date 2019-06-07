@@ -17,6 +17,7 @@ public class BrokerChannel {
 
     private AsynchronousSocketChannel channel;
     private volatile Boolean isConnected = false;
+    private String identification;//uuid
     //Pair<buy,sell>
     private Map<Product, Pair<String, String>> subscribedProducts = new ConcurrentHashMap<>();
 
@@ -49,8 +50,10 @@ public class BrokerChannel {
                 String content = Charset.forName("utf-8").decode(receive).toString();
                 System.out.println("[" + channel + "]" + content);
                 //TODO: 判断连接成功，接收broker身份
-                if (content.length() < 9999) {
+                if (content.indexOf("connected:") == 0) {
                     isConnected = true;
+                    String uuid = content.substring("connected:".length());
+                    System.err.println(uuid);
                     //注册read回调
                     channel.read(byteBuffer, byteBuffer, new TraderSocketChannelReadHandle(this));
                     System.out.println("[" + channel + "]" + " connected");
@@ -67,11 +70,11 @@ public class BrokerChannel {
 
     public boolean subscribeProduct(Product product) {
         try {
+            this.subscribedProducts.putIfAbsent(product, new Pair<>(null, null));
             channel.write(ByteBuffer.wrap(("subscribe:" + product.getProductId()).getBytes())).get();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        this.subscribedProducts.putIfAbsent(product, new Pair<>(null, null));
         return true;
     }
 
@@ -100,5 +103,13 @@ public class BrokerChannel {
 
     public AsynchronousSocketChannel getChannel() {
         return channel;
+    }
+
+    public String getIdentification() {
+        return identification;
+    }
+
+    public void setIdentification(String identification) {
+        this.identification = identification;
     }
 }

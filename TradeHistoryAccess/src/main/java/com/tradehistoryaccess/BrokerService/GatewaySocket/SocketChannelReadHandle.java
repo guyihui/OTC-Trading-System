@@ -1,4 +1,7 @@
-package com.tradehistoryaccess.BrokerService.OrderBook;
+package com.tradehistoryaccess.BrokerService.GatewaySocket;
+
+import com.tradehistoryaccess.BrokerService.OrderBook.Orderbook;
+import com.tradehistoryaccess.BrokerService.OrderBook.Product;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -61,7 +64,7 @@ public class SocketChannelReadHandle implements CompletionHandler<Integer, ByteB
                 this.trader.setTraderCompany(data.substring("company:".length()));
                 this.isConnected = true;
                 System.out.println(client + data);
-                client.write(ByteBuffer.wrap("Got your company.".getBytes()));
+                client.write(ByteBuffer.wrap(("connected:" + trader.getUuid().toString()).getBytes()));
             } else {
                 System.out.println("Already connected.");
                 client.write(ByteBuffer.wrap("Already connected.".getBytes()));

@@ -1,4 +1,7 @@
-package com.tradehistoryaccess.BrokerService.OrderBook;
+package com.tradehistoryaccess.BrokerService.GatewaySocket;
+
+import com.tradehistoryaccess.BrokerService.OrderBook.Orderbook;
+import com.tradehistoryaccess.BrokerService.OrderBook.Product;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousServerSocketChannel;
@@ -14,11 +17,14 @@ public class ServerSocketChannelAcceptHandle implements CompletionHandler<Asynch
 
     private AsynchronousServerSocketChannel serverSocketChannel;
     private Map<Product, Orderbook> products;
+    private TraderManage traderManage;
 
     public ServerSocketChannelAcceptHandle(AsynchronousServerSocketChannel serverSocketChannel,
-                                           Map<Product, Orderbook> products) {
+                                           Map<Product, Orderbook> products,
+                                           TraderManage traderManage) {
         this.serverSocketChannel = serverSocketChannel;
         this.products = products;
+        this.traderManage = traderManage;
     }
 
     @Override
@@ -28,7 +34,7 @@ public class ServerSocketChannelAcceptHandle implements CompletionHandler<Asynch
 
         //为这个新的socketChannel注册“read”事件，以便操作系统在收到数据并准备好后，主动通知应用程序
         ByteBuffer buffer = ByteBuffer.allocate(2048);
-        Trader connectedTrader = new Trader(client);
+        Trader connectedTrader = traderManage.buildTraderInstance(client);
         client.read(buffer, buffer, new SocketChannelReadHandle(connectedTrader, buffer, this.products));
 
     }

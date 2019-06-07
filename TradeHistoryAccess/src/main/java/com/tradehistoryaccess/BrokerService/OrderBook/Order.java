@@ -1,5 +1,7 @@
 package com.tradehistoryaccess.BrokerService.OrderBook;
 
+import com.tradehistoryaccess.BrokerService.GatewaySocket.Trader;
+
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 

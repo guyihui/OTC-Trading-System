@@ -1,14 +1,12 @@
 package com.tradehistoryaccess.BrokerService.OrderBook;
 
+import com.tradehistoryaccess.BrokerService.GatewaySocket.Trader;
 import com.tradehistoryaccess.Entity.DoneOrderRaw;
 import com.tradehistoryaccess.BrokerService.Backend2UiSocket.WebSocketTest;
 import com.tradehistoryaccess.BrokerService.History.AddHistory;
 import com.tradehistoryaccess.Redis.RedisTest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CopyOnWriteArraySet;
 

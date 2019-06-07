@@ -3,13 +3,12 @@ package com.tradehistoryaccess.Controller;
 import com.tradehistoryaccess.BrokerService.Broker;
 import com.tradehistoryaccess.BrokerService.OrderBook.Order;
 import com.tradehistoryaccess.BrokerService.OrderBook.Product;
-import com.tradehistoryaccess.BrokerService.OrderBook.Trader;
+import com.tradehistoryaccess.BrokerService.GatewaySocket.Trader;
 import com.tradehistoryaccess.IdService.OrderIdGenerator;
 import com.tradehistoryaccess.Redis.RedisTest;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import javax.persistence.criteria.CriteriaBuilder;
 import java.util.HashMap;
 import java.util.Map;
 
