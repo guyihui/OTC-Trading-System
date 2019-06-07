@@ -1,51 +1,59 @@
 package tradergateway.gateway.GatewaySocket;
 
+import javafx.util.Pair;
+import org.springframework.beans.factory.annotation.Autowired;
+import tradergateway.gateway.Backend2UiSocket.WebSocketTest;
 import tradergateway.gateway.Entity.Product;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.charset.Charset;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 public class BrokerChannel {
+
     private AsynchronousSocketChannel channel;
     private volatile Boolean isConnected = false;
-    private final String companyName;
-    private long retryInterval = 10;
+    //Pair<buy,sell>
+    private Map<Product, Pair<String, String>> subscribedProducts = new ConcurrentHashMap<>();
 
-    private Set<Product> subscribedProducts = new CopyOnWriteArraySet<>();
     private ByteBuffer byteBuffer = ByteBuffer.allocate(512);
+    private long retryInterval = 10;
+    //TODO:注入websocket
+    @Autowired
+    private WebSocketTest webSocketTest;
 
-    public BrokerChannel(AsynchronousSocketChannel channel, String traderCompany) {
+    public BrokerChannel(AsynchronousSocketChannel channel) {
         this.channel = channel;
-        this.companyName = traderCompany;
     }
 
-    public boolean connect() {
+    public synchronized boolean connect() {
         ByteBuffer receive = ByteBuffer.allocate(512);
         int count = 0;
         while (!isConnected && (retryInterval *= 2) <= 10240) {
             try {
-                //TODO: 重试间隔而非超时时间
-                Thread.sleep(retryInterval);
+                //重试间隔
                 if (count++ > 0) {
-                    System.out.printf("重试第%d次\n", count);
+                    Thread.sleep(retryInterval);
+                    System.out.printf("第%d次尝试连接\n", count);
                 }
-                //TODO: write companyName
-                channel.write(ByteBuffer.wrap(("company:" + this.companyName).getBytes())).get();
-                //TODO: 处理响应
+                //write companyName
+                channel.write(ByteBuffer.wrap(("company:" + GatewaySocketService.traderCompanyName).getBytes())).get();
+                //处理连接请求响应
                 receive.clear();
                 channel.read(receive).get();
                 receive.flip();
                 String content = Charset.forName("utf-8").decode(receive).toString();
                 System.out.println("[" + channel + "]" + content);
-                //TODO: 连接成功
+                //TODO: 判断连接成功，接收broker身份
                 if (content.length() < 9999) {
                     isConnected = true;
+                    //注册read回调
+                    channel.read(byteBuffer, byteBuffer, new TraderSocketChannelReadHandle(this));
                     System.out.println("[" + channel + "]" + " connected");
-                    //TODO: read回调
-                    channel.read(byteBuffer, byteBuffer, new TraderSocketChannelReadHandle(channel));
                 } else {
                     System.err.println("连接失败");
                 }
@@ -63,12 +71,34 @@ public class BrokerChannel {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        this.subscribedProducts.add(product);
+        this.subscribedProducts.putIfAbsent(product, new Pair<>(null, null));
         return true;
     }
 
-    public Set<Product> getSubscribedProducts() {
-        return subscribedProducts;
+    public void updateDepth(String productId, String buyOrSell, String depth) {
+        Product product = new Product(productId);
+        Pair<String, String> pair = subscribedProducts.get(product);
+        Pair<String, String> updatedPair;
+
+        if (buyOrSell.equals("buy")) {
+            updatedPair = new Pair<>(depth, pair.getValue());
+        } else if (buyOrSell.equals("sell")) {
+            updatedPair = new Pair<>(pair.getKey(), depth);
+        } else {
+            System.err.println("update depth error");
+            updatedPair = pair;
+        }
+        subscribedProducts.put(product, updatedPair);
+        System.out.printf("%2s.depth:%4s,%4s\n", productId, updatedPair.getKey(), updatedPair.getValue());
+        //TODO: 向前端推送深度
+        webSocketTest.sendMessage(product);
     }
 
+    public Set<Product> getSubscribedProducts() {
+        return subscribedProducts.keySet();
+    }
+
+    public AsynchronousSocketChannel getChannel() {
+        return channel;
+    }
 }
