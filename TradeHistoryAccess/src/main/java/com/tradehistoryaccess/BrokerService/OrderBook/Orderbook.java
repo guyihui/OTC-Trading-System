@@ -1,11 +1,12 @@
 package com.tradehistoryaccess.BrokerService.OrderBook;
 
+import com.tradehistoryaccess.BrokerService.GatewaySocket.Trader;
 import com.tradehistoryaccess.Entity.DoneOrderRaw;
 import com.tradehistoryaccess.BrokerService.Backend2UiSocket.WebSocketTest;
 import com.tradehistoryaccess.BrokerService.History.AddHistory;
+import com.tradehistoryaccess.Redis.RedisTest;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -13,6 +14,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
 public class Orderbook {
     @Autowired
     private static WebSocketTest websocketTest;
+    @Autowired
+    private static RedisTest redisTest;
 
     private String brokerName;
     private Product product;
@@ -72,11 +75,7 @@ public class Orderbook {
                 Order temp = waitingQueue.getBuyLimit();
                 buyOrders.addOrder(temp);
                 //尝试推送
-                try {
-                    websocketTest.sendMessage(buyOrders, sellOrders, product);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                websocketTest.sendMessage(buyOrders, sellOrders, product);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -89,11 +88,7 @@ public class Orderbook {
                 Order temp = waitingQueue.getSellLimit();
                 sellOrders.addOrder(temp);
                 //尝试推送
-                try {
-                    websocketTest.sendMessage(buyOrders, sellOrders, product);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                websocketTest.sendMessage(buyOrders, sellOrders, product);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -127,6 +122,13 @@ public class Orderbook {
                 } else {
                     canceledOrder = sellOrders.cancelOrder(temp);
                 }
+                if(canceledOrder!=null){
+                    RedisTest.setOrderState(temp.getOrderId(),"fail");
+                }
+                else {
+                    RedisTest.setOrderState(temp.getOrderId(),"success");
+                    RedisTest.setOrderState(canceledOrder.getOrderId(),"canceled");
+                }
 
 
             } catch (InterruptedException e) {
@@ -138,7 +140,9 @@ public class Orderbook {
 
 
     public void deal() {
+
         while (true) {
+
             Order limitBuy;
             limitBuy = buyOrders.candidateOrder();
             Order limitSell;
@@ -147,8 +151,15 @@ public class Orderbook {
             String initFlag = "buy";
 
             if (limitBuy != null && limitSell != null) {
-//                System.out.println("candidate limit: " + limitBuy.getOrderId() + " and " + limitSell.getOrderId());
-//                System.out.flush();
+                if (limitBuy.getPrice() >= limitSell.getPrice()) {
+                    System.out.println(
+                            "candidate limit: "
+                                    + limitBuy.getOrderId() + "(" + limitBuy.getRemainingQuantity() + "," + limitBuy.getPrice() + ")"
+                                    + " and "
+                                    + limitSell.getOrderId() + "(" + limitSell.getRemainingQuantity() + "," + limitSell.getPrice() + ")"
+                    );
+                }
+                System.out.flush();
             }
             Order market = waitingQueue.peekMarket();
 
@@ -309,22 +320,21 @@ public class Orderbook {
                 if (candidateBuy.getOrderType().equals("limit")) {
 //                    System.out.println("limit Buy remove");
 //                    System.out.flush();
+                    RedisTest.setOrderState(
+                            candidateBuy.getOrderId(),"remain:0");
                     buyOrders.removeOrder(candidateBuy);
                 } else {
 //                    System.out.println("remove market buy");
 //                    System.out.flush();
+                    RedisTest.setOrderState(candidateBuy.getOrderId(),"remain:0");
                     waitingQueue.getMarket();
                     //交易完成，移除现有market
-                    //尝试推送
-                    try {
-                        websocketTest.sendMessage(buyOrders, sellOrders, product);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+
                 }
             } else {
 //                System.out.println("buy reset quantity");
 //                System.out.flush();
+                RedisTest.setOrderState(candidateBuy.getOrderId(),"remain:"+tempBuyQuantity);
                 candidateBuy.setRemainingQuantity(tempBuyQuantity);
             }
 
@@ -332,32 +342,32 @@ public class Orderbook {
                 if (candidateSell.getOrderType().equals("market")) {
 //                    System.out.println("remove market sell");
 //                    System.out.flush();
+                    RedisTest.setOrderState(candidateSell.getOrderId(),"remain:0");
                     waitingQueue.getMarket();
                 } else {
 //                    System.out.println("remove limit sell");
 //                    System.out.flush();
+                    RedisTest.setOrderState(candidateSell.getOrderId(),"remain:0");
                     sellOrders.removeOrder(candidateSell);
                 }
             } else {
 //                System.out.println("sell reset quantity");
 //                System.out.flush();
+                RedisTest.setOrderState(candidateSell.getOrderId(),"remain:"+tempSellQuantity);
                 candidateSell.setRemainingQuantity(tempSellQuantity);
             }
             System.out.println("remove complete");
             System.out.flush();
-
-            try {
-                websocketTest.sendMessage(buyOrders,sellOrders,product);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
             candidateBuy.unlock();
             candidateSell.unlock();
+
             //交易结束
             Long time = System.currentTimeMillis();
             addHistory.add_order
                     (new DoneOrderRaw(brokerName, product.getProductId(), product.getProductPeriod(), dealPrice, quantity, initTrader, initCompany, initSide, compTrader, compCompany, compSide, time + ""));
+
+
+            websocketTest.sendMessage(buyOrders, sellOrders, product);
 
 
         }
@@ -366,7 +376,7 @@ public class Orderbook {
     public Boolean addWOOrder(Order order) {
         String type = order.getOrderType();
         String buyOrSell = order.getSellOrBuy();
-        System.out.println("add order type" + type);
+        System.out.println("add order type" + type + ",price:" + order.getPrice());
         switch (type) {
 
             case "limit":

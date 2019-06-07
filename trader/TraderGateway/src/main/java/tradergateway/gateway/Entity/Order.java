@@ -1,6 +1,4 @@
-package com.tradehistoryaccess.BrokerService.OrderBook;
-
-import com.tradehistoryaccess.BrokerService.GatewaySocket.Trader;
+package tradergateway.gateway.Entity;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -12,13 +10,13 @@ public class Order {
     private Product product;
     private String sellOrBuy;
     private String broker;
-    private Trader trader;
     private String traderName;
     private Integer totalQuantity;
     private Integer remainingQuantity;
     private Integer price;
     private String cancelId;
     private Long time;
+    private String state;
     private Lock lock = new ReentrantLock();
 
     public Order(String id, String type) {
@@ -33,14 +31,13 @@ public class Order {
         this.sellOrBuy = sellOrBuy;
     }
 
-    public Order(String id, String type, Product product, String sellOrBuy, Trader trader,
+    public Order(String id, String type, Product product, String sellOrBuy,
                  Integer total, Integer price, String cancelId) {
         this.orderId = id;
         this.orderType = type;
         this.product = product;
         this.sellOrBuy = sellOrBuy;
         this.broker = null;
-        this.trader = trader;
         this.totalQuantity = total;
         this.remainingQuantity = total;
         this.price = price;
@@ -111,14 +108,6 @@ public class Order {
 
     public void setBroker(String broker) {
         this.broker = broker;
-    }
-
-    public Trader getTrader() {
-        return trader;
-    }
-
-    public void setTrader(Trader trader) {
-        this.trader = trader;
     }
 
     public Integer getTotalQuantity() {

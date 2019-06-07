@@ -19,6 +19,7 @@ public class Testbean implements InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
 
+
         System.out.println("im a independent thread "+id+" my bean : ");
 
     }

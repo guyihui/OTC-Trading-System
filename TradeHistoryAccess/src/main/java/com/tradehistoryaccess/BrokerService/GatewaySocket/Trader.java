@@ -1,7 +1,10 @@
-package com.tradehistoryaccess.BrokerService.OrderBook;
+package com.tradehistoryaccess.BrokerService.GatewaySocket;
+
+import com.tradehistoryaccess.BrokerService.OrderBook.Product;
 
 import java.nio.channels.AsynchronousSocketChannel;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 public class Trader {
@@ -10,6 +13,7 @@ public class Trader {
     private String traderCompany;
     private AsynchronousSocketChannel connection;
     private Set<Product> subscribedProducts = new CopyOnWriteArraySet<>();
+    private UUID uuid = UUID.randomUUID();
 
     public Trader(AsynchronousSocketChannel channel) {
         this.connection = channel;
@@ -50,5 +54,9 @@ public class Trader {
 
     public void addSubscribedProduct(Product product) {
         subscribedProducts.add(product);
+    }
+
+    public UUID getUuid() {
+        return uuid;
     }
 }

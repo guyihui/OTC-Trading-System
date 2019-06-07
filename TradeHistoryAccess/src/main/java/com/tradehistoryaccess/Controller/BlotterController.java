@@ -1,6 +1,10 @@
 package com.tradehistoryaccess.Controller;
 
 import com.google.gson.Gson;
+import com.tradehistoryaccess.BrokerService.GatewaySocket.Trader;
+import com.tradehistoryaccess.BrokerService.GatewaySocket.TraderManage;
+import com.tradehistoryaccess.BrokerService.OrderBook.Product;
+import com.tradehistoryaccess.Entity.Products;
 import com.tradehistoryaccess.Entity.TradeDTO;
 import com.tradehistoryaccess.Util.HibernateUtils;
 import org.hibernate.Session;
@@ -8,16 +12,27 @@ import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 @RestController
 public class BlotterController {
-    @CrossOrigin(origins = "http://localhost:3000",maxAge = 3600)
+    @Resource
+    private TraderManage traderManage;
+
+    @CrossOrigin(origins = "*",maxAge = 3600)
     @RequestMapping(value = "/history",method = RequestMethod.GET)
     public String getHistory(
-            @RequestParam(value = "productid") String productid,@RequestParam(value = "period") String period,@RequestParam(value = "starttime",required = false,defaultValue = "0") String starttime,@RequestParam(value = "endtime",required = false,defaultValue = "999999999999999") String endtime,@RequestParam(value = "name",required = false,defaultValue = "") String name){
+            @RequestParam(value = "productid") String productid,
+            @RequestParam(value = "starttime",required = false,defaultValue = "0") String starttime,
+            @RequestParam(value = "endtime",required = false,defaultValue = "999999999999999") String endtime,
+            @RequestParam(value = "corpid",required = false,defaultValue = "magic") String corpid,
+            @RequestParam(value = "tradername")String tradername){
 
-        System.out.println("id: "+productid+" period "+period+" starttime "+starttime+" endtime "+endtime);
+        System.out.println("id: "+productid+" starttime "+starttime+" endtime "+endtime);
+        Product product= Products.get(productid);
+        String period=product.getProductPeriod();
+
         Session s= HibernateUtils.getCurrentSession();
 
         Transaction tr=s.beginTransaction();
@@ -30,6 +45,22 @@ public class BlotterController {
 
         List<TradeDTO> trades=q.list();
         tr.commit();
+        String uuid= corpid;
+        if(!uuid.equals("magic")) {
+
+            Trader trader=traderManage.getTrader(uuid);
+            String corpName=trader.getTraderCompany();
+
+            for (TradeDTO tradeDTO : trades) {
+                if (tradeDTO.getInitTrader().equals(corpName) || tradeDTO.getCompCompany().equals(corpName)) {
+                    continue;
+                }
+                tradeDTO.setInitCompany("");
+                tradeDTO.setInitTrader("");
+                tradeDTO.setCompCompany("");
+                tradeDTO.setCompTrader("");
+            }
+        }
         Gson gson=new Gson();
         return gson.toJson(trades);
 

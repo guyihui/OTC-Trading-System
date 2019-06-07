@@ -1,24 +1,28 @@
-package com.tradehistoryaccess.BrokerService.Backend2UiSocket;
+package tradergateway.gateway.Backend2UiSocket;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.tradehistoryaccess.BrokerService.OrderBook.PriceNodeList;
-import com.tradehistoryaccess.BrokerService.OrderBook.Product;
+import javafx.util.Pair;
 import org.springframework.stereotype.Component;
+import tradergateway.gateway.Entity.Broker;
+import tradergateway.gateway.Entity.Order;
+import tradergateway.gateway.Entity.Product;
+import tradergateway.gateway.Entity.User;
+import tradergateway.gateway.OrderStorage;
 
+import javax.annotation.Resource;
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
-
 
 @ServerEndpoint("/WebSocket")
 @Component
 public class WebSocketTest {
-    //静态变量，用来记录当前在线连接数。应该把它设计成线程安全的。
-    private static int onlineCount = 0;
 
     //concurrent包的线程安全Set，用来存放每个客户端对应的MyWebSocket对象。若要实现服务端与单一客户端通信的话，可以使用Map来存放，其中Key可以为用户标识
     private static ConcurrentHashMap<Product, CopyOnWriteArraySet<WebSocketTest>> webSocketMap = new ConcurrentHashMap<>();
@@ -26,13 +30,14 @@ public class WebSocketTest {
     //与某个客户端的连接会话，需要通过它来给客户端发送数据
     private Session session;
 
+    private static OrderStorage orderStorage;
+
     static {
         System.out.println("WebSocket service start.");
     }
 
     /**
      * 连接建立成功调用的方法
-     *
      * @param session 可选的参数。session为与某个客户端的连接会话，需要通过它来给客户端发送数据
      */
     @OnOpen
@@ -96,43 +101,50 @@ public class WebSocketTest {
      *
      * @throws IOException
      */
-    public static void sendMessage(PriceNodeList buyList, PriceNodeList sellList, Product product) {
+    public static void sendMessage(Product product) {
         try {
-            JsonObject orderBook = new JsonObject();
-            JsonArray sell = sellList.orderBooktoString();
-            JsonArray buy = buyList.orderBooktoString();
-            orderBook.add("sellList", sell);
-            orderBook.add("buyList", buy);
-            String result = orderBook.toString();
-            if (webSocketMap.containsKey(product)) {
-                CopyOnWriteArraySet<WebSocketTest> ws = webSocketMap.get(product);
-                for (WebSocketTest socket : ws) {
-                    System.out.println("Now send a message!");
-                    synchronized (socket) {
-                        socket.getSession().getBasicRemote().sendText(result);
-                    }
-//                ss.getBasicRemote().sendText(result);
-                }
-            }
+            Broker broker;
+            User user;
+
+            List<Order> pendingOrders = new ArrayList<>();
+//            orderStorage.getFilteredOrders(broker, user, product);
+//            broadcastToUi(product, result);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
 
+    public static void sendDepth(Product product, Pair<String, String> depthPair) {
+        try {
+            JsonObject depth = new JsonObject();
+            depth.addProperty("productId", product.getProductId());
+            depth.addProperty("type", "depth");
+            depth.addProperty("buy", depthPair.getKey());
+            depth.addProperty("sell", depthPair.getValue());
+
+            broadcastToUi(product, depth.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private static void broadcastToUi(Product product, String s) throws IOException {
+        if (webSocketMap.containsKey(product)) {
+            CopyOnWriteArraySet<WebSocketTest> ws = webSocketMap.get(product);
+            for (WebSocketTest socket : ws) {
+                System.out.println("Now send a message!");
+                synchronized (socket) {
+                    socket.getSession().getBasicRemote().sendText(s);
+                }
+//                ss.getBasicRemote().sendText(result);
+            }
+        }
+    }
+
     public Session getSession() {
         return this.session;
     }
 
-//    public static synchronized int getOnlineCount() {
-//        return onlineCount;
-//    }
-//
-//    public static synchronized void addOnlineCount() {
-//        WebSocketTest.onlineCount++;
-//    }
-//
-//    public static synchronized void subOnlineCount() {
-//        WebSocketTest.onlineCount--;
-//    }
 }
