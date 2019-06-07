@@ -9,27 +9,33 @@ import java.nio.charset.CharsetDecoder;
 
 public class TraderSocketChannelReadHandle implements CompletionHandler<Integer, ByteBuffer> {
 
-    private AsynchronousSocketChannel server;
+    private final BrokerChannel brokerChannel;
+    private final AsynchronousSocketChannel channel;
+    private final CharsetDecoder decoder = Charset.defaultCharset().newDecoder();
 
-    public TraderSocketChannelReadHandle(AsynchronousSocketChannel serverChannel) {
-        this.server = serverChannel;
+    public TraderSocketChannelReadHandle(BrokerChannel brokerChannel) {
+        this.brokerChannel = brokerChannel;
+        channel = brokerChannel.getChannel();
     }
 
     @Override
     public void completed(Integer result_num, ByteBuffer attachment) {
         attachment.flip();
         CharBuffer charBuffer = CharBuffer.allocate(512);
-        CharsetDecoder decoder = Charset.defaultCharset().newDecoder();
         decoder.decode(attachment, charBuffer, false);
         charBuffer.flip();
         attachment.clear();
-        server.read(attachment, attachment, this);
+        channel.read(attachment, attachment, this);
         String data = new String(charBuffer.array(), 0, charBuffer.limit());
-        System.out.println("服务器信息：" + data);
-
         //TODO: 解析
-        if (data.length() < 9999) {
-
+        String[] list = data.split(":");
+        if (list.length == 4 && list[0].equals("depth")) {
+            String productId = list[1];
+            String buyOrSell = list[2];
+            String depth = list[3];
+            brokerChannel.updateDepth(productId, buyOrSell, depth);
+        } else {
+            System.out.println("服务器信息：" + data);
         }
     }
 

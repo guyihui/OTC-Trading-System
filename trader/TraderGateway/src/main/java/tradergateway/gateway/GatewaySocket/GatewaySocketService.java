@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class GatewaySocketService implements InitializingBean {
 
     private static Map<Product, ProductChannels> connectionMap = new ConcurrentHashMap<>();
-    private final String traderCompanyName = "RPCompany";
+    public static final String traderCompanyName = "RPCompany";
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -50,7 +50,7 @@ public class GatewaySocketService implements InitializingBean {
             InetSocketAddress brokerAddress = new InetSocketAddress(hostname, port);
             AsynchronousSocketChannel channel = AsynchronousSocketChannel.open();
             channel.connect(brokerAddress).get();
-            return new BrokerChannel(channel, traderCompanyName);
+            return new BrokerChannel(channel);
 
         } catch (Exception e) {
             e.printStackTrace();
