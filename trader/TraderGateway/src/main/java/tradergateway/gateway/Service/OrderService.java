@@ -17,21 +17,18 @@ public class OrderService {
     private RestTemplate restTemplate;
 
 
-    public String queryBlotter(String productid,String period,String starttime,String endtime,String tradername){
+    public String queryBlotter(String productid,String starttime,String endtime,String corpid,String tradername){
         HttpHeaders headers=new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
         //TODO:多个broker
-
-        String corpname="01";
-
-        String url="http://localhost:8080/history?productid={productid}&period={period}&starttime={starttime}&endtime={endtime}";
+        String url="http://localhost:8080/history?productid={productid}&period={period}&starttime={starttime}&endtime={endtime}&corpid={corpid}&tradername={tradername}";
 
         Map<String,Object>params=new HashMap<>();
         params.put("productid",productid);
-        params.put("period",period);
         params.put("starttime",starttime);
         params.put("endtime",endtime);
-        params.put("corpname",corpname);
+        params.put("corpid",corpid);
+        params.put("tradername",tradername);
 
         String blotterjson=restTemplate.getForObject(url,String.class,params);
         return blotterjson;
