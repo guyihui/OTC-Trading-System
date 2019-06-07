@@ -122,7 +122,7 @@ public class Orderbook {
                 } else {
                     canceledOrder = sellOrders.cancelOrder(temp);
                 }
-                if(canceledOrder!=null){
+                if(canceledOrder==null){
                     RedisTest.setOrderState(temp.getOrderId(),"fail");
                 }
                 else {
