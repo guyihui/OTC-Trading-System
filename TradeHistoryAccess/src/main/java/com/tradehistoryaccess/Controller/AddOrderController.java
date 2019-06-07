@@ -1,9 +1,11 @@
 package com.tradehistoryaccess.Controller;
 
 import com.tradehistoryaccess.BrokerService.Broker;
+import com.tradehistoryaccess.BrokerService.GatewaySocket.TraderManage;
 import com.tradehistoryaccess.BrokerService.OrderBook.Order;
 import com.tradehistoryaccess.BrokerService.OrderBook.Product;
 import com.tradehistoryaccess.BrokerService.GatewaySocket.Trader;
+import com.tradehistoryaccess.Entity.Products;
 import com.tradehistoryaccess.IdService.OrderIdGenerator;
 import com.tradehistoryaccess.Redis.RedisTest;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +22,8 @@ public class AddOrderController {
     private OrderIdGenerator idGenerator;
     @Resource
     private RedisTest redisTest;
+    @Resource
+    private TraderManage traderManage;
 
     @RequestMapping(value = "/testadd", method = RequestMethod.GET)
     public String AddOrder(
@@ -61,10 +65,11 @@ public class AddOrderController {
     ) {
         String type = (String) request.get("type");
 
-        Trader trader = new Trader((String) request.get("traderid"), (String) request.get("compName"));
-        Product product = new Product((String) request.get("productid"), (String) request.get("prodectName"), (String) request.get("period"));
+        String uuid=(String)request.get("traderid");
+        Trader trader = traderManage.getTrader(uuid);
+        Product product = Products.get((String) request.get("productid"));
         long time = System.currentTimeMillis();
-        String id = idGenerator.getID((String) request.get("traderid"), (String) request.get("productid"), time);
+        String id = idGenerator.getID(trader.getTraderId(), (String) request.get("productid"), time);
         Order order;
         switch (type) {
             case "limit": case "stop":
@@ -74,7 +79,7 @@ public class AddOrderController {
                 order.setTrader(trader);
                 order.setProduct(product);
                 order.setTime(time);
-                redisTest.setOrderState(id,"waiting");
+                RedisTest.setOrderState(id,"waiting");
                 broker.addOrder(order);
                 break;
             case "market":
@@ -84,7 +89,7 @@ public class AddOrderController {
                 order.setTrader(trader);
                 order.setProduct(product);
                 order.setTime(time);
-                redisTest.setOrderState(id,"waiting");
+                RedisTest.setOrderState(id,"waiting");
                 broker.addOrder(order);
                 break;
             case "cancel":
@@ -95,7 +100,7 @@ public class AddOrderController {
                 order.setProduct(product);
                 order.setTime(time);
                 order.setCancelId((String)request.get("cancelid"));
-                redisTest.setOrderState(id,"waiting");
+                RedisTest.setOrderState(id,"waiting");
                 broker.addOrder(order);
         }
 
