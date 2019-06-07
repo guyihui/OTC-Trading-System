@@ -17,6 +17,27 @@ public class OrderService {
     private RestTemplate restTemplate;
 
 
+    public String queryBlotter(String productid,String period,String starttime,String endtime,String tradername){
+        HttpHeaders headers=new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+        //TODO:多个broker
+
+        String corpname="01";
+
+        String url="http://localhost:8080/history?productid={productid}&period={period}&starttime={starttime}&endtime={endtime}";
+
+        Map<String,Object>params=new HashMap<>();
+        params.put("productid",productid);
+        params.put("period",period);
+        params.put("starttime",starttime);
+        params.put("endtime",endtime);
+        params.put("corpname",corpname);
+
+        String blotterjson=restTemplate.getForObject(url,String.class,params);
+        return blotterjson;
+
+
+    }
     public String sendLimitOrder(String traderid,String buyorsell,Integer price,Integer quantity,String productid,String productName,String period,String traderName){
         HttpHeaders headers=new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
