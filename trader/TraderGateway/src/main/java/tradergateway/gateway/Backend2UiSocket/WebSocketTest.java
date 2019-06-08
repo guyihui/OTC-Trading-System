@@ -29,6 +29,7 @@ public class WebSocketTest {
 
     //与某个客户端的连接会话，需要通过它来给客户端发送数据
     private Session session;
+    private User user;
 
     private static OrderStorage orderStorage;
 
@@ -145,6 +146,10 @@ public class WebSocketTest {
 
     public Session getSession() {
         return this.session;
+    }
+
+    public static ConcurrentHashMap<Product, CopyOnWriteArraySet<WebSocketTest>> getWebSocketMap() {
+        return webSocketMap;
     }
 
 }

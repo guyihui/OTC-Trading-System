@@ -1,6 +1,7 @@
 package tradergateway.gateway.Entity;
 
 import javafx.util.Pair;
+import tradergateway.gateway.Backend2UiSocket.WebSocketTest;
 import tradergateway.gateway.GatewaySocket.TraderSocketChannelReadHandle;
 import tradergateway.gateway.GatewaySocketService;
 
@@ -91,7 +92,7 @@ public class BrokerChannel {
         subscribedProducts.put(product, updatedPair);
         System.out.printf("%2s.depth:%4s,%4s\n", productId, updatedPair.getKey(), updatedPair.getValue());
         //TODO: 向前端推送深度
-        //      webSocketTest.sendMessage(product);
+        WebSocketTest.sendDepth(product, updatedPair);
     }
 
     public boolean isConnected() {

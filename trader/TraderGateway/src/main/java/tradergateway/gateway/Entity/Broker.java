@@ -52,10 +52,6 @@ public class Broker {
         return apiUrl;
     }
 
-    public void setApiUrl(String apiUrl) {
-        this.apiUrl = apiUrl;
-    }
-
     @Override
     public boolean equals(Object obj) {
         return obj instanceof Broker && brokerId.equals(((Broker) obj).getBrokerId());
