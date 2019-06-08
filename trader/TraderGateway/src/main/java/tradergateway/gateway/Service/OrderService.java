@@ -18,25 +18,23 @@ public class OrderService {
     private RestTemplate restTemplate;
 
 
-    public String queryBlotter(String productId, String period, String startTime, String endTime, String traderName) {
+    public String queryBlotter(String productId, String startTime, String endTime, String corpId, String traderName) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
         //TODO:多个broker
-
-        String corpName = "01";
-
         String url = Brokers.get("01").getApiUrl() + "/history?" +
                 "productid={productid}" +
-                "&period={period}" +
                 "&starttime={starttime}" +
-                "&endtime={endtime}";
+                "&endtime={endtime}" +
+                "&corpid={corpid}" +
+                "&tradername={tradername}";
 
         Map<String, Object> params = new HashMap<>();
         params.put("productid", productId);
-        params.put("period", period);
         params.put("starttime", startTime);
         params.put("endtime", endTime);
-        params.put("corpname", corpName);
+        params.put("corpid", corpId);
+        params.put("tradername", traderName);
 
         String blotterJson = restTemplate.getForObject(url, String.class, params);
         return blotterJson;

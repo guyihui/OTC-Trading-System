@@ -48,8 +48,10 @@ public class testRest {
         ids.add(id3);
         orderService.getOrderStates(ids);
 
-        String id4 = orderService.sendMarket(Brokers.get("01").getUuid(), "buy", 15, "01", "aaa4");
+        String id4 = orderService.sendCancel(Brokers.get("01").getUuid(), "sell", 1000, "01", id1, "jb");
         List<String> ids2 = new ArrayList<>();
+        ids2.add(id1);
+
         ids2.add(id3);
         ids2.add(id4);
         orderService.getOrderStates(ids2);
