@@ -122,6 +122,7 @@ class SendOrder extends Component {
             orderType:"",
             sellDepth:this.props.sellDepth,
             buyDepth:this.props.buyDepth,
+            processingOrders:this.props.processingOrders,
         };
         this.handleStartDateChange = this.handleStartDateChange.bind(this);
         this.handleEndDateChange = this.handleEndDateChange.bind(this);
@@ -135,23 +136,20 @@ class SendOrder extends Component {
     static getDerivedStateFromProps(nextProps, prevState) {
         console.log("aaaa");
         if (nextProps.productId !== prevState.productId || nextProps.productName !== prevState.productName || nextProps.productPeriod !== prevState.productPeriod
-            || nextProps.sellDepth !== prevState.sellDepth || nextProps.buyDepth !== prevState.buyDepth) {
+            || nextProps.sellDepth !== prevState.sellDepth || nextProps.buyDepth !== prevState.buyDepth || nextProps.processingOrders !== prevState.processingOrders) {
             console.log("bbbb");
             console.log(nextProps);
             return {
                 productId:nextProps.productId,
                 productName:nextProps.productName,
                 productPeriod:nextProps.productPeriod,
-                selectedStartDate:new Date(),
-                selectedEndDate:new Date(),
+
                 showBlotter:false,
                 data:[],
-                sellOrBuy:"",
-                price:"",
-                amount:"",
-                orderType:"",
+
                 sellDepth:nextProps.sellDepth,
                 buyDepth:nextProps.buyDepth,
+                processingOrders:nextProps.processingOrders,
             };
         }
         // 否则，对于state不进行任何操作
@@ -417,7 +415,7 @@ class SendOrder extends Component {
                                     交易中订单
                                 </Typography>
                             </div>
-                            <MyOrderTable/>
+                            <MyOrderTable productName={this.state.productName} processingOrders={this.state.processingOrders}/>
                         </Grid>
                     </Grid>
                 </div>
