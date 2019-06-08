@@ -35,7 +35,7 @@ public class Broker implements InitializingBean {
         Orderbook gold1Orderbook = new Orderbook(gold1, brokerName);
 
         Product gold2 = Products.get("02");
-        Orderbook gold2Orderbook = new Orderbook(gold2, brokerName);
+//        Orderbook gold2Orderbook = new Orderbook(gold2, brokerName);
 
 //        Product oil1 = Products.get("03");
 //        Orderbook oil1Orderbook = new Orderbook(oil1, brokerName);
@@ -44,15 +44,15 @@ public class Broker implements InitializingBean {
 
 
         orderBookMap.putIfAbsent(gold1, gold1Orderbook);
-        orderBookMap.putIfAbsent(gold2, gold2Orderbook);
+//        orderBookMap.putIfAbsent(gold2, gold2Orderbook);
 //        orderBookMap.putIfAbsent(oil1, oil1Orderbook);
 //        orderBookMap.putIfAbsent(oil2, oil2Orderbook);
 
-        System.out.println("initialize broker  complete");
+        System.out.println("initialize broker complete");
 
         startupGateway();
- //       Thread thread1 = new Thread(new TestSocketThread());
- //       thread1.start();
+        //       Thread thread1 = new Thread(new TestSocketThread());
+        //       thread1.start();
 
     }
 

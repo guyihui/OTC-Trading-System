@@ -116,4 +116,13 @@ public class Order {
         return "{" + this.orderId + "\t," + this.orderType + "}";
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Order && ((Order) obj).getOrderId().equals(orderId);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode() + orderId.hashCode();
+    }
 }

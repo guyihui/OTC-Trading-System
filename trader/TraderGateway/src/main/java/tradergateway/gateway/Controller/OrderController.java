@@ -3,7 +3,7 @@ package tradergateway.gateway.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import tradergateway.gateway.Entity.TraderInfo;
+import tradergateway.gateway.Entity.Brokers;
 import tradergateway.gateway.Service.OrderService;
 
 import javax.annotation.Resource;
@@ -12,23 +12,24 @@ import javax.annotation.Resource;
 public class OrderController {
     @Resource
     private OrderService orderService;
+
     @GetMapping("/sendOrder")
     public String sendOrder(
-            @RequestParam(value = "productId")String productid,@RequestParam(value = "type")String type,
-            @RequestParam(value = "sellOrBuy")String sellorbuy,@RequestParam(value = "price")Integer price,
-            @RequestParam(value = "quantity")Integer quantity,@RequestParam(value = "traderName")String name
+            @RequestParam(value = "productId") String productid, @RequestParam(value = "type") String type,
+            @RequestParam(value = "sellOrBuy") String sellorbuy, @RequestParam(value = "price") Integer price,
+            @RequestParam(value = "quantity") Integer quantity, @RequestParam(value = "traderName") String name
 
-    ){
-        String orderid="";
-        switch (type){
+    ) {
+        String orderid = "";
+        switch (type) {
             case "limit":
-                orderid=orderService.sendLimitOrder(TraderInfo.getUuid(),sellorbuy,price,quantity,productid,name);
+                orderid = orderService.sendLimitOrder(Brokers.get("01").getUuid(), sellorbuy, price, quantity, productid, name);
                 break;
             case "stop":
-                orderid=orderService.sendStop(TraderInfo.getUuid(),sellorbuy,price,quantity,productid,name);
+                orderid = orderService.sendStop(Brokers.get("01").getUuid(), sellorbuy, price, quantity, productid, name);
                 break;
             case "market":
-                orderid=orderService.sendMarket(TraderInfo.getUuid(),sellorbuy,quantity,productid,name);
+                orderid = orderService.sendMarket(Brokers.get("01").getUuid(), sellorbuy, quantity, productid, name);
                 break;
         }
         return orderid;
@@ -36,22 +37,22 @@ public class OrderController {
 
     @GetMapping("/sendCancel")
     public String sendCancel(
-            @RequestParam(value = "productId")String productid,@RequestParam(value = "sellOrBuy")String sellorbuy,
-            @RequestParam(value = "price")Integer price,@RequestParam(value = "cancelId")String cancelid,
-            @RequestParam(value = "traderName")String name
-    ){
+            @RequestParam(value = "productId") String productid, @RequestParam(value = "sellOrBuy") String sellorbuy,
+            @RequestParam(value = "price") Integer price, @RequestParam(value = "cancelId") String cancelid,
+            @RequestParam(value = "traderName") String name
+    ) {
 
-        return orderService.sendCancel(TraderInfo.getUuid(),sellorbuy,price,productid,cancelid,name);
+        return orderService.sendCancel(Brokers.get("01").getUuid(), sellorbuy, price, productid, cancelid, name);
 
 
     }
 
     @GetMapping("/getBlotter")
     public String getBlotter(
-            @RequestParam(value = "productId")String productid,@RequestParam(value = "startTime")String starttime,
-            @RequestParam(value = "endTime")String endtime,@RequestParam(value = "traderName")String name
-    ){
+            @RequestParam(value = "productId") String productid, @RequestParam(value = "startTime") String starttime,
+            @RequestParam(value = "endTime") String endtime, @RequestParam(value = "traderName") String name
+    ) {
 
-        return orderService.queryBlotter(productid,starttime,endtime,TraderInfo.getUuid(),name);
+        return orderService.queryBlotter(productid, starttime, endtime, Brokers.get("01").getUuid(), name);
     }
 }

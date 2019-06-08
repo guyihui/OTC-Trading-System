@@ -39,6 +39,7 @@ public class WebSocketTest {
 
     /**
      * 连接建立成功调用的方法
+     *
      * @param session 可选的参数。session为与某个客户端的连接会话，需要通过它来给客户端发送数据
      */
     @OnOpen
@@ -146,6 +147,10 @@ public class WebSocketTest {
 
     public Session getSession() {
         return this.session;
+    }
+
+    public User getUser() {
+        return this.user;
     }
 
     public static ConcurrentHashMap<Product, CopyOnWriteArraySet<WebSocketTest>> getWebSocketMap() {
