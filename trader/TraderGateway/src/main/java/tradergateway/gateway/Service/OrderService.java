@@ -6,8 +6,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import tradergateway.gateway.Entity.Brokers;
+import tradergateway.gateway.Entity.*;
+import tradergateway.gateway.OrderStorage;
 
+import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +19,8 @@ public class OrderService {
     @Autowired
     private RestTemplate restTemplate;
 
+    @Resource
+    private OrderStorage orderStorage;
 
     public String queryBlotter(String productId, String startTime, String endTime, String corpId, String traderName) {
         HttpHeaders headers = new HttpHeaders();
@@ -63,6 +67,26 @@ public class OrderService {
         HttpEntity<Map<String, Object>> reqEntity = new HttpEntity<>(body, headers);
         Map<String, Object> res = restTemplate.postForObject(url, reqEntity, Map.class);
         System.out.println(res.get("id") + " " + res.get("time"));
+
+        Order order=new Order();
+        order.setOrderId((String)res.get("id"));
+        order.setBroker("01");        //TODO: 多个broker
+        order.setOrderType("limit");
+        order.setProduct(Products.get(productId));
+        order.setSellOrBuy(buyOrSell);
+        order.setTraderName(traderName);
+        order.setTotalQuantity(quantity);
+        order.setRemainingQuantity(quantity);
+        order.setPrice(price);
+        order.setTime((Long)res.get("time"));
+        order.setState("waiting");
+
+        Broker broker=Brokers.get("01");
+        User user=new User(traderName);
+        Product product=Products.get(productId);
+
+        orderStorage.addOrder(broker,user,product,order);
+
         return (String) res.get("id");
     }
 
@@ -85,6 +109,26 @@ public class OrderService {
 
         HttpEntity<Map<String, Object>> reqEntity = new HttpEntity<>(body, headers);
         Map<String, Object> res = restTemplate.postForObject(url, reqEntity, Map.class);
+
+        Order order=new Order();
+        order.setOrderId((String)res.get("id"));
+        order.setBroker("01");        //TODO: 多个broker
+        order.setOrderType("market");
+        order.setProduct(Products.get(productId));
+        order.setSellOrBuy(buyOrSell);
+        order.setTraderName(traderName);
+        order.setTotalQuantity(quantity);
+        order.setRemainingQuantity(quantity);
+        order.setPrice(0);
+        order.setTime((Long)res.get("time"));
+        order.setState("waiting");
+
+        Broker broker=Brokers.get("01");
+        User user=new User(traderName);
+        Product product=Products.get(productId);
+        orderStorage.addOrder(broker,user,product,order);
+
+
         System.out.println(res.get("id") + " " + res.get("time"));
         return (String) res.get("id");
     }
@@ -107,6 +151,27 @@ public class OrderService {
 
         HttpEntity<Map<String, Object>> reqEntity = new HttpEntity<>(body, headers);
         Map<String, Object> res = restTemplate.postForObject(url, reqEntity, Map.class);
+
+        Order order=new Order();
+        order.setOrderId((String)res.get("id"));
+        order.setBroker("01");        //TODO: 多个broker
+        order.setOrderType("stop");
+        order.setProduct(Products.get(productId));
+        order.setSellOrBuy(buyOrSell);
+        order.setTraderName(traderName);
+        order.setTotalQuantity(quantity);
+        order.setRemainingQuantity(quantity);
+        order.setPrice(price);
+        order.setTime((Long)res.get("time"));
+        order.setState("waiting");
+
+        Broker broker=Brokers.get("01");
+        User user=new User(traderName);
+        Product product=Products.get(productId);
+
+        orderStorage.addOrder(broker,user,product,order);
+
+
         System.out.println(res.get("id") + " " + res.get("time"));
         return (String) res.get("id");
     }
@@ -131,6 +196,29 @@ public class OrderService {
 
         HttpEntity<Map<String, Object>> reqEntity = new HttpEntity<>(body, headers);
         Map<String, Object> res = restTemplate.postForObject(url, reqEntity, Map.class);
+
+        Order order=new Order();
+        order.setOrderId((String)res.get("id"));
+        order.setBroker("01");        //TODO: 多个broker
+        order.setOrderType("cancel");
+        order.setProduct(Products.get(productId));
+        order.setSellOrBuy(buyOrSell);
+        order.setTraderName(traderName);
+        order.setTotalQuantity(0);
+        order.setRemainingQuantity(0);
+        order.setPrice(price);
+        order.setTime((Long)res.get("time"));
+        order.setCancelId(cancelId);
+        order.setState("waiting");
+
+        Broker broker=Brokers.get("01");
+        User user=new User(traderName);
+        Product product=Products.get(productId);
+
+        orderStorage.addOrder(broker,user,product,order);
+
+
+
         System.out.println(res.get("id") + " " + res.get("time"));
         return (String) res.get("id");
     }
