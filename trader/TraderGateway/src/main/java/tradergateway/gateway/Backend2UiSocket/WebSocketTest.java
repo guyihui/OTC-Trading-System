@@ -4,11 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import javafx.util.Pair;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import tradergateway.gateway.Entity.Broker;
-import tradergateway.gateway.Entity.Order;
-import tradergateway.gateway.Entity.Product;
-import tradergateway.gateway.Entity.User;
+import tradergateway.gateway.Entity.*;
 import tradergateway.gateway.OrderStorage;
 
 import javax.annotation.Resource;
@@ -17,6 +15,7 @@ import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -29,9 +28,10 @@ public class WebSocketTest {
 
     //与某个客户端的连接会话，需要通过它来给客户端发送数据
     private Session session;
-    private User user;
+    private User user = new User("Alice");
 
-    private static OrderStorage orderStorage;
+    @Autowired
+    private OrderStorage orderStorage;
 
     static {
         System.out.println("WebSocket service start.");
@@ -105,12 +105,27 @@ public class WebSocketTest {
      */
     public static void sendMessage(Product product) {
         try {
-            Broker broker;
-            User user;
-
             List<Order> pendingOrders = new ArrayList<>();
 //            orderStorage.getFilteredOrders(broker, user, product);
 //            broadcastToUi(product, result);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void sendOrderState() {
+        try {
+            for (Product product : webSocketMap.keySet()) {
+                for (WebSocketTest socket : webSocketMap.get(product)) {
+                    System.out.println("Now update order state!");
+                    Set<Order> orders = orderStorage.getFilteredOrders(Brokers.get("01"), socket.getUser(), product);
+                    synchronized (socket) {
+                        socket.getSession().getBasicRemote().sendText((new Gson()).toJson(orders));
+                    }
+//                ss.getBasicRemote().sendText(result);
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
