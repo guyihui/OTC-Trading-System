@@ -1,5 +1,6 @@
 package tradergateway.gateway.GatewaySocket;
 
+import tradergateway.gateway.Entity.BrokerChannel;
 import tradergateway.gateway.Entity.Product;
 
 import java.util.Set;

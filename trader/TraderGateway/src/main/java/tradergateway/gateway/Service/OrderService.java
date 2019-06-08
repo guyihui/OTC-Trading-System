@@ -6,6 +6,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import tradergateway.gateway.Entity.Brokers;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,130 +18,136 @@ public class OrderService {
     private RestTemplate restTemplate;
 
 
-    public String queryBlotter(String productid,String period,String starttime,String endtime,String tradername){
-        HttpHeaders headers=new HttpHeaders();
+    public String queryBlotter(String productId, String period, String startTime, String endTime, String traderName) {
+        HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
         //TODO:多个broker
 
-        String corpname="01";
+        String corpName = "01";
 
-        String url="http://localhost:8080/history?productid={productid}&period={period}&starttime={starttime}&endtime={endtime}";
+        String url = Brokers.get("01").getApiUrl() + "/history?" +
+                "productid={productid}" +
+                "&period={period}" +
+                "&starttime={starttime}" +
+                "&endtime={endtime}";
 
-        Map<String,Object>params=new HashMap<>();
-        params.put("productid",productid);
-        params.put("period",period);
-        params.put("starttime",starttime);
-        params.put("endtime",endtime);
-        params.put("corpname",corpname);
+        Map<String, Object> params = new HashMap<>();
+        params.put("productid", productId);
+        params.put("period", period);
+        params.put("starttime", startTime);
+        params.put("endtime", endTime);
+        params.put("corpname", corpName);
 
-        String blotterjson=restTemplate.getForObject(url,String.class,params);
-        return blotterjson;
+        String blotterJson = restTemplate.getForObject(url, String.class, params);
+        return blotterJson;
 
 
     }
-    public String sendLimitOrder(String traderid,String buyorsell,Integer price,Integer quantity,String productid,String traderName){
-        HttpHeaders headers=new HttpHeaders();
+
+    public String sendLimitOrder(String traderId, String buyOrSell, Integer price, Integer quantity, String productId, String traderName) {
+        HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
         //TODO:多个broker
-        String url="http://localhost:8080/addOrder";
+        String url = Brokers.get("01").getApiUrl() + "/addOrder";
 
-        Map<String,Object>body=new HashMap<>();
-        body.put("type","limit");
-        body.put("traderid",traderid);
-       // body.put("compName",traderid);
-        body.put("productid",productid);
-     //   body.put("prodectName",productName);
-     //   body.put("period",period);
-        body.put("price",price);
-        body.put("buyorsell",buyorsell);
-        body.put("quantity",quantity);
-        body.put("traderName",traderName);
+        Map<String, Object> body = new HashMap<>();
+        body.put("type", "limit");
+        body.put("traderid", traderId);
+        // body.put("compName",traderid);
+        body.put("productid", productId);
+        //   body.put("prodectName",productName);
+        //   body.put("period",period);
+        body.put("price", price);
+        body.put("buyorsell", buyOrSell);
+        body.put("traderName", traderName);
+        body.put("quantity", quantity);
 
-        HttpEntity<Map<String,Object>> reqEntity=new HttpEntity<>(body,headers);
-        Map<String,Object> res=restTemplate.postForObject(url,reqEntity,Map.class);
-        System.out.println(res.get("id")+" "+res.get("time"));
-        return (String)res.get("id");
+        HttpEntity<Map<String, Object>> reqEntity = new HttpEntity<>(body, headers);
+        Map<String, Object> res = restTemplate.postForObject(url, reqEntity, Map.class);
+        System.out.println(res.get("id") + " " + res.get("time"));
+        return (String) res.get("id");
     }
-    public String sendMarket(String traderid,String buyorsell,Integer quantity,String productid,String traderName ){
-        HttpHeaders headers=new HttpHeaders();
+
+    public String sendMarket(String traderId, String buyOrSell, Integer quantity, String productId, String traderName) {
+        HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
         //TODO:多个broker
-        String url="http://localhost:8080/addOrder";
+        String url = Brokers.get("01").getApiUrl() + "/addOrder";
 
-        Map<String,Object>body=new HashMap<>();
+        Map<String, Object> body = new HashMap<>();
         Object put = body.put("type", "market");
-        body.put("traderid",traderid);
-     //   body.put("compName", traderid);
-        body.put("productid",productid);
-     //   body.put("prodectName",productName);
-     //   body.put("period",period);
-        body.put("buyorsell",buyorsell);
-        body.put("quantity",quantity);
-        body.put("traderName",traderName);
+        body.put("traderid", traderId);
+        //   body.put("compName", traderId);
+        body.put("productid", productId);
+        //   body.put("productName",productName);
+        //   body.put("period",period);
+        body.put("quantity", quantity);
+        body.put("traderName", traderName);
+        body.put("buyorsell", buyOrSell);
 
-        HttpEntity<Map<String,Object>> reqEntity=new HttpEntity<>(body,headers);
-        Map<String,Object> res=restTemplate.postForObject(url,reqEntity,Map.class);
-        System.out.println(res.get("id")+" "+res.get("time"));
-        return (String)res.get("id");
+        HttpEntity<Map<String, Object>> reqEntity = new HttpEntity<>(body, headers);
+        Map<String, Object> res = restTemplate.postForObject(url, reqEntity, Map.class);
+        System.out.println(res.get("id") + " " + res.get("time"));
+        return (String) res.get("id");
     }
 
-    public  String sendStop(String traderid,String buyorsell,Integer price,Integer quantity,String productid,String traderName ){
-        HttpHeaders headers=new HttpHeaders();
+    public String sendStop(String traderId, String buyOrSell, Integer price, Integer quantity, String productId, String traderName) {
+        HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
         //TODO:多个broker
-        String url="http://localhost:8080/addOrder";
+        String url = Brokers.get("01").getApiUrl() + "/addOrder";
 
-        Map<String,Object>body=new HashMap<>();
-        body.put("type","stop");
-        body.put("traderid",traderid);
-   //     body.put("compName",traderid);
-        body.put("productid",productid);
-   //     body.put("prodectName",productName);
-   //     body.put("period",period);
-        body.put("price",price);
-        body.put("buyorsell",buyorsell);
-        body.put("quantity",quantity);
-        body.put("traderName",traderName);
+        Map<String, Object> body = new HashMap<>();
+        body.put("type", "stop");
+        body.put("traderid", traderId);
+        body.put("productid", productId);
+        //     body.put("period",period);
+        body.put("price", price);
+        body.put("buyorsell", buyOrSell);
+        body.put("quantity", quantity);
+        body.put("traderName", traderName);
 
-        HttpEntity<Map<String,Object>> reqEntity=new HttpEntity<>(body,headers);
-        Map<String,Object> res=restTemplate.postForObject(url,reqEntity,Map.class);
-        System.out.println(res.get("id")+" "+res.get("time"));
-        return (String)res.get("id");
+        HttpEntity<Map<String, Object>> reqEntity = new HttpEntity<>(body, headers);
+        Map<String, Object> res = restTemplate.postForObject(url, reqEntity, Map.class);
+        System.out.println(res.get("id") + " " + res.get("time"));
+        return (String) res.get("id");
     }
-    public String sendCancel(String traderid,String buyorsell,Integer price,String productid,String cancelid,String traderName){
-        HttpHeaders headers=new HttpHeaders();
+
+    public String sendCancel(String traderId, String buyOrSell, Integer price, String productId, String cancelId, String traderName) {
+        HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
         //TODO:多个broker
-        String url="http://localhost:8080/addOrder";
+        String url = Brokers.get("01").getApiUrl() + "/addOrder";
 
-        Map<String,Object>body=new HashMap<>();
-        body.put("type","cancel");
-        body.put("traderid",traderid);
-  //      body.put("compName",traderid);
-        body.put("productid",productid);
-  //      body.put("prodectName",productName);
-  //      body.put("period",period);
-        body.put("price",price);
-        body.put("buyorsell",buyorsell);
-        body.put("cancelid",cancelid);
-        body.put("traderName",traderName);
+        Map<String, Object> body = new HashMap<>();
+        body.put("type", "cancel");
+        body.put("traderid", traderId);
+        //      body.put("compName",traderid);
+        body.put("productid", productId);
+        //      body.put("prodectName",productName);
+        //      body.put("period",period);
+        body.put("price", price);
+        body.put("buyorsell", buyOrSell);
+        body.put("cancelid", cancelId);
+        body.put("traderName", traderName);
 
-        HttpEntity<Map<String,Object>> reqEntity=new HttpEntity<>(body,headers);
-        Map<String,Object> res=restTemplate.postForObject(url,reqEntity,Map.class);
-        System.out.println(res.get("id")+" "+res.get("time"));
-        return (String)res.get("id");
+        HttpEntity<Map<String, Object>> reqEntity = new HttpEntity<>(body, headers);
+        Map<String, Object> res = restTemplate.postForObject(url, reqEntity, Map.class);
+        System.out.println(res.get("id") + " " + res.get("time"));
+        return (String) res.get("id");
     }
-    public Map<String,String>getOrderStates(List<String> orderids){
-        HttpHeaders headers=new HttpHeaders();
+
+    public Map<String, String> getOrderStates(List<String> orderIds) {
+        HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
         //TODO:多个broker
-        String url="http://localhost:8080/getState";
-        Map<String,Object>body=new HashMap<>();
-        body.put("orderids",orderids);
-        HttpEntity<Map<String,Object>> reqEntity=new HttpEntity<>(body,headers);
-        Map<String,String> res=restTemplate.postForObject(url,reqEntity,Map.class);
-        for(String id :orderids){
-            System.out.println(id+"states: "+res.get(id));
+        String url = Brokers.get("01").getApiUrl() + "/getState";
+        Map<String, Object> body = new HashMap<>();
+        body.put("orderids", orderIds);
+        HttpEntity<Map<String, Object>> reqEntity = new HttpEntity<>(body, headers);
+        Map<String, String> res = restTemplate.postForObject(url, reqEntity, Map.class);
+        for (String id : orderIds) {
+            System.out.println(id + "states: " + res.get(id));
         }
         return res;
     }
