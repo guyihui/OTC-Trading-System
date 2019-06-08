@@ -46,7 +46,6 @@ public class WebSocketTest {
     @OnOpen
     public void onOpen(Session session) {
         this.session = session;
-//        webSocketSet.add(this);     //加入set中
         System.out.println("A client is connecting.");
     }
 
@@ -108,19 +107,7 @@ public class WebSocketTest {
     /**
      * 这个方法与上面几个方法不一样。没有用注解，是根据自己需要添加的方法。
      *
-     * @throws IOException
      */
-    public static void sendMessage(Product product) {
-        try {
-            List<Order> pendingOrders = new ArrayList<>();
-//            orderStorage.getFilteredOrders(broker, user, product);
-//            broadcastToUi(product, result);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
     public void sendOrderState() {
         try {
             for (Product product : webSocketMap.keySet()) {
