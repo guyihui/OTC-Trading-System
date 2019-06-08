@@ -127,7 +127,8 @@ public class Orderbook {
                 }
                 else {
                     RedisTest.setOrderState(temp.getOrderId(),"success");
-                    RedisTest.setOrderState(canceledOrder.getOrderId(),"canceled");
+                    Integer remainQuantity=canceledOrder.getRemainingQuantity();
+                    RedisTest.setOrderState(canceledOrder.getOrderId(),"canceled,remain:"+remainQuantity);
                 }
 
 
