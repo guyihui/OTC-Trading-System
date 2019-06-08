@@ -15,6 +15,11 @@ public class Order {
     private String cancelId;
     private Long time;
     private String state;
+    private Integer flag;
+
+    public Order() {
+        flag = 0;
+    }
 
     public String getOrderId() {
         return orderId;
@@ -114,6 +119,18 @@ public class Order {
 
     public String toString() {
         return "{" + this.orderId + "\t," + this.orderType + "}";
+    }
+
+    public Integer getFlag() {
+        return flag;
+    }
+
+    public void setFlag(Integer flag) {
+        this.flag = flag;
+    }
+
+    public void incrementFlag() {
+        this.flag += 1;
     }
 
     @Override

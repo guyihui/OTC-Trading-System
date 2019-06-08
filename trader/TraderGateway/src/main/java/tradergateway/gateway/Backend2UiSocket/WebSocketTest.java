@@ -128,6 +128,12 @@ public class WebSocketTest {
                     System.out.println("Now update order state!");
                     Set<Order> orders = orderStorage.getFilteredOrders(Brokers.get("01"), socket.getUser(), product);
 
+                    for (Order order : orders) {
+                        if (order.getFlag() > 2) {
+                            orders.remove(order);
+                        }
+                    }
+
                     JsonObject state = new JsonObject();
                     state.addProperty("productId", product.getProductId().replace("\"", ""));
                     state.addProperty("type", "state");
