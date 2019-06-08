@@ -286,6 +286,7 @@ function App() {
     const [open, setOpen] = React.useState(true);
     const [sellDepth, setSellDepth] = React.useState({depth:"0",flag:1});
     const [buyDepth, setBuyDepth] = React.useState({depth:"0",flag:1});
+    const [processingOrders, setProcessingOrders] = React.useState([]);
 
     if(Cookies.get("socketFlag")==="1"){
         if(ws!==null){
@@ -340,6 +341,18 @@ function App() {
                 setBuyDepth({depth:"0",flag:1});
             }
 
+        }
+        else if(data.type==='state'){
+            let stateData = JSON.parse(evt.data);
+            console.log(stateData);
+            let data = JSON.parse(stateData.orders);
+            console.log(data);
+            if(data!==null) {
+                setProcessingOrders(data);
+            }
+            else{
+                setProcessingOrders([]);
+            }
         }
         // setOrders(JSON.parse(evt.data));
     };
@@ -476,7 +489,9 @@ function App() {
                     </div>
                     :
                     <div>
-                        <SendOrder sellDepth={sellDepth} buyDepth={buyDepth} productId={msg[selectedIndex].detail[values].productId} productName={msg[selectedIndex].productDisplayName} productPeriod={msg[selectedIndex].detail[values].productPeriod}/>
+                        <SendOrder sellDepth={sellDepth} buyDepth={buyDepth} productId={msg[selectedIndex].detail[values].productId}
+                                   productName={msg[selectedIndex].productDisplayName} productPeriod={msg[selectedIndex].detail[values].productPeriod}
+                                   processingOrders={processingOrders}/>
                     </div>
                 }
 
