@@ -3,6 +3,7 @@ package tradergateway.gateway.Backend2UiSocket;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import javafx.util.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -70,7 +71,11 @@ public class WebSocketTest {
     @OnMessage
     public void onMessage(String message, Session session) {
         System.out.println("来自客户端的消息:" + message);
-        Product askedProduct = new Gson().fromJson(message, Product.class);
+        JsonParser parser = new JsonParser();
+        JsonObject msgJson  = parser.parse(message).getAsJsonObject();
+        //System.out.println("Message:"+msgJson);
+
+        Product askedProduct = new Product(msgJson.get("productId").toString());
         CopyOnWriteArraySet<WebSocketTest> webSocketSet = new CopyOnWriteArraySet<>();
 
         if (webSocketMap.containsKey(askedProduct)) {

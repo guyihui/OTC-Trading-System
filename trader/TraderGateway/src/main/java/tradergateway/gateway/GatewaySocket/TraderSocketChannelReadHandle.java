@@ -36,8 +36,9 @@ public class TraderSocketChannelReadHandle implements CompletionHandler<Integer,
             String buyOrSell = list[2];
             String depth = list[3];
             brokerChannel.updateDepth(productId, buyOrSell, depth);
-        } else {
             System.err.println("服务器信息：" + data);
+        } else {
+            //System.err.println("服务器信息：" + data);
         }
     }
 

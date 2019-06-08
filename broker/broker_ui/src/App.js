@@ -97,7 +97,63 @@ const orders =
                 {price:1400,orders:[{lastAmount:50,totalAmount:100,company:"Morgan Stanley"},{lastAmount:50,totalAmount:100,company:"Morgan Stanley"},{lastAmount:50,totalAmount:100,company:"Morgan Stanley"}]}]
         }];
 
-const dates = [["7月1日","8月1日"],["7月5日","8月30日"],["6月12日","8月1日"],["7月1日"]];
+let msg = [
+    {
+        productName:"gold",
+        productDisplayName:"黄金期货",
+        detail:[
+            {
+                productId:"01",
+                productPeriod:"2019/07/01",
+            },
+            {
+                productId:"02",
+                productPeriod:"2019/08/02",
+            }
+        ]
+    },
+    {
+        productName:"oil",
+        productDisplayName:"原油期货",
+        detail:[
+            {
+                productId:"03",
+                productPeriod:"2019/06/12",
+            },
+            {
+                productId:"04",
+                productPeriod:"2019/08/22",
+            },
+            {
+                productId:"05",
+                productPeriod:"2019/08/23",
+            }
+        ]
+    },
+    {
+        productName:"gas",
+        productDisplayName:"天然气期货",
+        detail:[
+            {
+                productId:"06",
+                productPeriod:"2019/07/02",
+            },
+            {
+                productId:"07",
+                productPeriod:"2019/08/05",
+            }
+        ]
+    },
+    {
+        productName:"wheat",
+        productDisplayName:"小麦期货",
+        detail:[
+            {
+                productId:"08",
+                productPeriod:"2019/07/01",
+            },
+        ]
+    },];
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -129,23 +185,23 @@ const useStyles = makeStyles(theme => ({
 
 let ws = new WebSocket("ws://localhost:8080/WebSocket");
 
-let msg = [
-    {
-        productId:"01",
-        productName:"gold",
-        productPeriod:"201907",
-    },
-    {
-        productId:"02",
-        productName:"oil",
-        productPeriod:"201908",
-    }];
+// let msg = [
+//     {
+//         productId:"01",
+//         productName:"gold",
+//         productPeriod:"201907",
+//     },
+//     {
+//         productId:"02",
+//         productName:"oil",
+//         productPeriod:"201908",
+//     }];
 
 function App() {
     const classes = useStyles();
 
     const [selectedIndex, setSelectedIndex] = React.useState(0);
-    const [values, setValues] = React.useState(dates[selectedIndex][0]);
+    const [values, setValues] = React.useState(0);
     const [orders, setOrders] = React.useState(
         {
             buyList: [],
@@ -154,7 +210,12 @@ function App() {
 
     ws.onopen = function() {
         console.log("open");
-        ws.send(JSON.stringify(msg[selectedIndex%2]));
+        let msgData={
+            productId:msg[selectedIndex].detail[values].productId,
+            productName:msg[selectedIndex].productName,
+            productPeriod:msg[selectedIndex].detail[values].productPeriod,
+        };
+        ws.send(JSON.stringify(msgData));
     };
 
     ws.onmessage = function(evt) {
@@ -174,13 +235,15 @@ function App() {
     function handleListItemClick(event, index) {
         ws.close();
         setSelectedIndex(index);
-        setValues(dates[index][0]);
+        setValues(0);
         ws = new WebSocket("ws://localhost:8080/WebSocket");
         //ws.send(msg[index%2].toString());
     }
 
     function handleChange(event) {
+        ws.close();
         setValues(event.target.value);
+        ws = new WebSocket("ws://localhost:8080/WebSocket");
     }
 
     const [state, setState] = React.useState({
@@ -210,15 +273,15 @@ function App() {
             >
                 <div className={classes.toolbar} />
                 <List>
-                    {['黄金期货', '原油期货', '天然气期货', '小麦期货'].map((text, index) => (
+                    {msg.map((text, index) => (
                         <ListItem
                             button
-                            key={text}
+                            key={text.productDisplayName}
                             selected={selectedIndex === index}
                             onClick={event => handleListItemClick(event, index)}>
                             {/*<ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>*/}
                             <ListItemIcon><img style={{height:50,width:50,marginRight:20,marginLeft:20}} src={pics[index]}/></ListItemIcon>
-                            <ListItemText primary={text} />
+                            <ListItemText primary={text.productDisplayName} />
                         </ListItem>
                     ))}
                 </List>
@@ -233,8 +296,8 @@ function App() {
                         onChange={handleChange}
                         input={<Input name="date" id="date-helper"/>}
                     >
-                        {dates[selectedIndex].map((date, index) => (
-                            <MenuItem value={date}>{date}</MenuItem>
+                        {msg[selectedIndex].detail.map((date, index) => (
+                            <MenuItem value={index}>{date.productPeriod}</MenuItem>
                         ))}
                     </Select>
                     <FormHelperText>请选择某时间段内的商品</FormHelperText>
@@ -254,7 +317,7 @@ function App() {
                 </Fragment>
                 {state.checkedB?
                     <div>
-                        <Blotter/>
+                        <Blotter productId={msg[selectedIndex].detail[values].productId} productName={msg[selectedIndex].productDisplayName} productPeriod={msg[selectedIndex].detail[values].productPeriod}/>
                     </div>
                     :
                     <div>

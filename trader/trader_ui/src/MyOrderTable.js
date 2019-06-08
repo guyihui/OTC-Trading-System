@@ -127,6 +127,7 @@ class MyOrderTable extends Component {
 
         this.handleChangePage = this.handleChangePage.bind(this);
         this.handleChangeRowsPerPage = this.handleChangeRowsPerPage.bind(this);
+        this.handleCancelOrder = this.handleCancelOrder.bind(this);
     }
 
 
@@ -136,6 +137,20 @@ class MyOrderTable extends Component {
 
     handleChangeRowsPerPage(event) {
         this.setState({rowsPerPage:parseInt(event.target.value, 10)});
+    }
+
+    handleCancelOrder(row){
+        // let xmlHttp = new XMLHttpRequest();
+        // xmlHttp.open("GET", "http://localhost:8082/getBlotter?productId="+this.state.productId+"&startTime="+this.state.selectedStartDate.getTime()+"&endTime="+this.state.selectedEndDate.getTime()+"&traderName="+"Alice", true);
+        // xmlHttp.setRequestHeader("Content-Type", "application/json");
+        // xmlHttp.onreadystatechange = () => {
+        //     if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {
+        //         let data=JSON.parse(xmlHttp.responseText);
+        //         console.log(data);
+        //         this.setState({data:data});
+        //     }
+        // };
+        // xmlHttp.send();
     }
 
     render() {
@@ -170,7 +185,7 @@ class MyOrderTable extends Component {
                                     <TableCell align="right">{row.quantity}</TableCell>
                                     <TableCell align="right">{row.type}</TableCell>
                                     <TableCell align="right">
-                                        <IconButton size="small" color="secondary" aria-label="Add" className={classes.margin}>
+                                        <IconButton size="small" color="secondary" aria-label="Add" onClick={()=>this.handleCancelOrder(row)} className={classes.margin}>
                                             <CancelIcon />
                                         </IconButton>
                                     </TableCell>
