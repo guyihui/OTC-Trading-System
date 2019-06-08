@@ -1,10 +1,9 @@
-package tradergateway.gateway.GatewaySocket;
+package tradergateway.gateway.Entity;
 
 import javafx.util.Pair;
-import org.springframework.beans.factory.annotation.Autowired;
 import tradergateway.gateway.Backend2UiSocket.WebSocketTest;
-import tradergateway.gateway.Entity.Product;
-import tradergateway.gateway.Entity.TraderInfo;
+import tradergateway.gateway.GatewaySocket.TraderSocketChannelReadHandle;
+import tradergateway.gateway.GatewaySocketService;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
@@ -24,8 +23,6 @@ public class BrokerChannel {
     private ByteBuffer byteBuffer = ByteBuffer.allocate(512);
     private long retryInterval = 10;
     //TODO:注入websocket
- //   @Autowired
-    private WebSocketTest webSocketTest;
 
     public BrokerChannel(AsynchronousSocketChannel channel) {
         this.channel = channel;
@@ -53,8 +50,8 @@ public class BrokerChannel {
                 if (content.indexOf("connected:") == 0) {
                     isConnected = true;
                     String uuid = content.substring("connected:".length());
-                    TraderInfo.setUuid(uuid);
-                    System.err.println(uuid);
+                    identification = uuid;
+                    System.out.println("id code:" + uuid);
                     //注册read回调
                     channel.read(byteBuffer, byteBuffer, new TraderSocketChannelReadHandle(this));
                     System.out.println("[" + channel + "]" + " connected");
@@ -95,7 +92,11 @@ public class BrokerChannel {
         subscribedProducts.put(product, updatedPair);
         System.out.printf("%2s.depth:%4s,%4s\n", productId, updatedPair.getKey(), updatedPair.getValue());
         //TODO: 向前端推送深度
-        webSocketTest.sendDepth(product, updatedPair);
+        WebSocketTest.sendDepth(product, updatedPair);
+    }
+
+    public boolean isConnected() {
+        return isConnected;
     }
 
     public Set<Product> getSubscribedProducts() {

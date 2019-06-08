@@ -1,4 +1,4 @@
-package com.tradehistoryaccess.BrokerService.GatewaySocket;
+package com.tradehistoryaccess.Entity;
 
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;

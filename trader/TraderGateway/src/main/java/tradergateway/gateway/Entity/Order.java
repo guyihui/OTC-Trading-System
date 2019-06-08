@@ -1,7 +1,5 @@
 package tradergateway.gateway.Entity;
 
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class Order {
 
@@ -17,58 +15,6 @@ public class Order {
     private String cancelId;
     private Long time;
     private String state;
-    private Lock lock = new ReentrantLock();
-
-    public Order(String id, String type) {
-        this.orderId = id;
-        this.orderType = type;
-    }
-
-    public Order(String id, String type, Integer price, String sellOrBuy) {
-        this.orderId = id;
-        this.orderType = type;
-        this.price = price;
-        this.sellOrBuy = sellOrBuy;
-    }
-
-    public Order(String id, String type, Product product, String sellOrBuy,
-                 Integer total, Integer price, String cancelId) {
-        this.orderId = id;
-        this.orderType = type;
-        this.product = product;
-        this.sellOrBuy = sellOrBuy;
-        this.broker = null;
-        this.totalQuantity = total;
-        this.remainingQuantity = total;
-        this.price = price;
-        this.cancelId = cancelId;
-    }
-
-    public boolean priceBetterThan(int anotherPrice) {
-        if (this.getSellOrBuy().equals("sell")) {
-            return this.price < anotherPrice;
-        } else if (this.getSellOrBuy().equals("buy")) {
-            return this.price > anotherPrice;
-        } else {
-            return false;
-        }
-    }
-
-    public void lock() {
-        this.lock.lock();
-    }
-
-    public void unlock() {
-        this.lock.unlock();
-    }
-
-    public String toString() {
-        return "{" + this.orderId + "\t," + this.orderType + "}";
-    }
-
-    public void stopToLimit() {
-        this.orderType = "limit";
-    }
 
     public String getOrderId() {
         return orderId;
@@ -108,6 +54,14 @@ public class Order {
 
     public void setBroker(String broker) {
         this.broker = broker;
+    }
+
+    public String getTraderName() {
+        return traderName;
+    }
+
+    public void setTraderName(String traderName) {
+        this.traderName = traderName;
     }
 
     public Integer getTotalQuantity() {
@@ -150,11 +104,25 @@ public class Order {
         this.time = time;
     }
 
-    public String getTraderName() {
-        return traderName;
+    public String getState() {
+        return state;
     }
 
-    public void setTraderName(String traderName) {
-        this.traderName = traderName;
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public String toString() {
+        return "{" + this.orderId + "\t," + this.orderType + "}";
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Order && ((Order) obj).getOrderId().equals(orderId);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode() + orderId.hashCode();
     }
 }

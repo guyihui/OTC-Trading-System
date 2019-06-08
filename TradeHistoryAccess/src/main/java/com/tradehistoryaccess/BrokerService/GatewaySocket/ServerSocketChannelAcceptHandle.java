@@ -2,6 +2,8 @@ package com.tradehistoryaccess.BrokerService.GatewaySocket;
 
 import com.tradehistoryaccess.BrokerService.OrderBook.Orderbook;
 import com.tradehistoryaccess.BrokerService.OrderBook.Product;
+import com.tradehistoryaccess.Entity.Trader;
+import com.tradehistoryaccess.Entity.TraderManage;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousServerSocketChannel;

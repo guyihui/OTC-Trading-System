@@ -1,11 +1,11 @@
 package com.tradehistoryaccess.Controller;
 
 import com.google.gson.Gson;
-import com.tradehistoryaccess.BrokerService.GatewaySocket.Trader;
-import com.tradehistoryaccess.BrokerService.GatewaySocket.TraderManage;
 import com.tradehistoryaccess.BrokerService.OrderBook.Product;
 import com.tradehistoryaccess.Entity.Products;
 import com.tradehistoryaccess.Entity.TradeDTO;
+import com.tradehistoryaccess.Entity.Trader;
+import com.tradehistoryaccess.Entity.TraderManage;
 import com.tradehistoryaccess.Util.HibernateUtils;
 import org.hibernate.Session;
 import org.hibernate.Transaction;

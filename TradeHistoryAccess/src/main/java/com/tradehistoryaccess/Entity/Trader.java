@@ -1,4 +1,4 @@
-package com.tradehistoryaccess.BrokerService.GatewaySocket;
+package com.tradehistoryaccess.Entity;
 
 import com.tradehistoryaccess.BrokerService.OrderBook.Product;
 
@@ -15,13 +15,13 @@ public class Trader {
     private Set<Product> subscribedProducts = new CopyOnWriteArraySet<>();
     private UUID uuid = UUID.randomUUID();
 
-    public Trader(AsynchronousSocketChannel channel) {
-        this.connection = channel;
+    public Trader(String id, String name) {
+        this.traderId = id;
+        this.traderCompany = name;
     }
 
-    public Trader(String traderId, String traderCompany) {
-        this.setTraderCompany(traderCompany);
-        this.setTraderId(traderId);
+    public Trader(AsynchronousSocketChannel channel) {
+        this.connection = channel;
     }
 
     public String getTraderId() {

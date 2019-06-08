@@ -1,5 +1,7 @@
 package tradergateway.gateway.GatewaySocket;
 
+import tradergateway.gateway.Entity.BrokerChannel;
+
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
