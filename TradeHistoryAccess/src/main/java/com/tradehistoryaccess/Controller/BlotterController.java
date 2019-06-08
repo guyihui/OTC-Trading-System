@@ -29,7 +29,7 @@ public class BlotterController {
             @RequestParam(value = "corpid",required = false,defaultValue = "magic") String corpid,
             @RequestParam(value = "tradername")String tradername){
 
-        System.out.println("id: "+productid+" starttime "+starttime+" endtime "+endtime);
+        System.out.println("id: "+productid+" starttime "+starttime+" endtime "+endtime+"corpid: "+corpid);
         Product product= Products.get(productid);
         String period=product.getProductPeriod();
 
@@ -52,6 +52,9 @@ public class BlotterController {
             String corpName=trader.getTraderCompany();
 
             for (TradeDTO tradeDTO : trades) {
+                if(tradeDTO.getInitTrader()==null||tradeDTO.getCompTrader()==null){
+                    continue;
+                }
                 if (tradeDTO.getInitTrader().equals(corpName) || tradeDTO.getCompCompany().equals(corpName)) {
                     continue;
                 }

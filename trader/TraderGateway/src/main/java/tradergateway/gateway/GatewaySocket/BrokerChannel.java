@@ -2,6 +2,7 @@ package tradergateway.gateway.GatewaySocket;
 
 import javafx.util.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
+import tradergateway.gateway.Backend2UiSocket.WebSocketTest;
 import tradergateway.gateway.Entity.Product;
 import tradergateway.gateway.Entity.TraderInfo;
 
@@ -24,7 +25,7 @@ public class BrokerChannel {
     private long retryInterval = 10;
     //TODO:注入websocket
  //   @Autowired
- //   private WebSocketTest webSocketTest;
+    private WebSocketTest webSocketTest;
 
     public BrokerChannel(AsynchronousSocketChannel channel) {
         this.channel = channel;
@@ -94,7 +95,7 @@ public class BrokerChannel {
         subscribedProducts.put(product, updatedPair);
         System.out.printf("%2s.depth:%4s,%4s\n", productId, updatedPair.getKey(), updatedPair.getValue());
         //TODO: 向前端推送深度
-  //      webSocketTest.sendMessage(product);
+        webSocketTest.sendDepth(product, updatedPair);
     }
 
     public Set<Product> getSubscribedProducts() {

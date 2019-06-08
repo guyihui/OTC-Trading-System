@@ -26,12 +26,27 @@ import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
+import Snackbar from '@material-ui/core/Snackbar';
+import SnackbarContent from '@material-ui/core/SnackbarContent';
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import ErrorIcon from '@material-ui/icons/Error';
+import InfoIcon from '@material-ui/icons/Info';
+import CloseIcon from '@material-ui/icons/Close';
+import green from '@material-ui/core/colors/green';
+import amber from '@material-ui/core/colors/amber';
+import IconButton from '@material-ui/core/IconButton';
+import ExitToAppIcon from '@material-ui/icons/ExitToAppOutlined';
+import WarningIcon from '@material-ui/icons/Warning';
+import PropTypes from 'prop-types';
+import clsx from 'clsx';
+import Cookies from 'js-cookie';
 import Blotter from './Blotter';
 import SendOrder from './SendOrder';
 import goldPic from './SvgIcon/gold.svg';
 import cerealPic from './SvgIcon/cereal.svg';
 import barrelPic from './SvgIcon/barrel.svg';
 import firePic from './SvgIcon/fire.svg';
+import {browserHistory} from "react-router";
 
 const drawerWidth = 240;
 
@@ -132,9 +147,15 @@ const useStyles = makeStyles(theme => ({
         height:40,
         bottom: 0,
     },
+    exitButton: {
+        marginRight: theme.spacing(2),
+    },
+    title: {
+        flexGrow: 1,
+    },
 }));
 
-// let ws = new WebSocket("ws://localhost:8080/WebSocket");
+let ws = new WebSocket("ws://localhost:8082/WebSocket");
 
 let msg = [
     {
@@ -194,6 +215,64 @@ let msg = [
         ]
     },];
 
+const useStyles1 = makeStyles(theme => ({
+    success: {
+        backgroundColor: green[600],
+    },
+    error: {
+        backgroundColor: theme.palette.error.dark,
+    },
+    info: {
+        backgroundColor: theme.palette.primary.dark,
+    },
+    warning: {
+        backgroundColor: amber[700],
+    },
+    icon: {
+        fontSize: 20,
+    },
+    iconVariant: {
+        opacity: 0.9,
+        marginRight: theme.spacing(1),
+    },
+    message: {
+        display: 'flex',
+        alignItems: 'center',
+    },
+}));
+
+const variantIcon = {
+    success: CheckCircleIcon,
+    warning: WarningIcon,
+    error: ErrorIcon,
+    info: InfoIcon,
+};
+
+function MySnackbarContentWrapper(props) {
+    const classes = useStyles1();
+    const { className, message, onClose, variant, ...other } = props;
+    const Icon = variantIcon[variant];
+
+    return (
+        <SnackbarContent
+            className={clsx(classes[variant], className)}
+            aria-describedby="client-snackbar"
+            message={
+                <span id="client-snackbar" className={classes.message}>
+          <Icon className={clsx(classes.icon, classes.iconVariant)} />
+                    {message}
+        </span>
+            }
+            action={[
+                <IconButton key="close" aria-label="Close" color="inherit" onClick={onClose}>
+                    <CloseIcon className={classes.icon} />
+                </IconButton>,
+            ]}
+            {...other}
+        />
+    );
+}
+
 function App() {
     const classes = useStyles();
 
@@ -204,38 +283,113 @@ function App() {
             buyList: [],
             sellList:[],
         });
+    const [open, setOpen] = React.useState(true);
+    const [sellDepth, setSellDepth] = React.useState({depth:"0",flag:1});
+    const [buyDepth, setBuyDepth] = React.useState({depth:"0",flag:1});
 
-    // ws.onopen = function() {
-    //     console.log("open");
-    //     ws.send(JSON.stringify(msg[selectedIndex%2]));
-    // };
-    //
-    // ws.onmessage = function(evt) {
-    //     console.log(evt.data);
-    //     setOrders(JSON.parse(evt.data));
-    // };
-    //
-    // ws.onclose = function(evt) {
-    //     console.log("WebSocketClosed!");
-    // };
-    //
-    // ws.onerror = function(evt)
-    // {
-    //     console.log("WebSocketError!");
-    // };
+    if(Cookies.get("socketFlag")==="1"){
+        if(ws!==null){
+            ws.close();
+        }
+        ws = new WebSocket("ws://localhost:8082/WebSocket");
+        Cookies.set("socketFlag","0");
+    }
+
+    ws.onopen = function() {
+        console.log("open");
+        let msgData={
+            productId:msg[selectedIndex].detail[values].productId,
+            productName:msg[selectedIndex].productName,
+            productPeriod:msg[selectedIndex].detail[values].productPeriod,
+            traderName:Cookies.get('username'),
+            broker:Cookies.get('broker'),
+        };
+        ws.send(JSON.stringify(msgData));
+    };
+
+    ws.onmessage = function(evt) {
+        console.log(evt.data);
+        let data=JSON.parse(evt.data);
+        if(data.type === "depth") {
+            if(data.sell!=='-1'&&data.sell!==null) {
+                if(parseInt(data.sell)>parseInt(sellDepth.depth)){
+                    setSellDepth({depth:data.sell,flag:2});
+                }
+                else if(parseInt(data.sell)===parseInt(sellDepth.depth)){
+                    setSellDepth({depth:data.sell,flag:1});
+                }
+                else{
+                    setSellDepth({depth:data.sell,flag:0});
+                }
+            }
+            else{
+                setSellDepth({depth:"0",flag:1});
+            }
+            if(data.buy!=='-1'&&data.buy!==null) {
+                if(parseInt(data.buy)>parseInt(buyDepth.depth)){
+                    setBuyDepth({depth:data.buy,flag:2});
+                }
+                else if(parseInt(data.buy)===parseInt(buyDepth.depth)){
+                    setBuyDepth({depth:data.buy,flag:1});
+                }
+                else{
+                    setBuyDepth({depth:data.buy,flag:0});
+                }
+            }
+            else{
+                setBuyDepth({depth:"0",flag:1});
+            }
+
+        }
+        // setOrders(JSON.parse(evt.data));
+    };
+
+    ws.onclose = function(evt) {
+        console.log("WebSocketClosed!");
+    };
+
+    ws.onerror = function(evt)
+    {
+        console.log("WebSocketError!");
+    };
 
     function handleListItemClick(event, index) {
-        // ws.close();
+        ws.close();
         setSelectedIndex(index);
         //TODO:选择时间改state
         setValues(0);
-        // ws = new WebSocket("ws://localhost:8080/WebSocket");
+        setSellDepth({depth:"0",flag:1});
+        setBuyDepth({depth:"0",flag:1});
+        ws = new WebSocket("ws://localhost:8082/WebSocket");
         //ws.send(msg[index%2].toString());
     }
 
     function handleChange(event) {
+        ws.close();
         setValues(event.target.value);
+        setSellDepth({depth:"0",flag:1});
+        setBuyDepth({depth:"0",flag:1});
+        ws = new WebSocket("ws://localhost:8082/WebSocket");
         //console.log(event.target.value);
+    }
+
+    function handleLogOut(event, index) {
+        ws.close();
+        setSellDepth({depth:"0",flag:1});
+        setBuyDepth({depth:"0",flag:1});
+        browserHistory.push({
+            pathname:'/',
+        });
+        // ws = new WebSocket("ws://localhost:8082/WebSocket");
+        //ws.send(msg[index%2].toString());
+    }
+
+    function handleClose(event, reason) {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setOpen(false);
     }
 
     const [state, setState] = React.useState({
@@ -251,9 +405,18 @@ function App() {
             <CssBaseline />
             <AppBar position="fixed" className={classes.appBar}>
                 <Toolbar>
-                    <Typography variant="h6" noWrap>
+                    <Typography edge="start" className={classes.title} variant="h6" noWrap>
                         期货交易所
                     </Typography>
+                    <IconButton
+                        color="inherit"
+                        aria-label="Open drawer"
+                        onClick={handleLogOut}
+                    >
+                        <Typography variant="subtitle1" noWrap>
+                            登出
+                        </Typography>&nbsp;<ExitToAppIcon />
+                    </IconButton>
                 </Toolbar>
             </AppBar>
             <Drawer
@@ -313,9 +476,26 @@ function App() {
                     </div>
                     :
                     <div>
-                        <SendOrder productId={msg[selectedIndex].detail[values].productId} productName={msg[selectedIndex].productDisplayName} productPeriod={msg[selectedIndex].detail[values].productPeriod}/>
+                        <SendOrder sellDepth={sellDepth} buyDepth={buyDepth} productId={msg[selectedIndex].detail[values].productId} productName={msg[selectedIndex].productDisplayName} productPeriod={msg[selectedIndex].detail[values].productPeriod}/>
                     </div>
                 }
+
+                <Snackbar
+                    anchorOrigin={{
+                        vertical: 'top',
+                        horizontal: 'center',
+                    }}
+                    open={open}
+                    autoHideDuration={6000}
+                    onClose={handleClose}
+                >
+                    <MySnackbarContentWrapper
+                        onClose={handleClose}
+                        variant="success"
+                        message="This is a success message!"
+                    />
+                </Snackbar>
+
                 <AppBar position="fixed" color="primary" className={classes.bottomBar}>
                     <Toolbar>
                         <div></div>

@@ -94,11 +94,11 @@ public class PriceNodeList {
                 PriceNode newMedium = new PriceNode(price);
                 newMedium.setNext(tempNext);
                 temp.setNext(newMedium);
+                Boolean tempAddOrder = newMedium.addOrder(order);
                 if (temp == limitHead) {
                     //TODO:Depth变化时动作：如 Broadcast 等
                     this.broadcastOnDepthChange(newMedium);
                 }
-                Boolean tempAddOrder = newMedium.addOrder(order);
                 tempNext.unlock();
                 temp.unlock();
                 return tempAddOrder;
@@ -110,6 +110,10 @@ public class PriceNodeList {
         PriceNode newTail = new PriceNode(price);
         Boolean tempAddOrder = newTail.addOrder(order);
         temp.setNext(newTail);
+        if (temp == limitHead) {
+            //TODO:Depth变化时动作：如 Broadcast 等
+            this.broadcastOnDepthChange(newTail);
+        }
         temp.unlock();
         return tempAddOrder;
 

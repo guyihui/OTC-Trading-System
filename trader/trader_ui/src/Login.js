@@ -16,8 +16,14 @@ import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import LockIcon from '@material-ui/icons/Lock';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import InputAdornment from '@material-ui/core/InputAdornment';
+import InputLabel from '@material-ui/core/InputLabel';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+import Input from '@material-ui/core/Input';
+import OutlinedInput from '@material-ui/core/OutlinedInput';
 import ReactRouter from './ReactRouter';
 import { browserHistory} from 'react-router';
+import Cookies from 'js-cookie';
 
 
 const useStyles = makeStyles(theme =>({
@@ -46,19 +52,45 @@ const useStyles = makeStyles(theme =>({
     pos: {
         marginBottom: 12,
     },
+    selectEmpty: {
+        marginTop: theme.spacing(2),
+    },
 }));
 
 
 class Login extends Component {
     constructor(props){
         super(props);
+        this.state = {
+            selectedBroker:'',
+            username:'',
+        };
         this.handleButtonOnClick = this.handleButtonOnClick.bind(this);
+        this.handleBrokerChange = this.handleBrokerChange.bind(this);
+        this.handleUsernameOnChange = this.handleUsernameOnChange.bind(this);
     }
 
     handleButtonOnClick(){
+        Cookies.set('username',this.state.username);
+        Cookies.set('broker',this.state.selectedBroker);
+        Cookies.set('socketFlag',"1");
         browserHistory.push({
             pathname:'/homepage',
         });
+    }
+
+    handleBrokerChange(event){
+        console.log(event.target.value);
+        this.setState({
+            selectedBroker:event.target.value,
+        })
+    }
+
+    handleUsernameOnChange(event){
+        console.log(event.target.value);
+        this.setState({
+            username: event.target.value,
+        })
     }
 
     render() {
@@ -89,7 +121,8 @@ class Login extends Component {
                                     <TextField
                                         id="standard-full-width"
                                         label="用户名"
-
+                                        value={this.state.username}
+                                        onChange={this.handleUsernameOnChange}
                                         placeholder="请输入用户名"
                                         fullWidth
                                         margin="normal"
@@ -100,7 +133,7 @@ class Login extends Component {
                                             startAdornment: <InputAdornment position="start"><AccountCircleIcon fontSize={'medium'}/></InputAdornment>,
                                             style:{fontSize:20},
                                         }}
-                                        style={{width:'90%',marginTop:60}}
+                                        style={{width:'90%',marginTop:40}}
                                     />
                                     <TextField
                                         id="standard-full-width"
@@ -116,9 +149,25 @@ class Login extends Component {
                                             startAdornment: <InputAdornment position="start"><LockIcon fontSize={'medium'}/></InputAdornment>,
                                             style:{fontSize:20},
                                         }}
-                                        style={{width:'90%',marginTop:60}}
+                                        style={{width:'90%',marginTop:40}}
                                     />
-                                    <Button variant="contained" onClick={this.handleButtonOnClick} style={{width:'90%',height:'12%',fontSize:20,color:'#FFFFFF',marginTop:50,backgroundColor:'#333eb0'}}>登录</Button>
+                                    <Select
+                                        value={this.state.selectedBroker}
+                                        onChange={this.handleBrokerChange}
+                                        input={<OutlinedInput name="broker" id="brokerSelect" />}
+                                        displayEmpty
+                                        name="age"
+                                        className={classes.selectEmpty}
+                                        style={{width:'90%',marginTop:40}}
+                                    >
+                                        <MenuItem value="" disabled>
+                                            请选择 Broker
+                                        </MenuItem>
+                                        <MenuItem value={10}>Ten</MenuItem>
+                                        <MenuItem value={20}>Twenty</MenuItem>
+                                        <MenuItem value={30}>Thirty</MenuItem>
+                                    </Select>
+                                    <Button variant="contained" onClick={this.handleButtonOnClick} style={{width:'90%',height:'12%',fontSize:20,color:'#FFFFFF',marginTop:40,backgroundColor:'#333eb0'}}>登录</Button>
                                 </CardContent>
                                 <CardActions>
 

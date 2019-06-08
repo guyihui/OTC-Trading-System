@@ -23,6 +23,7 @@ import Button from '@material-ui/core/Button';
 import DateFnsUtils from "@date-io/date-fns";
 import MyOrderTable from "./MyOrderTable";
 import Divider from '@material-ui/core/Divider';
+import Cookies from 'js-cookie';
 
 
 const useStyles = makeStyles(theme => ({
@@ -119,6 +120,8 @@ class SendOrder extends Component {
             price:"",
             amount:"",
             orderType:"",
+            sellDepth:this.props.sellDepth,
+            buyDepth:this.props.buyDepth,
         };
         this.handleStartDateChange = this.handleStartDateChange.bind(this);
         this.handleEndDateChange = this.handleEndDateChange.bind(this);
@@ -131,7 +134,8 @@ class SendOrder extends Component {
 
     static getDerivedStateFromProps(nextProps, prevState) {
         console.log("aaaa");
-        if (nextProps.productId !== prevState.productId || nextProps.productName !== prevState.productName || nextProps.productPeriod !== prevState.productPeriod) {
+        if (nextProps.productId !== prevState.productId || nextProps.productName !== prevState.productName || nextProps.productPeriod !== prevState.productPeriod
+            || nextProps.sellDepth !== prevState.sellDepth || nextProps.buyDepth !== prevState.buyDepth) {
             console.log("bbbb");
             console.log(nextProps);
             return {
@@ -146,6 +150,8 @@ class SendOrder extends Component {
                 price:"",
                 amount:"",
                 orderType:"",
+                sellDepth:nextProps.sellDepth,
+                buyDepth:nextProps.buyDepth,
             };
         }
         // 否则，对于state不进行任何操作
@@ -182,11 +188,11 @@ class SendOrder extends Component {
     handleOrderButtonOnClick(){
         console.log(this.state);
         let xmlHttp = new XMLHttpRequest();
-        xmlHttp.open("GET", "http://localhost:8080/history?productId="+this.state.productId+"&type="+this.state.orderType+"&sellOrBuy="+this.state.sellOrBuy+"&price="+this.state.price+"&quantity="+this.state.amount+"&traderName="+"Alice", true);
+        xmlHttp.open("GET", "http://localhost:8082/sendOrder?productId="+this.state.productId+"&type="+this.state.orderType+"&sellOrBuy="+this.state.sellOrBuy+"&price="+this.state.price+"&quantity="+this.state.amount+"&traderName="+"Alice", true);
         xmlHttp.setRequestHeader("Content-Type", "application/json");
         xmlHttp.onreadystatechange = () => {
             if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {
-                let data=JSON.parse(xmlHttp.responseText);
+                let data=xmlHttp.responseText;
                 console.log(data);
                 this.setState({
                     selectedStartDate:new Date(),
@@ -231,7 +237,7 @@ class SendOrder extends Component {
                                             id="outlined-full-width"
                                             label="SELL Depth"
                                             style={{ margin: 8 }}
-                                            defaultValue="1240"
+                                            value={this.state.sellDepth.depth}
                                             fullWidth
                                             margin="normal"
                                             variant="outlined"
@@ -240,9 +246,10 @@ class SendOrder extends Component {
                                             }}
                                             InputProps={{
                                                 startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                                                style: { fontSize: 40 },
+                                                style: { fontSize: 45 },
                                                 readOnly: true,
-                                                endAdornment: <InputAdornment position="end"><ArrowDownWardIcon fontSize={"medium"}/></InputAdornment>,
+                                                endAdornment: this.state.sellDepth.flag===0?<InputAdornment position="end"><ArrowDownWardIcon fontSize={"medium"}/></InputAdornment>
+                                                :(this.state.sellDepth.flag===2?<InputAdornment position="end"><ArrowUpWardIcon fontSize={"medium"}/></InputAdornment>:' '),
                                             }}
                                         />
                                     </Grid>
@@ -253,7 +260,7 @@ class SendOrder extends Component {
                                             id="outlined-full-width"
                                             label="BUY Depth"
                                             style={{ margin: 8 }}
-                                            defaultValue="1240"
+                                            value={this.state.buyDepth.depth}
                                             fullWidth
                                             margin="normal"
                                             variant="outlined"
@@ -262,9 +269,10 @@ class SendOrder extends Component {
                                             }}
                                             InputProps={{
                                                 startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                                                style: { fontSize: 40 },
+                                                style: { fontSize: 45 },
                                                 readOnly: true,
-                                                endAdornment: <InputAdornment position="end"><ArrowUpWardIcon fontSize={"medium"}/></InputAdornment>,
+                                                endAdornment: (this.state.buyDepth.flag===0)?<InputAdornment position="end"><ArrowDownWardIcon fontSize={"medium"}/></InputAdornment>
+                                                    :(this.state.buyDepth.flag===2?<InputAdornment position="end"><ArrowUpWardIcon fontSize={"medium"}/></InputAdornment>:' '),
                                             }}
                                         />
                                     </Grid>

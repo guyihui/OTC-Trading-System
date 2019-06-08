@@ -78,6 +78,9 @@ class Blotter extends Component {
     constructor(props){
         super(props);
         this.state = {
+            productId:this.props.productId,
+            productName:this.props.productName,
+            productPeriod:this.props.productPeriod,
             selectedStartDate:new Date(),
             selectedEndDate:new Date(),
             showBlotter:false,
@@ -86,6 +89,25 @@ class Blotter extends Component {
         this.handleStartDateChange = this.handleStartDateChange.bind(this);
         this.handleEndDateChange = this.handleEndDateChange.bind(this);
         this.handleButtonOnClick = this.handleButtonOnClick.bind(this);
+    }
+
+    static getDerivedStateFromProps(nextProps, prevState) {
+        console.log("aaaa");
+        if (nextProps.productId !== prevState.productId || nextProps.productName !== prevState.productName || nextProps.productPeriod !== prevState.productPeriod) {
+            console.log("bbbb");
+            console.log(nextProps);
+            return {
+                productId:nextProps.productId,
+                productName:nextProps.productName,
+                productPeriod:nextProps.productPeriod,
+                selectedStartDate:new Date(),
+                selectedEndDate:new Date(),
+                showBlotter:false,
+                data:[]
+            };
+        }
+        // 否则，对于state不进行任何操作
+        return null;
     }
 
     handleStartDateChange(date){

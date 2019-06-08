@@ -21,7 +21,7 @@ public class OrderService {
         HttpHeaders headers=new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
         //TODO:多个broker
-        String url="http://localhost:8080/history?productid={productid}&period={period}&starttime={starttime}&endtime={endtime}&corpid={corpid}&tradername={tradername}";
+        String url="http://localhost:8080/history?productid={productid}&starttime={starttime}&endtime={endtime}&corpid={corpid}&tradername={tradername}";
 
         Map<String,Object>params=new HashMap<>();
         params.put("productid",productid);
@@ -31,6 +31,7 @@ public class OrderService {
         params.put("tradername",tradername);
 
         String blotterjson=restTemplate.getForObject(url,String.class,params);
+        System.out.println(blotterjson);
         return blotterjson;
 
 

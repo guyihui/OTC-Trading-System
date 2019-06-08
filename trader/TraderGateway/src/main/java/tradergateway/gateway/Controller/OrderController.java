@@ -1,5 +1,6 @@
 package tradergateway.gateway.Controller;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,6 +13,8 @@ import javax.annotation.Resource;
 public class OrderController {
     @Resource
     private OrderService orderService;
+
+    @CrossOrigin(origins = "http://localhost:3000",maxAge = 3600)
     @GetMapping("/sendOrder")
     public String sendOrder(
             @RequestParam(value = "productId")String productid,@RequestParam(value = "type")String type,
@@ -34,6 +37,7 @@ public class OrderController {
         return orderid;
     }
 
+    @CrossOrigin(origins = "*",maxAge = 3600)
     @GetMapping("/sendCancel")
     public String sendCancel(
             @RequestParam(value = "productId")String productid,@RequestParam(value = "sellOrBuy")String sellorbuy,
@@ -46,6 +50,7 @@ public class OrderController {
 
     }
 
+    @CrossOrigin(origins = "*",maxAge = 3600)
     @GetMapping("/getBlotter")
     public String getBlotter(
             @RequestParam(value = "productId")String productid,@RequestParam(value = "startTime")String starttime,
