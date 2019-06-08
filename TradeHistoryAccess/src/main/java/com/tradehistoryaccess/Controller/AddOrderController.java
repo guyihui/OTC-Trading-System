@@ -106,7 +106,7 @@ public class AddOrderController {
 
         Map<String, Object> ret = new HashMap<>();
         ret.put("id", id);
-        ret.put("time", "" + time);
+        ret.put("time",  time);
         return ret;
     }
 }

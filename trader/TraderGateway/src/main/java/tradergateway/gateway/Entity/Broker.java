@@ -59,6 +59,6 @@ public class Broker {
 
     @Override
     public int hashCode() {
-        return super.hashCode() + brokerId.hashCode();
+        return "broker".hashCode() + brokerId.hashCode();
     }
 }

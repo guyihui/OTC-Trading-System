@@ -29,7 +29,7 @@ public class WebSocketTest {
 
     //与某个客户端的连接会话，需要通过它来给客户端发送数据
     private Session session;
-    private User user = new User("Alice");
+    private User user;
 
     @Autowired
     private OrderStorage orderStorage;
@@ -72,10 +72,12 @@ public class WebSocketTest {
     public void onMessage(String message, Session session) {
         System.out.println("来自客户端的消息:" + message);
         JsonParser parser = new JsonParser();
-        JsonObject msgJson  = parser.parse(message).getAsJsonObject();
-        //System.out.println("Message:"+msgJson);
+        JsonObject msgJson = parser.parse(message).getAsJsonObject();
+        System.out.println("Message:" + msgJson);
 
-        Product askedProduct = new Product(msgJson.get("productId").toString());
+        Product askedProduct = Products.get(msgJson.get("productId").toString().replace("\"", ""));
+        user = new User(msgJson.get("traderName").toString().replace("\"", ""));
+
         CopyOnWriteArraySet<WebSocketTest> webSocketSet = new CopyOnWriteArraySet<>();
 
         if (webSocketMap.containsKey(askedProduct)) {
@@ -125,8 +127,14 @@ public class WebSocketTest {
                 for (WebSocketTest socket : webSocketMap.get(product)) {
                     System.out.println("Now update order state!");
                     Set<Order> orders = orderStorage.getFilteredOrders(Brokers.get("01"), socket.getUser(), product);
+
+                    JsonObject state = new JsonObject();
+                    state.addProperty("productId", product.getProductId().replace("\"", ""));
+                    state.addProperty("type", "state");
+                    state.addProperty("orders", (new Gson()).toJson(orders));
+
                     synchronized (socket) {
-                        socket.getSession().getBasicRemote().sendText((new Gson()).toJson(orders));
+                        socket.getSession().getBasicRemote().sendText(state.toString());
                     }
 //                ss.getBasicRemote().sendText(result);
                 }
@@ -154,6 +162,7 @@ public class WebSocketTest {
 
     private static void broadcastToUi(Product product, String s) throws IOException {
         if (webSocketMap.containsKey(product)) {
+            System.err.println("contains product");
             CopyOnWriteArraySet<WebSocketTest> ws = webSocketMap.get(product);
             for (WebSocketTest socket : ws) {
                 System.out.println("Now send a message!");

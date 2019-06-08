@@ -14,6 +14,7 @@ import tradergateway.gateway.OrderStorage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 @Service
@@ -46,20 +47,22 @@ public class OrderStateService implements InitializingBean {
                     e.printStackTrace();
                 }
                 Map<Product, CopyOnWriteArraySet<WebSocketTest>> map = WebSocketTest.getWebSocketMap();
-                System.err.printf("query state: %d products", map.size());
+                System.err.printf("query state: %d products\n", map.size());
 
                 List<Order> orders = new ArrayList<>();
 
                 for (Product product : map.keySet()) {
                     for (WebSocketTest webSocketTest : map.get(product)) {
                         //取出需要查询的 orders
-                        orders.addAll(
+                        Set<Order> filtered =
                                 orderStorage.getFilteredOrders(
                                         Brokers.get("01"),
                                         webSocketTest.getUser(),
                                         product
-                                )
-                        );
+                                );
+                        if (filtered != null) {
+                            orders.addAll(filtered);
+                        }
                     }
                 }
                 List<String> orderIds = new ArrayList<>();
