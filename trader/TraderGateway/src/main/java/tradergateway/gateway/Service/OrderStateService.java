@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import tradergateway.gateway.Backend2UiSocket.WebSocketTest;
+import tradergateway.gateway.Entity.Broker;
 import tradergateway.gateway.Entity.Brokers;
 import tradergateway.gateway.Entity.Order;
 import tradergateway.gateway.Entity.Product;
@@ -76,7 +77,26 @@ public class OrderStateService implements InitializingBean {
                     System.err.println(states.size());
                     //更新状态
                     for (Order order : orders) {
-                        order.setState(states.get(order.getOrderId()));
+                        String state = states.get(order.getOrderId());
+                        if (order.getFlag() > 0) {
+                            order.incrementFlag();
+                        }
+                        if (state.indexOf("remain:") == 0) {
+                            int remain = Integer.valueOf(state.substring("remain:".length()));
+                            order.setRemainingQuantity(remain);
+                            if (remain == 0) {
+                                order.incrementFlag();
+                            }
+                        } else if (state.indexOf("canceled,remain:") == 0) {
+                            int remain = Integer.valueOf(state.substring("canceled,remain:".length()));
+                            order.setRemainingQuantity(remain);
+                            if (remain == 0) {
+                                order.incrementFlag();
+                            }
+                        } else if (state.indexOf("success") == 0 || state.indexOf("fail") == 0) {
+                            order.incrementFlag();
+                        }
+                        order.setState(state);
                     }
                 }
                 webSocketTest.sendOrderState();
