@@ -22,7 +22,7 @@ public class BrokerChannel {
 
     private ByteBuffer byteBuffer = ByteBuffer.allocate(512);
     private long retryInterval = 10;
-    //TODO:注入websocket
+    //TODO:注入websocket,暂不注入（使用静态方法）
 
     public BrokerChannel(AsynchronousSocketChannel channel) {
         this.channel = channel;
@@ -101,6 +101,10 @@ public class BrokerChannel {
 
     public Set<Product> getSubscribedProducts() {
         return subscribedProducts.keySet();
+    }
+
+    public Pair<String, String> getProductDepth(Product product) {
+        return subscribedProducts.get(product);
     }
 
     public AsynchronousSocketChannel getChannel() {

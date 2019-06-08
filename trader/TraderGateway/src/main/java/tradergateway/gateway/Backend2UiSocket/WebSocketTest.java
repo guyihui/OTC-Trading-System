@@ -77,6 +77,8 @@ public class WebSocketTest {
         Product askedProduct = Products.get(msgJson.get("productId").toString().replace("\"", ""));
         user = new User(msgJson.get("traderName").toString().replace("\"", ""));
 
+        sendDepth(askedProduct, Brokers.get("01").getBrokerChannel().getProductDepth(askedProduct));
+
         CopyOnWriteArraySet<WebSocketTest> webSocketSet = new CopyOnWriteArraySet<>();
 
         if (webSocketMap.containsKey(askedProduct)) {
