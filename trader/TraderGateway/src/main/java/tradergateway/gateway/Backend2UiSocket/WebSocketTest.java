@@ -106,7 +106,6 @@ public class WebSocketTest {
 
     /**
      * 这个方法与上面几个方法不一样。没有用注解，是根据自己需要添加的方法。
-     *
      */
     public void sendOrderState() {
         try {
@@ -118,6 +117,24 @@ public class WebSocketTest {
                     for (Order order : orders) {
                         if (order.getFlag() > 2) {
                             orders.remove(order);
+                        }
+                        if (order.getState().indexOf("canceled.remain:") == 0) {
+                            JsonObject cancel = new JsonObject();
+                            cancel.addProperty("productId", product.getProductId().replace("\"", ""));
+                            cancel.addProperty("type", "cancelSuccess");
+                            cancel.addProperty("order", (new Gson()).toJson(order));
+                            synchronized (socket) {
+                                socket.getSession().getBasicRemote().sendText(cancel.toString());
+                            }
+                        }
+                        if (order.getOrderType().equals("cancel") && order.getState().indexOf("fail") == 0) {
+                            JsonObject cancel = new JsonObject();
+                            cancel.addProperty("productId", product.getProductId().replace("\"", ""));
+                            cancel.addProperty("type", "cancelFailure");
+                            cancel.addProperty("order", (new Gson()).toJson(order));
+                            synchronized (socket) {
+                                socket.getSession().getBasicRemote().sendText(cancel.toString());
+                            }
                         }
                     }
 
@@ -150,7 +167,6 @@ public class WebSocketTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     private static void broadcastToUi(Product product, String s) throws IOException {

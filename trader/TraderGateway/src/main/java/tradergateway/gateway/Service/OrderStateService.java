@@ -90,9 +90,7 @@ public class OrderStateService implements InitializingBean {
                         } else if (state.indexOf("canceled,remain:") == 0) {
                             int remain = Integer.valueOf(state.substring("canceled,remain:".length()));
                             order.setRemainingQuantity(remain);
-                            if (remain == 0) {
-                                order.incrementFlag();
-                            }
+                            order.incrementFlag();
                         } else if (state.indexOf("success") == 0 || state.indexOf("fail") == 0) {
                             order.incrementFlag();
                         }
