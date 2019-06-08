@@ -1,10 +1,10 @@
 package com.tradehistoryaccess.Controller;
 
 import com.tradehistoryaccess.BrokerService.Broker;
-import com.tradehistoryaccess.BrokerService.GatewaySocket.TraderManage;
+import com.tradehistoryaccess.Entity.TraderManage;
 import com.tradehistoryaccess.BrokerService.OrderBook.Order;
 import com.tradehistoryaccess.BrokerService.OrderBook.Product;
-import com.tradehistoryaccess.BrokerService.GatewaySocket.Trader;
+import com.tradehistoryaccess.Entity.Trader;
 import com.tradehistoryaccess.Entity.Products;
 import com.tradehistoryaccess.IdService.OrderIdGenerator;
 import com.tradehistoryaccess.Redis.RedisTest;

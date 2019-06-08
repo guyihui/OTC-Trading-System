@@ -1,14 +1,11 @@
 package com.tradehistoryaccess.BrokerService;
 
 import com.tradehistoryaccess.BrokerService.GatewaySocket.ServerSocketChannelAcceptHandle;
-import com.tradehistoryaccess.BrokerService.GatewaySocket.Trader;
-import com.tradehistoryaccess.BrokerService.GatewaySocket.TraderManage;
+import com.tradehistoryaccess.Entity.Trader;
+import com.tradehistoryaccess.Entity.TraderManage;
 import com.tradehistoryaccess.BrokerService.OrderBook.*;
-import com.tradehistoryaccess.BrokerService.Backend2UiSocket.WebSocketTest;
 import com.tradehistoryaccess.Entity.Products;
-import com.tradehistoryaccess.Redis.RedisTest;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -28,14 +25,8 @@ public class Broker implements InitializingBean {
     private static ConcurrentHashMap<Product, Orderbook> orderBookMap = new ConcurrentHashMap<>();
     private static final String brokerName = "RedPanda";//"RedPanda-broker-prototype";
 
-    @Autowired
-    private static WebSocketTest websocketTest;
-
     @Resource
     private TraderManage traderManage;
-
-    @Resource
-    private RedisTest redisTest;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -100,50 +91,7 @@ public class Broker implements InitializingBean {
                 e.printStackTrace();
             }
 
-
-//            Order testOrder = new Order("test", "limit", 1000, "sell");
-//            testOrder.setRemainingQuantity(100000000);
-//            testOrder.setTotalQuantity(100000000);
-//            Trader trader = new Trader("1", "CorpA");
-//            testOrder.setTrader(trader);
-//            testOrder.setTime(System.currentTimeMillis());
-//            orderBookMap.get(new Product("01")).addWOOrder(testOrder);
-
-//            while (true) {
-//                count++;
-//                Order buyOrder = new Order("test" + count, "limit", 995 + count, "buy");
-//                buyOrder.setRemainingQuantity(count);
-//                buyOrder.setTotalQuantity(count);
-//                Trader buyTrader = new Trader("2", "CorpB");
-//                buyOrder.setTrader(buyTrader);
-//                buyOrder.setTime(System.currentTimeMillis());
-//                orderBookMap.get(new Product("01")).addWOOrder(buyOrder);
-//                try {
-//                    Thread.sleep(500);
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-
-
             while (true) {
-
-                //              System.out.println("count:" + count);
-//                Order testOrder = new Order("test" + count, "limit", (count % 2 == 0) ? (1000 + count % 20) : (1031 - count % 20), (count % 2 == 0) ? "buy" : "sell");
-//                testOrder.setRemainingQuantity(50 + count % 20);
-//                testOrder.setTotalQuantity(100 + count % 20);
-//                Trader trader = new Trader("1", "CorpA");
-//                testOrder.setTrader(trader);
-//                testOrder.setTime(System.currentTimeMillis());
-//                //orderBookMap.get(new Product((count%2==0)?"01":"02")).addWOBuyLimit(testOrder);
-//                orderBookMap.get(new Product((count % 3 == 0) ? "02" : "01")).addWOOrder(testOrder);
-
-//                try {
-//                    websocketTest.sendMessage(orderBookMap.get(new Product((count%3==0)?"02":"01")).getBuyOrders(),orderBookMap.get(new Product((count%3==0)?"02":"01")).getSellOrders(),new Product((count%3==0)?"02":"01"));
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-
 
                 double random = Math.random();
                 Order testOrder = new Order(
@@ -161,9 +109,9 @@ public class Broker implements InitializingBean {
                 Trader trader = new Trader("1", "CorpA");
                 testOrder.setTrader(trader);
                 testOrder.setTime(System.currentTimeMillis());
+                testOrder.setProduct(new Product("01"));
                 //orderBookMap.get(new Product((count%2==0)?"01":"02")).addWOBuyLimit(testOrder);
                 orderBookMap.get(new Product("01")).addWOOrder(testOrder);
-
 
                 try {
                     Thread.sleep(100);

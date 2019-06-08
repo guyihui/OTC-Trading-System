@@ -1,6 +1,6 @@
 package com.tradehistoryaccess.BrokerService.OrderBook;
 
-import com.tradehistoryaccess.BrokerService.GatewaySocket.Trader;
+import com.tradehistoryaccess.Entity.Trader;
 import com.tradehistoryaccess.Entity.DoneOrderRaw;
 import com.tradehistoryaccess.BrokerService.Backend2UiSocket.WebSocketTest;
 import com.tradehistoryaccess.BrokerService.History.AddHistory;
@@ -122,7 +122,7 @@ public class Orderbook {
                 } else {
                     canceledOrder = sellOrders.cancelOrder(temp);
                 }
-                if(canceledOrder!=null){
+                if(canceledOrder==null){
                     RedisTest.setOrderState(temp.getOrderId(),"fail");
                 }
                 else {

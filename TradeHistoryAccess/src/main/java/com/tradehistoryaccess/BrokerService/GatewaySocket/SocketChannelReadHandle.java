@@ -2,6 +2,7 @@ package com.tradehistoryaccess.BrokerService.GatewaySocket;
 
 import com.tradehistoryaccess.BrokerService.OrderBook.Orderbook;
 import com.tradehistoryaccess.BrokerService.OrderBook.Product;
+import com.tradehistoryaccess.Entity.Trader;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
