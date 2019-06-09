@@ -27,7 +27,7 @@ public class BlotterController {
             @RequestParam(value = "starttime",required = false,defaultValue = "0") String starttime,
             @RequestParam(value = "endtime",required = false,defaultValue = "999999999999999") String endtime,
             @RequestParam(value = "corpid",required = false,defaultValue = "magic") String corpid,
-            @RequestParam(value = "tradername")String tradername){
+            @RequestParam(value = "tradername",required = false,defaultValue = "")String tradername){
 
         System.out.println("id: "+productid+" starttime "+starttime+" endtime "+endtime+"corpid: "+corpid);
         Product product= Products.get(productid);
@@ -49,15 +49,18 @@ public class BlotterController {
         if(!uuid.equals("magic")) {
 
             Trader trader=traderManage.getTrader(uuid);
-            String corpName=trader.getTraderCompany();
+            String corpName="";
+            if(trader!=null){
+                corpName=trader.getTraderCompany();
+            }
 
             for (TradeDTO tradeDTO : trades) {
-                if(tradeDTO.getInitTrader()==null||tradeDTO.getCompTrader()==null){
+
+                if ((tradeDTO.getInitCompany().equals(corpName)&&tradeDTO.getInitTrader().equals(tradername))
+                        || (tradeDTO.getCompCompany().equals(corpName)&&tradeDTO.getCompTrader().equals(tradername))) {
                     continue;
                 }
-                if (tradeDTO.getInitTrader().equals(corpName) || tradeDTO.getCompCompany().equals(corpName)) {
-                    continue;
-                }
+
                 tradeDTO.setInitCompany("");
                 tradeDTO.setInitTrader("");
                 tradeDTO.setCompCompany("");
