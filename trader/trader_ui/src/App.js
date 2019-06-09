@@ -156,7 +156,7 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-let ws = new WebSocket("ws://localhost:8082/WebSocket");
+let ws = new WebSocket("ws://202.120.40.8:30483/WebSocket");
 
 let msg = [
     {
@@ -296,7 +296,7 @@ function App() {
         if(ws!==null){
             ws.close();
         }
-        ws = new WebSocket("ws://localhost:8082/WebSocket");
+        ws = new WebSocket("ws://202.120.40.8:30483/WebSocket");
         Cookies.set("socketFlag","0");
     }
 
@@ -418,7 +418,7 @@ function App() {
         setSellDepth({depth:"0",flag:1});
         setBuyDepth({depth:"0",flag:1});
         setProcessingOrders([]);
-        ws = new WebSocket("ws://localhost:8082/WebSocket");
+        ws = new WebSocket("ws://202.120.40.8:30483/WebSocket");
         //ws.send(msg[index%2].toString());
     }
 
@@ -428,7 +428,7 @@ function App() {
         setSellDepth({depth:"0",flag:1});
         setBuyDepth({depth:"0",flag:1});
         setProcessingOrders([]);
-        ws = new WebSocket("ws://localhost:8082/WebSocket");
+        ws = new WebSocket("ws://202.120.40.8:30483/WebSocket");
         //console.log(event.target.value);
     }
 

@@ -158,7 +158,7 @@ class MyOrderTable extends Component {
 
     handleCancelOrder(row){
         let xmlHttp = new XMLHttpRequest();
-        xmlHttp.open("GET", "http://localhost:8082/sendCancel?productId="+row.product.productId+"&sellOrBuy="+row.sellOrBuy+"&price="+row.price+"&cancelId="+row.orderId+
+        xmlHttp.open("GET", "http://202.120.40.8:30483/sendCancel?productId="+row.product.productId+"&sellOrBuy="+row.sellOrBuy+"&price="+row.price+"&cancelId="+row.orderId+
         "&traderName="+Cookies.get('username')+"&brokerId="+Cookies.get('broker'), true);
         xmlHttp.setRequestHeader("Content-Type", "application/json");
         xmlHttp.onreadystatechange = () => {

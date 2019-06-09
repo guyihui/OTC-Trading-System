@@ -231,11 +231,11 @@ class SendOrder extends Component {
         }
         let xmlHttp = new XMLHttpRequest();
         if(this.state.orderType==='market'){
-            xmlHttp.open("GET", "http://localhost:8082/sendOrder?productId="+this.state.productId+"&type="+this.state.orderType+"&sellOrBuy="+this.state.sellOrBuy+"&price=0"+"&quantity="+this.state.amount
+            xmlHttp.open("GET", "http://202.120.40.8:30483/sendOrder?productId="+this.state.productId+"&type="+this.state.orderType+"&sellOrBuy="+this.state.sellOrBuy+"&price=0"+"&quantity="+this.state.amount
                 +"&traderName="+Cookies.get('username')+"&brokerId="+Cookies.get('broker'), true);
         }
         else{
-            xmlHttp.open("GET", "http://localhost:8082/sendOrder?productId="+this.state.productId+"&type="+this.state.orderType+"&sellOrBuy="+this.state.sellOrBuy+"&price="+this.state.price+"&quantity="+this.state.amount
+            xmlHttp.open("GET", "http://202.120.40.8:30483/sendOrder?productId="+this.state.productId+"&type="+this.state.orderType+"&sellOrBuy="+this.state.sellOrBuy+"&price="+this.state.price+"&quantity="+this.state.amount
                 +"&traderName="+Cookies.get('username')+"&brokerId="+Cookies.get('broker'), true);
         }
         xmlHttp.setRequestHeader("Content-Type", "application/json");
