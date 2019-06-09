@@ -87,10 +87,6 @@ public class WebSocketTest {
 //        askedBroker = Brokers.get("01");
         askedBroker = Brokers.get(msgJson.get("broker").toString().replace("\"", ""));
 
-//        sendDepth(askedProduct, Brokers.get("01").getBrokerChannel().getProductDepth(askedProduct));
-
-//        CopyOnWriteArraySet<WebSocketTest> webSocketSet = new CopyOnWriteArraySet<>();
-
         if (webSocketMap.containsKey(askedProduct)) {
             System.out.println("Add a client!");
             webSocketMap.get(askedProduct).add(this);
@@ -105,6 +101,7 @@ public class WebSocketTest {
         }
 
         askedBroker.getBrokerChannel().updateDepth(askedProduct.getProductId(), "noUpdate", "");
+
     }
 
     /**

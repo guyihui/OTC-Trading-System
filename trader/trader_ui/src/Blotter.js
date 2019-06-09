@@ -11,6 +11,7 @@ import {
 import Button from '@material-ui/core/Button';
 import DateFnsUtils from "@date-io/date-fns";
 import BlotterTable from "./BlotterTable";
+import Cookies from "js-cookie";
 
 
 const orders =
@@ -122,7 +123,8 @@ class Blotter extends Component {
     handleButtonOnClick(){
         this.setState({showBlotter:true});
         let xmlHttp = new XMLHttpRequest();
-        xmlHttp.open("GET", "http://localhost:8082/getBlotter?productId="+this.state.productId+"&startTime="+this.state.selectedStartDate.getTime()+"&endTime="+this.state.selectedEndDate.getTime()+"&traderName="+"Alice", true);
+        xmlHttp.open("GET", "http://localhost:8082/getBlotter?productId="+this.state.productId+"&startTime="+this.state.selectedStartDate.getTime()+"&endTime="+this.state.selectedEndDate.getTime()
+            +"&traderName="+Cookies.get('username')+"&brokerId="+Cookies.get('broker'), true);
         xmlHttp.setRequestHeader("Content-Type", "application/json");
         xmlHttp.onreadystatechange = () => {
             if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {

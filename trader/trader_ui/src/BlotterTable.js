@@ -167,32 +167,32 @@ class BlotterTable extends Component {
                         },
                         {
                             width: 140,
-                            label: 'Trader',
+                            label: 'InitTrader',
                             dataKey: 'initTrader',
                         },
                         {
                             width: 140,
-                            label: 'Company',
+                            label: 'InitCompany',
                             dataKey: 'initCompany',
                         },
                         {
                             width: 60,
-                            label: 'Side',
+                            label: 'InitSide',
                             dataKey: 'initSide',
                         },
                         {
                             width: 140,
-                            label: 'Trader',
+                            label: 'CompTrader',
                             dataKey: 'compTrader',
                         },
                         {
                             width: 140,
-                            label: 'Company',
+                            label: 'CompCompany',
                             dataKey: 'compCompany',
                         },
                         {
                             width: 60,
-                            label: 'Side',
+                            label: 'CompSide',
                             dataKey: 'compSide',
                         },
                     ]}

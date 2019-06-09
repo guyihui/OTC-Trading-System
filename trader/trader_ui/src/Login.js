@@ -141,6 +141,7 @@ class Login extends Component {
 
                                         placeholder="请输入密码"
                                         fullWidth
+                                        type="password"
                                         margin="normal"
                                         InputLabelProps={{
                                             shrink: true,
@@ -163,9 +164,8 @@ class Login extends Component {
                                         <MenuItem value="" disabled>
                                             请选择 Broker
                                         </MenuItem>
-                                        <MenuItem value={10}>Ten</MenuItem>
-                                        <MenuItem value={20}>Twenty</MenuItem>
-                                        <MenuItem value={30}>Thirty</MenuItem>
+                                        <MenuItem value={"01"}>Broker01</MenuItem>
+                                        <MenuItem value={"02"}>Broker02</MenuItem>
                                     </Select>
                                     <Button variant="contained" onClick={this.handleButtonOnClick} style={{width:'90%',height:'12%',fontSize:20,color:'#FFFFFF',marginTop:40,backgroundColor:'#333eb0'}}>登录</Button>
                                 </CardContent>
