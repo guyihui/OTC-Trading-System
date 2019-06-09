@@ -132,6 +132,7 @@ class SendOrder extends Component {
             processingOrders:this.props.processingOrders,
             warningOpen:false,
             warningMessage:'',
+            priceSelect:false,
         };
         this.handleStartDateChange = this.handleStartDateChange.bind(this);
         this.handleEndDateChange = this.handleEndDateChange.bind(this);
@@ -188,7 +189,21 @@ class SendOrder extends Component {
     }
 
     handleOrderTypeChange(e){
-        this.setState({orderType:e.target.value});
+        if(e.target.value==='market') {
+            this.setState(
+                {
+                    orderType: e.target.value,
+                    price:"",
+                    priceSelect:true,
+                });
+        }
+        else{
+            this.setState(
+                {
+                    orderType: e.target.value,
+                    priceSelect:false,
+                });
+        }
         console.log(e.target.value);
     }
 
@@ -226,6 +241,7 @@ class SendOrder extends Component {
                     price:"",
                     amount:"",
                     orderType:"",
+                    priceSelect:false,
                 });
             }
         };
@@ -377,6 +393,7 @@ class SendOrder extends Component {
                                                         className={classes.textField}
                                                         margin="normal"
                                                         onChange={this.handlePriceChange}
+                                                        disabled={this.state.priceSelect}
                                                         InputProps={{
                                                             startAdornment: <InputAdornment position="start">$</InputAdornment>,
                                                         }}
