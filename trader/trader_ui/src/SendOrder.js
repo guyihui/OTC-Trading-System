@@ -210,7 +210,8 @@ class SendOrder extends Component {
             return;
         }
         let xmlHttp = new XMLHttpRequest();
-        xmlHttp.open("GET", "http://localhost:8082/sendOrder?productId="+this.state.productId+"&type="+this.state.orderType+"&sellOrBuy="+this.state.sellOrBuy+"&price="+this.state.price+"&quantity="+this.state.amount+"&traderName="+Cookies.get('username'), true);
+        xmlHttp.open("GET", "http://localhost:8082/sendOrder?productId="+this.state.productId+"&type="+this.state.orderType+"&sellOrBuy="+this.state.sellOrBuy+"&price="+this.state.price+"&quantity="+this.state.amount
+            +"&traderName="+Cookies.get('username')+"&brokerId="+Cookies.get('broker'), true);
         xmlHttp.setRequestHeader("Content-Type", "application/json");
         xmlHttp.onreadystatechange = () => {
             if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {
