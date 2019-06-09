@@ -12,10 +12,7 @@ import tradergateway.gateway.Entity.Order;
 import tradergateway.gateway.Entity.Product;
 import tradergateway.gateway.OrderStorage;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 @Service
@@ -50,8 +47,8 @@ public class OrderStateService implements InitializingBean {
                 Map<Product, CopyOnWriteArraySet<WebSocketTest>> map = WebSocketTest.getWebSocketMap();
                 System.err.printf("query state: %d products\n", map.size());
 
-                List<Order> orders = new ArrayList<>();
-
+//                List<Order> orders = new ArrayList<>();
+                Map<Broker, List<Order>> orders = new HashMap<>();
 
                 for (Product product : map.keySet()) {
                     for (WebSocketTest webSocketTest : map.get(product)) {
@@ -63,42 +60,53 @@ public class OrderStateService implements InitializingBean {
                                         webSocketTest.getAskedProduct()
                                 );
                         if (filtered != null) {
-                            orders.addAll(filtered);
+                            if (!orders.containsKey(webSocketTest.getAskedBroker())) {
+                                orders.put(webSocketTest.getAskedBroker(), new ArrayList<>());
+                            }
+                            orders.get(webSocketTest.getAskedBroker()).addAll(filtered);
                         }
                     }
                 }
-                List<String> orderIds = new ArrayList<>();
-                //得到 order id 的 list
-                for (Order order : orders) {
-                    orderIds.add(order.getOrderId());
-                }
-                if (orderIds.size() > 0) {
-                    //获取查询结果
-                    Map<String, String> states = orderService.getOrderStates(orderIds);
-                    System.err.println(states.size());
-                    //更新状态
-                    for (Order order : orders) {
-                        String state = states.get(order.getOrderId());
-                        if (order.getFlag() > 0) {
-                            order.incrementFlag();
-                        }
-                        if (state.indexOf("remain:") == 0) {
-                            int remain = Integer.valueOf(state.substring("remain:".length()));
-                            order.setRemainingQuantity(remain);
-                            if (remain == 0) {
+
+                for (Broker broker : orders.keySet()) {
+
+                    List<String> orderIds = new ArrayList<>();
+                    List<Order> brokerOrders = orders.get(broker);
+                    //得到 order id 的 list
+                    for (Order order : brokerOrders) {
+                        orderIds.add(order.getOrderId());
+                    }
+                    if (orderIds.size() > 0) {
+                        //获取查询结果
+                        Map<String, String> states = orderService.getOrderStates(broker.getBrokerId(), orderIds);
+                        System.err.println(states.size());
+                        //更新状态
+                        for (Order order : brokerOrders) {
+                            String state = states.get(order.getOrderId());
+                            if (order.getFlag() > 0) {
                                 order.incrementFlag();
                             }
-                        } else if (state.indexOf("canceled,remain:") == 0) {
-                            int remain = Integer.valueOf(state.substring("canceled,remain:".length()));
-                            order.setRemainingQuantity(remain);
-                            order.incrementFlag();
-                        } else if (state.indexOf("success") == 0 || state.indexOf("fail") == 0) {
-                            order.incrementFlag();
+                            if (state.indexOf("remain:") == 0) {
+                                int remain = Integer.valueOf(state.substring("remain:".length()));
+                                order.setRemainingQuantity(remain);
+                                if (remain == 0) {
+                                    order.incrementFlag();
+                                }
+                            } else if (state.indexOf("canceled,remain:") == 0) {
+                                int remain = Integer.valueOf(state.substring("canceled,remain:".length()));
+                                order.setRemainingQuantity(remain);
+                                order.incrementFlag();
+                            } else if (state.indexOf("success") == 0 || state.indexOf("fail") == 0) {
+                                order.incrementFlag();
+                            }
+                            order.setState(state);
                         }
-                        order.setState(state);
                     }
                 }
+
                 webSocketTest.sendOrderState();
+
+
             }
         }
     }

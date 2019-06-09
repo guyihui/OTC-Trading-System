@@ -82,17 +82,14 @@ public class WebSocketTest {
         JsonObject msgJson = parser.parse(message).getAsJsonObject();
         System.out.println("Message:" + msgJson);
 
-        askedProduct = Products.get(msgJson.get("productId").toString().replace("\"", ""));
-        user = new User(msgJson.get("traderName").toString().replace("\"", ""));
-//        askedBroker = Brokers.get("01");
-        askedBroker = Brokers.get(msgJson.get("broker").toString().replace("\"", ""));
+        this.askedProduct = Products.get(msgJson.get("productId").toString().replace("\"", ""));
+        this.user = new User(msgJson.get("traderName").toString().replace("\"", ""));
+        this.askedBroker = Brokers.get(msgJson.get("broker").toString().replace("\"", ""));
+
 
         if (webSocketMap.containsKey(askedProduct)) {
             System.out.println("Add a client!");
             webSocketMap.get(askedProduct).add(this);
-//            webSocketSet = webSocketMap.get(askedProduct);
-//            webSocketSet.add(this);
-//            webSocketMap.put(askedProduct, webSocketSet);
         } else {
             System.out.println("Add a client and a new Product set!");
             CopyOnWriteArraySet<WebSocketTest> wsSet = new CopyOnWriteArraySet<>();
@@ -124,7 +121,12 @@ public class WebSocketTest {
             for (Product product : webSocketMap.keySet()) {
                 for (WebSocketTest socket : webSocketMap.get(product)) {
                     System.out.println("Now update order state!");
-                    Set<Order> orders = orderStorage.getFilteredOrders(askedBroker, socket.getUser(), product);
+
+                    Set<Order> orders = orderStorage.getFilteredOrders(
+                            socket.askedBroker,
+                            socket.user,
+                            socket.askedProduct
+                    );
 
                     if (orders == null) {
                         continue;
