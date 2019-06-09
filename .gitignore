@@ -2,3 +2,4 @@ broker/OrderProcessor/target/
 broker/OrderProcessor/.idea/
 trader/gateway/.idea/
 trader/gateway/target/
+TradeHistoryAccess/src/main/resources/static/

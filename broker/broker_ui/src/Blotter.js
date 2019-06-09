@@ -122,7 +122,7 @@ class Blotter extends Component {
     handleButtonOnClick(){
         this.setState({showBlotter:true});
         let xmlHttp = new XMLHttpRequest();
-        xmlHttp.open("GET", "http://localhost:8080/history?productid=01&period=201907&starttime="+this.state.selectedStartDate.getTime()+"&endtime="+this.state.selectedEndDate.getTime(), true);
+        xmlHttp.open("GET", "http://202.120.40.8:30482/history?productid=01&period=201907&starttime="+this.state.selectedStartDate.getTime()+"&endtime="+this.state.selectedEndDate.getTime(), true);
         xmlHttp.setRequestHeader("Content-Type", "application/json");
         xmlHttp.onreadystatechange = () => {
             if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {
