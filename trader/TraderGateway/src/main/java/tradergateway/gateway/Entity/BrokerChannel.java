@@ -85,6 +85,8 @@ public class BrokerChannel {
             updatedPair = new Pair<>(depth, pair.getValue());
         } else if (buyOrSell.equals("sell")) {
             updatedPair = new Pair<>(pair.getKey(), depth);
+        } else if (buyOrSell.equals("noUpdate")) {
+            updatedPair = pair;
         } else {
             System.err.println("update depth error");
             updatedPair = pair;
@@ -101,10 +103,6 @@ public class BrokerChannel {
 
     public Set<Product> getSubscribedProducts() {
         return subscribedProducts.keySet();
-    }
-
-    public Pair<String, String> getProductDepth(Product product) {
-        return subscribedProducts.get(product);
     }
 
     public AsynchronousSocketChannel getChannel() {

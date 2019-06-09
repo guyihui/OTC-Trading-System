@@ -25,11 +25,23 @@ public class GatewaySocketService implements InitializingBean {
 
         //init map entry
         Product product1 = initProduct("01");
-        Product product2 = initProduct("02");
+//        Product product2 = initProduct("02");
+        Product product3 = initProduct("03");
+//        Product product4 = initProduct("04");
 
         Broker broker = Brokers.get("01");
         broker.connect();
-        broker.subscribe(product1);
+        try {
+            broker.subscribe(product1);
+//            Thread.sleep(1000);
+//            broker.subscribe(product2);
+//            Thread.sleep(3000);
+//            broker.subscribe(product3);
+//            Thread.sleep(1000);
+//            broker.subscribe(product4);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
 
     }

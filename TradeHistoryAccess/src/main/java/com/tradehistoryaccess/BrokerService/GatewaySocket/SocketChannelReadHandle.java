@@ -80,7 +80,7 @@ public class SocketChannelReadHandle implements CompletionHandler<Integer, ByteB
                     orderbook.bindConnection(this.trader);
                     //TODO: give response
                 } else {
-                    System.err.println(data);
+                    System.err.println("subscribe error " + data);
                 }
             } else {
                 System.err.println(data);
@@ -91,34 +91,6 @@ public class SocketChannelReadHandle implements CompletionHandler<Integer, ByteB
             client.write(ByteBuffer.wrap("Please tell me your company first. e.g. company:xxx".getBytes()));
         }
 
-//        //TODO: 以下作废
-//        //连接成功，等待 trader 发送进一步请求
-//        //单独开辟线程用以业务处理，目前为阻塞。
-//        try {
-//            ByteBuffer receive = ByteBuffer.allocate(1024);
-//            while (true) {
-//                receive.clear();
-//                client.read(receive).get();
-//                receive.flip();
-//                String content = Charset.forName("utf-8").decode(receive).toString();
-//                // 解析请求并作出响应
-//                System.out.println("receive：" + content);
-//                //得到订阅的 Product
-////                Orderbook orderbook = products.get(new Product());
-////                try {
-////                    int count = 0;
-////                    while (count <= 10000) {
-////                        Thread.sleep(1000);
-////                        client.write(ByteBuffer.wrap(("message " + count++).getBytes()));
-////                    }
-////                    client.close();
-////                } catch (Exception e) {
-////                    e.printStackTrace();
-////                }
-//            }
-//        } catch (Exception e) {
-//            this.failed(e, null);
-//        }
     }
 
     @Override

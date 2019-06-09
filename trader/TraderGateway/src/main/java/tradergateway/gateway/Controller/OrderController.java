@@ -19,19 +19,23 @@ public class OrderController {
     public String sendOrder(
             @RequestParam(value = "productId") String productid, @RequestParam(value = "type") String type,
             @RequestParam(value = "sellOrBuy") String sellorbuy, @RequestParam(value = "price") Integer price,
-            @RequestParam(value = "quantity") Integer quantity, @RequestParam(value = "traderName") String name
+            @RequestParam(value = "quantity") Integer quantity, @RequestParam(value = "traderName") String name,
+            @RequestParam(value = "brokerId") String brokerId
 
     ) {
         String orderid = "";
+        System.err.println("requested broker:" + brokerId);
+        //TODO: 判断完brokerId是否带引号后删除
+        //      null pointer 的处理
         switch (type) {
             case "limit":
-                orderid = orderService.sendLimitOrder(Brokers.get("01").getUuid(), sellorbuy, price, quantity, productid, name);
+                orderid = orderService.sendLimitOrder(Brokers.get(brokerId).getUuid(), sellorbuy, price, quantity, productid, name);
                 break;
             case "stop":
-                orderid = orderService.sendStop(Brokers.get("01").getUuid(), sellorbuy, price, quantity, productid, name);
+                orderid = orderService.sendStop(Brokers.get(brokerId).getUuid(), sellorbuy, price, quantity, productid, name);
                 break;
             case "market":
-                orderid = orderService.sendMarket(Brokers.get("01").getUuid(), sellorbuy, quantity, productid, name);
+                orderid = orderService.sendMarket(Brokers.get(brokerId).getUuid(), sellorbuy, quantity, productid, name);
                 break;
         }
         return orderid;
@@ -42,10 +46,10 @@ public class OrderController {
     public String sendCancel(
             @RequestParam(value = "productId") String productid, @RequestParam(value = "sellOrBuy") String sellorbuy,
             @RequestParam(value = "price") Integer price, @RequestParam(value = "cancelId") String cancelid,
-            @RequestParam(value = "traderName") String name
+            @RequestParam(value = "traderName") String name, @RequestParam(value = "brokerId") String brokerId
     ) {
 
-        return orderService.sendCancel(Brokers.get("01").getUuid(), sellorbuy, price, productid, cancelid, name);
+        return orderService.sendCancel(Brokers.get(brokerId).getUuid(), sellorbuy, price, productid, cancelid, name);
 
 
     }
@@ -54,9 +58,10 @@ public class OrderController {
     @GetMapping("/getBlotter")
     public String getBlotter(
             @RequestParam(value = "productId") String productid, @RequestParam(value = "startTime") String starttime,
-            @RequestParam(value = "endTime") String endtime, @RequestParam(value = "traderName") String name
+            @RequestParam(value = "endTime") String endtime, @RequestParam(value = "traderName") String name,
+            @RequestParam(value = "brokerId") String brokerId
     ) {
 
-        return orderService.queryBlotter(productid, starttime, endtime, Brokers.get("01").getUuid(), name);
+        return orderService.queryBlotter(productid, starttime, endtime, Brokers.get(brokerId).getUuid(), name);
     }
 }
