@@ -33,33 +33,34 @@ public class Broker implements InitializingBean {
 
         Product gold1 = Products.get("01");
         Orderbook gold1Orderbook = new Orderbook(gold1, brokerName);
-
-        Product gold2 = Products.get("02");
-//        Orderbook gold2Orderbook = new Orderbook(gold2, brokerName);
+        orderBookMap.putIfAbsent(gold1, gold1Orderbook);
 
 //        Product oil1 = Products.get("03");
 //        Orderbook oil1Orderbook = new Orderbook(oil1, brokerName);
+//        orderBookMap.putIfAbsent(oil1, oil1Orderbook);
+
+//        Product gold2 = Products.get("02");
+//        Orderbook gold2Orderbook = new Orderbook(gold2, brokerName);
+//        orderBookMap.putIfAbsent(gold2, gold2Orderbook);
+
 //        Product oil2 = Products.get("04");
 //        Orderbook oil2Orderbook = new Orderbook(oil2, brokerName);
-
-
-        orderBookMap.putIfAbsent(gold1, gold1Orderbook);
-//        orderBookMap.putIfAbsent(gold2, gold2Orderbook);
-//        orderBookMap.putIfAbsent(oil1, oil1Orderbook);
 //        orderBookMap.putIfAbsent(oil2, oil2Orderbook);
+
 
         System.out.println("initialize broker complete");
 
         startupGateway();
-        //       Thread thread1 = new Thread(new TestSocketThread());
-        //       thread1.start();
+
+        Thread thread1 = new Thread(new TestSocketThread());
+        thread1.start();
 
     }
 
     public Boolean addOrder(Order order) {
         Product product = order.getProduct();
         Orderbook orderbook = orderBookMap.get(product);
-        System.out.println("addorder broker name:" + orderbook.getBrokerName());
+        System.out.println("add order broker name:" + orderbook.getBrokerName());
         return orderbook.addWOOrder(order);
     }
 
@@ -114,19 +115,12 @@ public class Broker implements InitializingBean {
                 orderBookMap.get(new Product("01")).addWOOrder(testOrder);
 
                 try {
-                    Thread.sleep(100);
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
 
-//                try {
-//                    websocketTest.sendMessage(
-//                            orderBookMap.get(new Product("01")).getBuyOrders(),
-//                            orderBookMap.get(new Product("01")).getSellOrders(),
-//                            new Product("01"));
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
+
                 count++;
             }
 

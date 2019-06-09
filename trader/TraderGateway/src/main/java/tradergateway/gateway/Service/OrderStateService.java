@@ -52,14 +52,15 @@ public class OrderStateService implements InitializingBean {
 
                 List<Order> orders = new ArrayList<>();
 
+
                 for (Product product : map.keySet()) {
                     for (WebSocketTest webSocketTest : map.get(product)) {
                         //取出需要查询的 orders
                         Set<Order> filtered =
                                 orderStorage.getFilteredOrders(
-                                        Brokers.get("01"),
+                                        webSocketTest.getAskedBroker(),
                                         webSocketTest.getUser(),
-                                        product
+                                        webSocketTest.getAskedProduct()
                                 );
                         if (filtered != null) {
                             orders.addAll(filtered);
