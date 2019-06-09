@@ -11,6 +11,9 @@
     <groupId>com</groupId>
     <artifactId>tradehistoryaccess</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+
+    <packaging>jar</packaging>
+
     <name>tradehistoryaccess</name>
     <description>restful api for access finished trades</description>
 
@@ -70,6 +73,10 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.tradehistoryaccess.TradehistoryaccessApplication</mainClass>
+                </configuration>
+
             </plugin>
         </plugins>
     </build>
