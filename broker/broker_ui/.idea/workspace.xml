@@ -104,7 +104,7 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds">
+  <component name="ProjectFrameBounds" extendedState="1">
     <option name="x" value="226" />
     <option name="y" value="225" />
     <option name="width" value="1440" />
@@ -149,7 +149,7 @@
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../trader/trader_ui" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
     <property name="node.js.selected.package.eslint" value="$PROJECT_DIR$/node_modules/eslint" />
@@ -238,18 +238,19 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="43858000" />
+    <option name="totallyTimeSpent" value="45044000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="181" y="180" width="1152" height="664" extended-state="0" />
+    <frame x="181" y="180" width="1152" height="664" extended-state="1" />
+    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.68037975" visible="true" weight="0.24910395" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.68045115" visible="true" weight="0.24910395" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info id="npm" order="2" sideWeight="0.31962025" side_tool="true" visible="true" weight="0.24910395" />
+      <window_info id="npm" order="2" sideWeight="0.31954888" side_tool="true" visible="true" weight="0.24910395" />
       <window_info id="Favorites" order="3" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.40601504" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.40601504" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />

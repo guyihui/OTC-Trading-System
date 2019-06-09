@@ -11,6 +11,9 @@
     <groupId>TraderGateway</groupId>
     <artifactId>gateway</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+
+    <packaging>jar</packaging>
+
     <name>gateway</name>
     <description>Demo project for Spring Boot</description>
 
@@ -22,6 +25,9 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>tradergateway.gateway.GatewayApplication</mainClass>
+                </configuration>
             </plugin>
         </plugins>
     </build>
