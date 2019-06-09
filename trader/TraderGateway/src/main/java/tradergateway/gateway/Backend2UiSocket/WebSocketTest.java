@@ -1,7 +1,6 @@
 package tradergateway.gateway.Backend2UiSocket;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import javafx.util.Pair;
@@ -10,12 +9,9 @@ import org.springframework.stereotype.Component;
 import tradergateway.gateway.Entity.*;
 import tradergateway.gateway.OrderStorage;
 
-import javax.annotation.Resource;
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -28,10 +24,10 @@ public class WebSocketTest {
     private static ConcurrentHashMap<Product, CopyOnWriteArraySet<WebSocketTest>> webSocketMap = new ConcurrentHashMap<>();
 
     //与某个客户端的连接会话，需要通过它来给客户端发送数据
-    private Session session;
+    private Broker askedBroker;
     private User user;
     private Product askedProduct;
-    private Broker askedBroker;
+    private Session session;
 
     @Autowired
     private OrderStorage orderStorage;
@@ -62,11 +58,7 @@ public class WebSocketTest {
             e.printStackTrace();
             System.err.println("socket onClose error.");
         }
-//        for (Product product : webSocketMap.keySet()) {
-//            if (webSocketMap.get(product).remove(this)) {
-//                break;
-//            }
-//        }
+
     }
 
     /**
@@ -82,9 +74,9 @@ public class WebSocketTest {
         JsonObject msgJson = parser.parse(message).getAsJsonObject();
         System.out.println("Message:" + msgJson);
 
-        this.askedProduct = Products.get(msgJson.get("productId").toString().replace("\"", ""));
-        this.user = new User(msgJson.get("traderName").toString().replace("\"", ""));
         this.askedBroker = Brokers.get(msgJson.get("broker").toString().replace("\"", ""));
+        this.user = new User(msgJson.get("traderName").toString().replace("\"", ""));
+        this.askedProduct = Products.get(msgJson.get("productId").toString().replace("\"", ""));
 
 
         if (webSocketMap.containsKey(askedProduct)) {
@@ -103,9 +95,6 @@ public class WebSocketTest {
 
     /**
      * 发生错误时调用
-     *
-     * @param session
-     * @param error
      */
     @OnError
     public void onError(Session session, Throwable error) {
@@ -186,7 +175,6 @@ public class WebSocketTest {
 
     private static void broadcastToUi(Product product, String s) throws IOException {
         if (webSocketMap.containsKey(product)) {
-            System.err.println("contains product");
             CopyOnWriteArraySet<WebSocketTest> ws = webSocketMap.get(product);
             for (WebSocketTest socket : ws) {
                 System.out.println("Now send a message!");

@@ -17,7 +17,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Lazy(value = false)
 public class GatewaySocketService implements InitializingBean {
 
-    private static Map<Product, ProductChannels> connectionMap = new ConcurrentHashMap<>();
+//    private static Map<Product, ProductChannels> connectionMap = new ConcurrentHashMap<>();
+
     public static final String traderCompanyName = "RPCompany";
 
     @Override
@@ -25,31 +26,26 @@ public class GatewaySocketService implements InitializingBean {
 
         //init map entry
         Product product1 = initProduct("01");
-//        Product product2 = initProduct("02");
         Product product3 = initProduct("03");
-//        Product product4 = initProduct("04");
 
-        Broker broker = Brokers.get("01");
-        broker.connect();
-        try {
-            broker.subscribe(product1);
-//            Thread.sleep(1000);
-//            broker.subscribe(product2);
-//            Thread.sleep(3000);
-//            broker.subscribe(product3);
-//            Thread.sleep(1000);
-//            broker.subscribe(product4);
-        } catch (Exception e) {
-            e.printStackTrace();
+        Broker broker1 = Brokers.get("01");
+        if (broker1.connect()) {
+            try {
+                broker1.subscribe(product1);
+                Thread.sleep(1000);
+                broker1.subscribe(product3);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
 
     }
 
     private Product initProduct(String productId) {
-        Product product1 = Products.get(productId);
-        connectionMap.putIfAbsent(product1, new ProductChannels(product1));
-        return product1;
+        Product product = Products.get(productId);
+//        connectionMap.putIfAbsent(product, new ProductChannels(product));
+        return product;
     }
 
 

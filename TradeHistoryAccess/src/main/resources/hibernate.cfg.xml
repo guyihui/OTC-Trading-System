@@ -5,6 +5,7 @@
 <hibernate-configuration>
     <session-factory>
         <property name="dialect">org.hibernate.dialect.MySQLDialect</property>
+<!--        <property name="connection.url">jdbc:mysql://localhost:3306/otc</property>-->
         <property name="connection.url">jdbc:mysql://localhost:30489/otc</property>
         <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
         <property name="connection.username">root</property>

@@ -140,6 +140,6 @@ public class Order {
 
     @Override
     public int hashCode() {
-        return super.hashCode() + orderId.hashCode();
+        return "order".hashCode() + orderId.hashCode();
     }
 }
