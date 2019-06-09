@@ -77,8 +77,6 @@ public class WebSocketTest {
         Product askedProduct = Products.get(msgJson.get("productId").toString().replace("\"", ""));
         user = new User(msgJson.get("traderName").toString().replace("\"", ""));
 
-        sendDepth(askedProduct, Brokers.get("01").getBrokerChannel().getProductDepth(askedProduct));
-
         CopyOnWriteArraySet<WebSocketTest> webSocketSet = new CopyOnWriteArraySet<>();
 
         if (webSocketMap.containsKey(askedProduct)) {
@@ -92,6 +90,8 @@ public class WebSocketTest {
             wsSet.add(this);
             webSocketMap.put(askedProduct, wsSet);
         }
+
+        sendDepth(askedProduct, Brokers.get("01").getBrokerChannel().getProductDepth(askedProduct));
     }
 
     /**
@@ -116,11 +116,14 @@ public class WebSocketTest {
                     System.out.println("Now update order state!");
                     Set<Order> orders = orderStorage.getFilteredOrders(Brokers.get("01"), socket.getUser(), product);
 
+                    if(orders==null){
+                        continue;
+                    }
                     for (Order order : orders) {
                         if (order.getFlag() > 2) {
                             orders.remove(order);
                         }
-                        if (order.getState().indexOf("canceled.remain:") == 0) {
+                        if (order.getState().indexOf("canceled,remain:") == 0) {
                             JsonObject cancel = new JsonObject();
                             cancel.addProperty("productId", product.getProductId().replace("\"", ""));
                             cancel.addProperty("type", "cancelSuccess");
