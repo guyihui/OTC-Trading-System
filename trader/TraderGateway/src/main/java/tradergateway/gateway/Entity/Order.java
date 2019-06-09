@@ -15,11 +15,8 @@ public class Order {
     private String cancelId;
     private Long time;
     private String state;
-    private Integer flag;
-
-    public Order() {
-        flag = 0;
-    }
+    private Integer displayFlag = 0;
+    private String bigOrderId = null;
 
     public String getOrderId() {
         return orderId;
@@ -121,16 +118,24 @@ public class Order {
         return "{" + this.orderId + "\t," + this.orderType + "}";
     }
 
-    public Integer getFlag() {
-        return flag;
+    public Integer getDisplayFlag() {
+        return displayFlag;
     }
 
-    public void setFlag(Integer flag) {
-        this.flag = flag;
+    public void setDisplayFlag(Integer displayFlag) {
+        this.displayFlag = displayFlag;
     }
 
     public void incrementFlag() {
-        this.flag += 1;
+        this.displayFlag += 1;
+    }
+
+    public String getBigOrderId() {
+        return bigOrderId;
+    }
+
+    public void setBigOrderId(String bigOrderId) {
+        this.bigOrderId = bigOrderId;
     }
 
     @Override

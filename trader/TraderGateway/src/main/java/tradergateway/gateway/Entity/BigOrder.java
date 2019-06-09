@@ -1,20 +1,24 @@
 package tradergateway.gateway.Entity;
 
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+
 public class BigOrder {
     private String id;
     private Product product;
-    private String sellorbuy;
-    public String strategy;
+    private String sellOrBuy;
+    private String strategy;
     private String broker;
     private String traderName;
     private Integer totalQuantity;
     private Integer unsentQuantity;
     private Integer waitingQuantity;
-    private Boolean cancelflag;
+    private Boolean cancelFlag;
+    private Set<Order> splitOrders = new CopyOnWriteArraySet<>();
 
-    public BigOrder(){
-        cancelflag=false;
-        waitingQuantity=0;
+    public BigOrder() {
+        cancelFlag = false;
+        waitingQuantity = 0;
     }
 
     public String getId() {
@@ -33,12 +37,12 @@ public class BigOrder {
         this.product = product;
     }
 
-    public String getSellorbuy() {
-        return sellorbuy;
+    public String getSellOrBuy() {
+        return sellOrBuy;
     }
 
-    public void setSellorbuy(String sellorbuy) {
-        this.sellorbuy = sellorbuy;
+    public void setSellOrBuy(String sellOrBuy) {
+        this.sellOrBuy = sellOrBuy;
     }
 
     public String getBroker() {
@@ -81,12 +85,12 @@ public class BigOrder {
         this.waitingQuantity = waitingQuantity;
     }
 
-    public Boolean getCancelflag() {
-        return cancelflag;
+    public Boolean getCancelFlag() {
+        return cancelFlag;
     }
 
-    public void setCancelflag(Boolean cancelflag) {
-        this.cancelflag = cancelflag;
+    public void setCancelFlag(Boolean cancelFlag) {
+        this.cancelFlag = cancelFlag;
     }
 
     public String getStrategy() {
@@ -95,5 +99,28 @@ public class BigOrder {
 
     public void setStrategy(String strategy) {
         this.strategy = strategy;
+    }
+
+    public Set<Order> getSplitOrder() {
+        return splitOrders;
+    }
+
+    public void addSplitOrder(Order order) {
+        order.setBigOrderId(id);
+        splitOrders.add(order);
+    }
+
+    public void removeSplitOrder(Order order) {
+        splitOrders.remove(order);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof BigOrder && ((BigOrder) obj).getId().equals(id);
+    }
+
+    @Override
+    public int hashCode() {
+        return "BigOrder".hashCode() + id.hashCode();
     }
 }

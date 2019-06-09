@@ -6,12 +6,15 @@ import com.google.gson.JsonParser;
 import javafx.util.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import tradergateway.gateway.BigOrderStorage;
 import tradergateway.gateway.Entity.*;
 import tradergateway.gateway.OrderStorage;
 
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -31,6 +34,9 @@ public class WebSocketTest {
 
     @Autowired
     private OrderStorage orderStorage;
+
+    @Autowired
+    private BigOrderStorage bigOrderStorage;
 
     static {
         System.out.println("WebSocket service start.");
@@ -120,8 +126,9 @@ public class WebSocketTest {
                     if (orders == null) {
                         continue;
                     }
+                    Map<String, Integer> bigOrderRemainingQuantity = new HashMap<>();
                     for (Order order : orders) {
-                        if (order.getFlag() > 2) {
+                        if (order.getDisplayFlag() > 2) {
                             orders.remove(order);
                         }
                         if (order.getState().indexOf("canceled,remain:") == 0) {
@@ -130,15 +137,39 @@ public class WebSocketTest {
                         if (order.getOrderType().equals("cancel") && order.getState().indexOf("fail") == 0) {
                             sendCancelMsg(product, socket, order, "cancelFailure");
                         }
+                        //如果是拆出来的小单，进行统计
+                        if (order.getBigOrderId() != null) {
+                            if (!bigOrderRemainingQuantity.containsKey(order.getBigOrderId())) {
+                                bigOrderRemainingQuantity.put(order.getBigOrderId(), 0);
+                            }
+                            bigOrderRemainingQuantity.put(
+                                    order.getBigOrderId(),
+                                    bigOrderRemainingQuantity.get(order.getBigOrderId()) + order.getRemainingQuantity()
+                            );
+                        }
+                    }
+                    //统计完拆分单信息，更新 big order
+                    Set<BigOrder> bigOrders = bigOrderStorage.getFilteredOrders(socket.askedBroker, socket.user, socket.askedProduct);
+                    for (String bigOrderId : bigOrderRemainingQuantity.keySet()) {
+                        for (BigOrder bigOrder : bigOrders) {
+                            bigOrder.setWaitingQuantity(bigOrderRemainingQuantity.get(bigOrderId));
+                        }
                     }
 
                     JsonObject state = new JsonObject();
                     state.addProperty("productId", product.getProductId());
                     state.addProperty("type", "state");
                     state.addProperty("orders", (new Gson()).toJson(orders));
-
                     synchronized (socket) {
                         socket.getSession().getBasicRemote().sendText(state.toString());
+                    }
+
+                    JsonObject bigOrderState = new JsonObject();
+                    bigOrderState.addProperty("productId", product.getProductId());
+                    bigOrderState.addProperty("type", "bigOrderState");
+                    bigOrderState.addProperty("orders", (new Gson()).toJson(bigOrders));
+                    synchronized (socket) {
+                        socket.getSession().getBasicRemote().sendText(bigOrderState.toString());
                     }
 //                ss.getBasicRemote().sendText(result);
                 }
