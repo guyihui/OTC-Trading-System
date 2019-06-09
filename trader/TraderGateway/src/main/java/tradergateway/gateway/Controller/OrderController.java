@@ -29,13 +29,13 @@ public class OrderController {
         //      null pointer 的处理
         switch (type) {
             case "limit":
-                orderid = orderService.sendLimitOrder(Brokers.get(brokerId).getUuid(), sellorbuy, price, quantity, productid, name);
+                orderid = orderService.sendLimitOrder(brokerId, Brokers.get(brokerId).getUuid(), sellorbuy, price, quantity, productid, name);
                 break;
             case "stop":
-                orderid = orderService.sendStop(Brokers.get(brokerId).getUuid(), sellorbuy, price, quantity, productid, name);
+                orderid = orderService.sendStop(brokerId, Brokers.get(brokerId).getUuid(), sellorbuy, price, quantity, productid, name);
                 break;
             case "market":
-                orderid = orderService.sendMarket(Brokers.get(brokerId).getUuid(), sellorbuy, quantity, productid, name);
+                orderid = orderService.sendMarket(brokerId, Brokers.get(brokerId).getUuid(), sellorbuy, quantity, productid, name);
                 break;
         }
         return orderid;
@@ -49,7 +49,7 @@ public class OrderController {
             @RequestParam(value = "traderName") String name, @RequestParam(value = "brokerId") String brokerId
     ) {
 
-        return orderService.sendCancel(Brokers.get(brokerId).getUuid(), sellorbuy, price, productid, cancelid, name);
+        return orderService.sendCancel(brokerId, Brokers.get(brokerId).getUuid(), sellorbuy, price, productid, cancelid, name);
 
 
     }
@@ -62,6 +62,6 @@ public class OrderController {
             @RequestParam(value = "brokerId") String brokerId
     ) {
 
-        return orderService.queryBlotter(productid, starttime, endtime, Brokers.get(brokerId).getUuid(), name);
+        return orderService.queryBlotter(brokerId, productid, starttime, endtime, Brokers.get(brokerId).getUuid(), name);
     }
 }
