@@ -7,6 +7,7 @@ import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import ArrowDownWardIcon from '@material-ui/icons/ArrowDownward';
 import ArrowUpWardIcon from '@material-ui/icons/ArrowUpward';
+import WarningIcon from '@material-ui/icons/WarningOutlined';
 import Schedule from '@material-ui/icons/Schedule';
 import List from '@material-ui/core/List';
 import Paper from '@material-ui/core/Paper';
@@ -24,6 +25,12 @@ import DateFnsUtils from "@date-io/date-fns";
 import MyOrderTable from "./MyOrderTable";
 import Divider from '@material-ui/core/Divider';
 import Cookies from 'js-cookie';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+
 
 
 const useStyles = makeStyles(theme => ({
@@ -122,6 +129,9 @@ class SendOrder extends Component {
             orderType:"",
             sellDepth:this.props.sellDepth,
             buyDepth:this.props.buyDepth,
+            processingOrders:this.props.processingOrders,
+            warningOpen:false,
+            warningMessage:'',
         };
         this.handleStartDateChange = this.handleStartDateChange.bind(this);
         this.handleEndDateChange = this.handleEndDateChange.bind(this);
@@ -130,28 +140,26 @@ class SendOrder extends Component {
         this.handleAmountChange = this.handleAmountChange.bind(this);
         this.handleOrderTypeChange = this.handleOrderTypeChange.bind(this);
         this.handleOrderButtonOnClick = this.handleOrderButtonOnClick.bind(this);
+        this.handleWarningClose = this.handleWarningClose.bind(this);
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
         console.log("aaaa");
         if (nextProps.productId !== prevState.productId || nextProps.productName !== prevState.productName || nextProps.productPeriod !== prevState.productPeriod
-            || nextProps.sellDepth !== prevState.sellDepth || nextProps.buyDepth !== prevState.buyDepth) {
+            || nextProps.sellDepth !== prevState.sellDepth || nextProps.buyDepth !== prevState.buyDepth || nextProps.processingOrders !== prevState.processingOrders) {
             console.log("bbbb");
             console.log(nextProps);
             return {
                 productId:nextProps.productId,
                 productName:nextProps.productName,
                 productPeriod:nextProps.productPeriod,
-                selectedStartDate:new Date(),
-                selectedEndDate:new Date(),
+
                 showBlotter:false,
                 data:[],
-                sellOrBuy:"",
-                price:"",
-                amount:"",
-                orderType:"",
+
                 sellDepth:nextProps.sellDepth,
                 buyDepth:nextProps.buyDepth,
+                processingOrders:nextProps.processingOrders,
             };
         }
         // 否则，对于state不进行任何操作
@@ -187,8 +195,23 @@ class SendOrder extends Component {
 
     handleOrderButtonOnClick(){
         console.log(this.state);
+        if(this.state.productId===''||this.state.orderType===''||this.state.sellOrBuy===''||this.state.price===''||this.state.amount===''){
+            this.setState({
+                warningOpen:true,
+                warningMessage:"订单信息不能为空，请检查后重试！"
+            });
+            return;
+        }
+        else if(isNaN(this.state.price)||isNaN(this.state.amount)){
+            this.setState({
+                warningOpen:true,
+                warningMessage:"订单价格和买卖手数必须为数字！"
+            });
+            return;
+        }
         let xmlHttp = new XMLHttpRequest();
-        xmlHttp.open("GET", "http://localhost:8082/sendOrder?productId="+this.state.productId+"&type="+this.state.orderType+"&sellOrBuy="+this.state.sellOrBuy+"&price="+this.state.price+"&quantity="+this.state.amount+"&traderName="+"Alice", true);
+        xmlHttp.open("GET", "http://localhost:8082/sendOrder?productId="+this.state.productId+"&type="+this.state.orderType+"&sellOrBuy="+this.state.sellOrBuy+"&price="+this.state.price+"&quantity="+this.state.amount
+            +"&traderName="+Cookies.get('username')+"&brokerId="+Cookies.get('broker'), true);
         xmlHttp.setRequestHeader("Content-Type", "application/json");
         xmlHttp.onreadystatechange = () => {
             if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {
@@ -208,6 +231,12 @@ class SendOrder extends Component {
         };
         xmlHttp.send();
 
+    }
+
+    handleWarningClose(){
+        this.setState({
+            warningOpen:false,
+        })
     }
 
     render() {
@@ -417,10 +446,29 @@ class SendOrder extends Component {
                                     交易中订单
                                 </Typography>
                             </div>
-                            <MyOrderTable/>
+                            <MyOrderTable productName={this.state.productName} processingOrders={this.state.processingOrders}/>
                         </Grid>
                     </Grid>
                 </div>
+                <Dialog
+                    open={this.state.warningOpen}
+                    onClose={this.handleWarningClose}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                    <DialogTitle id="alert-dialog-title"><WarningIcon fontSize={'middle'} color={"error"} style={{verticalAlign:'middle'}}/>&nbsp;{"订单格式错误"}</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                            {this.state.warningMessage}
+                        </DialogContentText>
+                    </DialogContent>
+                    <Divider/>
+                    <DialogActions>
+                        <Button onClick={this.handleWarningClose} color="primary">
+                            关闭
+                        </Button>
+                    </DialogActions>
+                </Dialog>
 
             {/*<MuiPickersUtilsProvider utils={DateFnsUtils}>*/}
                 {/*<DateTimePicker*/}

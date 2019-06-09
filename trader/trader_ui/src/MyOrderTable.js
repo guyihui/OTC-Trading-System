@@ -17,6 +17,7 @@ import TableHead from '@material-ui/core/TableHead';
 import Grid from '@material-ui/core/Grid';
 import Fab from '@material-ui/core/Fab';
 import CancelIcon from '@material-ui/icons/ClearRounded';
+import Cookies from 'js-cookie';
 
 const useStyles1 = makeStyles(theme => ({
     root: {
@@ -123,11 +124,27 @@ class MyOrderTable extends Component {
         this.state = {
             page:0,
             rowsPerPage:5,
+            processingOrders:this.props.processingOrders,
+            productName:this.props.productName,
         };
 
         this.handleChangePage = this.handleChangePage.bind(this);
         this.handleChangeRowsPerPage = this.handleChangeRowsPerPage.bind(this);
         this.handleCancelOrder = this.handleCancelOrder.bind(this);
+    }
+
+    static getDerivedStateFromProps(nextProps, prevState) {
+        console.log("aaaa");
+        if (nextProps.processingOrders !== prevState.processingOrders || nextProps.productName !== prevState.productName) {
+            console.log("bbbb");
+            console.log(nextProps);
+            return {
+                processingOrders:nextProps.processingOrders,
+                productName:nextProps.productName,
+            };
+        }
+        // 否则，对于state不进行任何操作
+        return null;
     }
 
 
@@ -140,50 +157,47 @@ class MyOrderTable extends Component {
     }
 
     handleCancelOrder(row){
-        // let xmlHttp = new XMLHttpRequest();
-        // xmlHttp.open("GET", "http://localhost:8082/getBlotter?productId="+this.state.productId+"&startTime="+this.state.selectedStartDate.getTime()+"&endTime="+this.state.selectedEndDate.getTime()+"&traderName="+"Alice", true);
-        // xmlHttp.setRequestHeader("Content-Type", "application/json");
-        // xmlHttp.onreadystatechange = () => {
-        //     if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {
-        //         let data=JSON.parse(xmlHttp.responseText);
-        //         console.log(data);
-        //         this.setState({data:data});
-        //     }
-        // };
-        // xmlHttp.send();
+        let xmlHttp = new XMLHttpRequest();
+        xmlHttp.open("GET", "http://localhost:8082/sendCancel?productId="+row.product.productId+"&sellOrBuy="+row.sellOrBuy+"&price="+row.price+"&cancelId="+row.orderId+
+        "&traderName="+Cookies.get('username')+"&brokerId="+Cookies.get('broker'), true);
+        xmlHttp.setRequestHeader("Content-Type", "application/json");
+        xmlHttp.onreadystatechange = () => {
+            if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {
+                console.log(xmlHttp.responseText);
+            }
+        };
+        xmlHttp.send();
     }
 
     render() {
         const classes = useStyles2;
-        const emptyRows = this.state.rowsPerPage - Math.min(this.state.rowsPerPage, rows.length - this.state.page * this.state.rowsPerPage);
+        const emptyRows = this.state.rowsPerPage - Math.min(this.state.rowsPerPage, this.state.processingOrders.length - this.state.page * this.state.rowsPerPage);
         return (
-            <Paper className={classes.root}>
-                <div className={classes.tableWrapper}>
-                    <Table className={classes.table} style={{marginBottom:30}}>
-                        <TableHead>
+            <Paper className={classes.root} style={{width:'100%'}}>
+                <div className={classes.tableWrapper} style={{width:'100%'}}>
+                    <Table className={classes.table} style={{marginBottom:30,width:'100%'}}>
+
+                        <TableHead style={{width:'100%'}}>
                             <TableRow>
-                                <TableCell >OrderID</TableCell>
-                                <TableCell align="right">商品名称</TableCell>
-                                <TableCell align="right" >日期</TableCell>
-                                <TableCell align="right" >买/卖</TableCell>
-                                <TableCell align="right" >价格</TableCell>
-                                <TableCell align="right" >数量</TableCell>
-                                <TableCell align="right" >订单种类</TableCell>
-                                <TableCell align="right" >取消订单</TableCell>
+                                <TableCell>买/卖</TableCell>
+                                <TableCell align="left" >价格</TableCell>
+                                <TableCell align="left" >总数</TableCell>
+                                <TableCell align="left" >余量</TableCell>
+                                <TableCell align="left" >订单种类</TableCell>
+                                <TableCell align="left" >取消订单</TableCell>
                             </TableRow>
                         </TableHead>
-                        <TableBody>
-                            {rows.slice(this.state.page * this.state.rowsPerPage, this.state.page * this.state.rowsPerPage + this.state.rowsPerPage).map(row => (
+                        <TableBody style={{width:'100%'}}>
+                            {this.state.processingOrders.slice(this.state.page * this.state.rowsPerPage, this.state.page * this.state.rowsPerPage + this.state.rowsPerPage).map(row => (
                                 <TableRow key={row.orderId}>
                                     <TableCell component="th" scope="row">
-                                        {row.orderId}
+                                        {row.sellOrBuy}
                                     </TableCell>
-                                    <TableCell align="right" >{row.product}</TableCell>
-                                    <TableCell align="right">{row.period}</TableCell>
-                                    <TableCell align="right">{row.sellOrBuy}</TableCell>
-                                    <TableCell align="right">{row.price}</TableCell>
-                                    <TableCell align="right">{row.quantity}</TableCell>
-                                    <TableCell align="right">{row.type}</TableCell>
+
+                                    <TableCell align="left">{row.price}</TableCell>
+                                    <TableCell align="left">{row.totalQuantity}</TableCell>
+                                    <TableCell align="left">{row.remainingQuantity}</TableCell>
+                                    <TableCell align="right">{row.orderType}</TableCell>
                                     <TableCell align="right">
                                         <IconButton size="small" color="secondary" aria-label="Add" onClick={()=>this.handleCancelOrder(row)} className={classes.margin}>
                                             <CancelIcon />
@@ -194,7 +208,7 @@ class MyOrderTable extends Component {
 
                             {emptyRows > 0 && (
                                 <TableRow style={{height: 48 * emptyRows}}>
-                                    <TableCell colSpan={6}/>
+                                    <TableCell colSpan={7}/>
                                 </TableRow>
                             )}
                         </TableBody>
@@ -203,7 +217,7 @@ class MyOrderTable extends Component {
                                 <TablePagination
                                     rowsPerPageOptions={[5, 10, 25]}
                                     colSpan={3}
-                                    count={rows.length}
+                                    count={this.state.processingOrders.length}
                                     rowsPerPage={this.state.rowsPerPage}
                                     page={this.state.page}
                                     SelectProps={{

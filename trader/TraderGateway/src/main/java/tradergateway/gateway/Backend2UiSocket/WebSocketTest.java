@@ -30,6 +30,8 @@ public class WebSocketTest {
     //与某个客户端的连接会话，需要通过它来给客户端发送数据
     private Session session;
     private User user;
+    private Product askedProduct;
+    private Broker askedBroker;
 
     @Autowired
     private OrderStorage orderStorage;
@@ -54,11 +56,17 @@ public class WebSocketTest {
      */
     @OnClose
     public void onClose() {
-        for (Product product : webSocketMap.keySet()) {
-            if (webSocketMap.get(product).remove(this)) {
-                break;
-            }
+        try {
+            webSocketMap.get(askedProduct).remove(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("socket onClose error.");
         }
+//        for (Product product : webSocketMap.keySet()) {
+//            if (webSocketMap.get(product).remove(this)) {
+//                break;
+//            }
+//        }
     }
 
     /**
@@ -74,22 +82,26 @@ public class WebSocketTest {
         JsonObject msgJson = parser.parse(message).getAsJsonObject();
         System.out.println("Message:" + msgJson);
 
-        Product askedProduct = Products.get(msgJson.get("productId").toString().replace("\"", ""));
+        askedProduct = Products.get(msgJson.get("productId").toString().replace("\"", ""));
         user = new User(msgJson.get("traderName").toString().replace("\"", ""));
-
-        CopyOnWriteArraySet<WebSocketTest> webSocketSet = new CopyOnWriteArraySet<>();
+//        askedBroker = Brokers.get("01");
+        askedBroker = Brokers.get(msgJson.get("broker").toString().replace("\"", ""));
 
         if (webSocketMap.containsKey(askedProduct)) {
             System.out.println("Add a client!");
-            webSocketSet = webSocketMap.get(askedProduct);
-            webSocketSet.add(this);
-            webSocketMap.put(askedProduct, webSocketSet);
+            webSocketMap.get(askedProduct).add(this);
+//            webSocketSet = webSocketMap.get(askedProduct);
+//            webSocketSet.add(this);
+//            webSocketMap.put(askedProduct, webSocketSet);
         } else {
             System.out.println("Add a client and a new Product set!");
             CopyOnWriteArraySet<WebSocketTest> wsSet = new CopyOnWriteArraySet<>();
             wsSet.add(this);
             webSocketMap.put(askedProduct, wsSet);
         }
+
+        askedBroker.getBrokerChannel().updateDepth(askedProduct.getProductId(), "noUpdate", "");
+
     }
 
     /**
@@ -106,23 +118,31 @@ public class WebSocketTest {
 
     /**
      * 这个方法与上面几个方法不一样。没有用注解，是根据自己需要添加的方法。
-     *
      */
     public void sendOrderState() {
         try {
             for (Product product : webSocketMap.keySet()) {
                 for (WebSocketTest socket : webSocketMap.get(product)) {
                     System.out.println("Now update order state!");
-                    Set<Order> orders = orderStorage.getFilteredOrders(Brokers.get("01"), socket.getUser(), product);
+                    Set<Order> orders = orderStorage.getFilteredOrders(askedBroker, socket.getUser(), product);
 
+                    if (orders == null) {
+                        continue;
+                    }
                     for (Order order : orders) {
                         if (order.getFlag() > 2) {
                             orders.remove(order);
                         }
+                        if (order.getState().indexOf("canceled,remain:") == 0) {
+                            sendCancelMsg(product, socket, order, "cancelSuccess");
+                        }
+                        if (order.getOrderType().equals("cancel") && order.getState().indexOf("fail") == 0) {
+                            sendCancelMsg(product, socket, order, "cancelFailure");
+                        }
                     }
 
                     JsonObject state = new JsonObject();
-                    state.addProperty("productId", product.getProductId().replace("\"", ""));
+                    state.addProperty("productId", product.getProductId());
                     state.addProperty("type", "state");
                     state.addProperty("orders", (new Gson()).toJson(orders));
 
@@ -138,6 +158,16 @@ public class WebSocketTest {
 
     }
 
+    private void sendCancelMsg(Product product, WebSocketTest socket, Order order, String cancelSuccess) throws IOException {
+        JsonObject cancel = new JsonObject();
+        cancel.addProperty("productId", product.getProductId());
+        cancel.addProperty("type", cancelSuccess);
+        cancel.addProperty("order", (new Gson()).toJson(order));
+        synchronized (socket) {
+            socket.getSession().getBasicRemote().sendText(cancel.toString());
+        }
+    }
+
     public static void sendDepth(Product product, Pair<String, String> depthPair) {
         try {
             JsonObject depth = new JsonObject();
@@ -150,7 +180,6 @@ public class WebSocketTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     private static void broadcastToUi(Product product, String s) throws IOException {
@@ -173,6 +202,14 @@ public class WebSocketTest {
 
     public User getUser() {
         return this.user;
+    }
+
+    public Product getAskedProduct() {
+        return askedProduct;
+    }
+
+    public Broker getAskedBroker() {
+        return askedBroker;
     }
 
     public static ConcurrentHashMap<Product, CopyOnWriteArraySet<WebSocketTest>> getWebSocketMap() {

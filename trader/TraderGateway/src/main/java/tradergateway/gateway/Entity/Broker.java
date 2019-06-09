@@ -52,6 +52,10 @@ public class Broker {
         return apiUrl;
     }
 
+    public BrokerChannel getBrokerChannel() {
+        return brokerChannel;
+    }
+
     @Override
     public boolean equals(Object obj) {
         return obj instanceof Broker && brokerId.equals(((Broker) obj).getBrokerId());

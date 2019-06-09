@@ -52,14 +52,15 @@ public class OrderStateService implements InitializingBean {
 
                 List<Order> orders = new ArrayList<>();
 
+
                 for (Product product : map.keySet()) {
                     for (WebSocketTest webSocketTest : map.get(product)) {
                         //取出需要查询的 orders
                         Set<Order> filtered =
                                 orderStorage.getFilteredOrders(
-                                        Brokers.get("01"),
+                                        webSocketTest.getAskedBroker(),
                                         webSocketTest.getUser(),
-                                        product
+                                        webSocketTest.getAskedProduct()
                                 );
                         if (filtered != null) {
                             orders.addAll(filtered);
@@ -90,9 +91,7 @@ public class OrderStateService implements InitializingBean {
                         } else if (state.indexOf("canceled,remain:") == 0) {
                             int remain = Integer.valueOf(state.substring("canceled,remain:".length()));
                             order.setRemainingQuantity(remain);
-                            if (remain == 0) {
-                                order.incrementFlag();
-                            }
+                            order.incrementFlag();
                         } else if (state.indexOf("success") == 0 || state.indexOf("fail") == 0) {
                             order.incrementFlag();
                         }

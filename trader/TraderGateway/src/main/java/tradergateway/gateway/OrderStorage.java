@@ -67,10 +67,10 @@ public class OrderStorage implements InitializingBean {
         try {
             return allOrders.get(broker).get(user).get(product);
         } catch (NullPointerException e) {
-            return null;
+            return new CopyOnWriteArraySet<>();
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
+            return new CopyOnWriteArraySet<>();
         }
     }
 
@@ -90,10 +90,10 @@ public class OrderStorage implements InitializingBean {
             }
             return result;
         } catch (NullPointerException e) {
-            return null;
+            return new CopyOnWriteArraySet<>();
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
+            return new CopyOnWriteArraySet<>();
         }
     }
 

@@ -283,9 +283,13 @@ function App() {
             buyList: [],
             sellList:[],
         });
-    const [open, setOpen] = React.useState(true);
+    const [successOpen, setSuccessOpen] = React.useState(false);
+    const [failOpen, setFailOpen] = React.useState(false);
     const [sellDepth, setSellDepth] = React.useState({depth:"0",flag:1});
     const [buyDepth, setBuyDepth] = React.useState({depth:"0",flag:1});
+    const [message, setMessage] = React.useState("");
+    const [failMessage, setFailMessage] = React.useState("");
+    const [processingOrders, setProcessingOrders] = React.useState([]);
 
     if(Cookies.get("socketFlag")==="1"){
         if(ws!==null){
@@ -341,6 +345,58 @@ function App() {
             }
 
         }
+        else if(data.type==='state'){
+            let stateData = JSON.parse(evt.data);
+            console.log(stateData);
+            let data = JSON.parse(stateData.orders);
+            console.log(data);
+            if(data!==null) {
+                setProcessingOrders(data);
+            }
+            else{
+                setProcessingOrders([]);
+            }
+        }
+        else if(data.type==='cancelSuccess'){
+            console.log(data.order);
+            let canceledOrder = JSON.parse(data.order);
+            console.log(canceledOrder);
+            let succMsg =
+                <div>
+                    <Typography variant={'subtitle1'}>
+                        Canceled OrderID:&nbsp;{canceledOrder.orderId}
+                    </Typography>
+                    <Typography variant={'subtitle1'}>
+                        ProductName:&nbsp;{canceledOrder.product.productName},&nbsp;ProductPeriod:&nbsp;{canceledOrder.product.productPeriod}
+                    </Typography>
+                    <Typography variant={'subtitle1'}>
+                        Side:&nbsp;{canceledOrder.sellOrBuy},&nbsp;OrderType:&nbsp;{canceledOrder.sellOrBuy}
+                    </Typography>
+                    <Typography variant={'subtitle1'}>
+                        TotalQuantity:&nbsp;{canceledOrder.totalQuantity},&nbsp;RemainingQuantity:&nbsp;{canceledOrder.remainingQuantity}
+                    </Typography>
+                </div>;
+            // let successMsg = "Canceled OrderID: "+ canceledOrder.orderId+ "\nProductName: "+canceledOrder.product.productName+" ProductPeriod: "+canceledOrder.product.productPeriod
+            // +"\nSide: "+ canceledOrder.sellOrBuy+" OrderType: "+canceledOrder.orderType+"\nTotalAmount: "+canceledOrder.totalQuantity+" CanceledAmount: "+canceledOrder.remainingQuantity;
+            setMessage(succMsg);
+            setSuccessOpen(true);
+        }
+        else if(data.type==='cancelFailure'){
+            console.log(data.order);
+            let canceledOrder = JSON.parse(data.order);
+            console.log(canceledOrder);
+            let failMsg =
+                <div>
+                    <Typography variant={'subtitle1'}>
+                        Cancel failed
+                    </Typography>
+                    <Typography variant={'subtitle1'}>
+                        OrderID:&nbsp;{canceledOrder.orderId}
+                    </Typography>
+                </div>;
+            setFailMessage(failMsg);
+            setFailOpen(true);
+        }
         // setOrders(JSON.parse(evt.data));
     };
 
@@ -360,6 +416,7 @@ function App() {
         setValues(0);
         setSellDepth({depth:"0",flag:1});
         setBuyDepth({depth:"0",flag:1});
+        setProcessingOrders([]);
         ws = new WebSocket("ws://localhost:8082/WebSocket");
         //ws.send(msg[index%2].toString());
     }
@@ -369,6 +426,7 @@ function App() {
         setValues(event.target.value);
         setSellDepth({depth:"0",flag:1});
         setBuyDepth({depth:"0",flag:1});
+        setProcessingOrders([]);
         ws = new WebSocket("ws://localhost:8082/WebSocket");
         //console.log(event.target.value);
     }
@@ -384,12 +442,20 @@ function App() {
         //ws.send(msg[index%2].toString());
     }
 
-    function handleClose(event, reason) {
+    function handleSuccessClose(event, reason) {
         if (reason === 'clickaway') {
             return;
         }
 
-        setOpen(false);
+        setSuccessOpen(false);
+    }
+
+    function handleFailClose(event, reason) {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setFailOpen(false);
     }
 
     const [state, setState] = React.useState({
@@ -400,6 +466,7 @@ function App() {
         setState({ ...state, [name]: event.target.checked });
     };
 
+    const mmssgg = <h3>asdasxsad</h3>;
     return (
         <div className={classes.root}>
             <CssBaseline />
@@ -476,7 +543,9 @@ function App() {
                     </div>
                     :
                     <div>
-                        <SendOrder sellDepth={sellDepth} buyDepth={buyDepth} productId={msg[selectedIndex].detail[values].productId} productName={msg[selectedIndex].productDisplayName} productPeriod={msg[selectedIndex].detail[values].productPeriod}/>
+                        <SendOrder sellDepth={sellDepth} buyDepth={buyDepth} productId={msg[selectedIndex].detail[values].productId}
+                                   productName={msg[selectedIndex].productDisplayName} productPeriod={msg[selectedIndex].detail[values].productPeriod}
+                                   processingOrders={processingOrders}/>
                     </div>
                 }
 
@@ -485,14 +554,30 @@ function App() {
                         vertical: 'top',
                         horizontal: 'center',
                     }}
-                    open={open}
+                    open={successOpen}
                     autoHideDuration={6000}
-                    onClose={handleClose}
+                    onClose={handleSuccessClose}
                 >
                     <MySnackbarContentWrapper
-                        onClose={handleClose}
+                        onClose={handleSuccessClose}
                         variant="success"
-                        message="This is a success message!"
+                        message={message}
+                    />
+                </Snackbar>
+
+                <Snackbar
+                    anchorOrigin={{
+                        vertical: 'top',
+                        horizontal: 'center',
+                    }}
+                    open={failOpen}
+                    autoHideDuration={6000}
+                    onClose={handleFailClose}
+                >
+                    <MySnackbarContentWrapper
+                        onClose={handleFailClose}
+                        variant="error"
+                        message={failMessage}
                     />
                 </Snackbar>
 

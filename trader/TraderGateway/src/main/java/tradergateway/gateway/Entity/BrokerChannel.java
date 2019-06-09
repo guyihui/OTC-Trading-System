@@ -22,7 +22,7 @@ public class BrokerChannel {
 
     private ByteBuffer byteBuffer = ByteBuffer.allocate(512);
     private long retryInterval = 10;
-    //TODO:注入websocket
+    //TODO:注入websocket,暂不注入（使用静态方法）
 
     public BrokerChannel(AsynchronousSocketChannel channel) {
         this.channel = channel;
@@ -85,6 +85,8 @@ public class BrokerChannel {
             updatedPair = new Pair<>(depth, pair.getValue());
         } else if (buyOrSell.equals("sell")) {
             updatedPair = new Pair<>(pair.getKey(), depth);
+        } else if (buyOrSell.equals("noUpdate")) {
+            updatedPair = pair;
         } else {
             System.err.println("update depth error");
             updatedPair = pair;
