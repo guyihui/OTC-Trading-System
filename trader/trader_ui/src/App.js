@@ -37,6 +37,7 @@ import amber from '@material-ui/core/colors/amber';
 import IconButton from '@material-ui/core/IconButton';
 import ExitToAppIcon from '@material-ui/icons/ExitToAppOutlined';
 import WarningIcon from '@material-ui/icons/Warning';
+import CompareArrowsIcon from '@material-ui/icons/CompareArrowsOutlined';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import Cookies from 'js-cookie';
@@ -475,6 +476,14 @@ function App() {
                     <Typography edge="start" className={classes.title} variant="h6" noWrap>
                         期货交易所
                     </Typography>
+                    <Typography variant="subtitle1" noWrap>
+                        Trader:&nbsp;{Cookies.get('username')}
+                    </Typography>
+                    &ensp;<CompareArrowsIcon />&ensp;
+                    <Typography variant="subtitle1" noWrap>
+                        Broker:&nbsp;{Cookies.get('broker')}
+                    </Typography>
+                    &ensp;
                     <IconButton
                         color="inherit"
                         aria-label="Open drawer"
