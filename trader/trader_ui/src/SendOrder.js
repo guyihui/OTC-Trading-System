@@ -211,11 +211,16 @@ class SendOrder extends Component {
     handleOrderButtonOnClick(){
         console.log(this.state);
         if(this.state.productId===''||this.state.orderType===''||this.state.sellOrBuy===''||this.state.price===''||this.state.amount===''){
-            this.setState({
-                warningOpen:true,
-                warningMessage:"订单信息不能为空，请检查后重试！"
-            });
-            return;
+            if(this.state.orderType==='market'&&this.state.price===''){
+
+            }
+            else {
+                this.setState({
+                    warningOpen: true,
+                    warningMessage: "订单信息不能为空，请检查后重试！"
+                });
+                return;
+            }
         }
         else if(isNaN(this.state.price)||isNaN(this.state.amount)){
             this.setState({
@@ -225,8 +230,14 @@ class SendOrder extends Component {
             return;
         }
         let xmlHttp = new XMLHttpRequest();
-        xmlHttp.open("GET", "http://localhost:8082/sendOrder?productId="+this.state.productId+"&type="+this.state.orderType+"&sellOrBuy="+this.state.sellOrBuy+"&price="+this.state.price+"&quantity="+this.state.amount
-            +"&traderName="+Cookies.get('username')+"&brokerId="+Cookies.get('broker'), true);
+        if(this.state.orderType==='market'){
+            xmlHttp.open("GET", "http://localhost:8082/sendOrder?productId="+this.state.productId+"&type="+this.state.orderType+"&sellOrBuy="+this.state.sellOrBuy+"&price=0"+"&quantity="+this.state.amount
+                +"&traderName="+Cookies.get('username')+"&brokerId="+Cookies.get('broker'), true);
+        }
+        else{
+            xmlHttp.open("GET", "http://localhost:8082/sendOrder?productId="+this.state.productId+"&type="+this.state.orderType+"&sellOrBuy="+this.state.sellOrBuy+"&price="+this.state.price+"&quantity="+this.state.amount
+                +"&traderName="+Cookies.get('username')+"&brokerId="+Cookies.get('broker'), true);
+        }
         xmlHttp.setRequestHeader("Content-Type", "application/json");
         xmlHttp.onreadystatechange = () => {
             if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {
