@@ -21,7 +21,7 @@ public class BigOrderController {
 
     @CrossOrigin(value = "*")
     @GetMapping(value = "/sendBigOrder")
-    public void sendBigOrder(
+    public  String sendBigOrder(
             @RequestParam(value = "productId")String productid,
             @RequestParam(value = "sellOrBuy")String sellOrBuy,
             @RequestParam(value = "quantity") Integer quantity,
@@ -47,6 +47,7 @@ public class BigOrderController {
         bigOrderStorage.addOrder(broker,user,product,bigOrder);
 
         bigOrderService.TwapService(bigOrder,totalSeconds,freqSeconds,brokerId);
+        return "good";
 
 
     }
