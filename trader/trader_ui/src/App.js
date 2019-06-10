@@ -291,6 +291,7 @@ function App() {
     const [message, setMessage] = React.useState("");
     const [failMessage, setFailMessage] = React.useState("");
     const [processingOrders, setProcessingOrders] = React.useState([]);
+    const [bigOrders, setBigOrders] = React.useState([]);
 
     if(Cookies.get("socketFlag")==="1"){
         if(ws!==null){
@@ -313,7 +314,7 @@ function App() {
     };
 
     ws.onmessage = function(evt) {
-        console.log(evt.data);
+        //console.log(evt.data);
         let data=JSON.parse(evt.data);
         if(data.type === "depth") {
             if(data.sell!=='-1'&&data.sell!==null) {
@@ -397,6 +398,12 @@ function App() {
                 </div>;
             setFailMessage(failMsg);
             setFailOpen(true);
+        }
+        else if(data.type==='bigOrderState'){
+            console.log("BIG ORDER COMING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!: ",evt.data);
+            let bigOrders = JSON.parse(JSON.parse(evt.data).orders);
+            console.log(bigOrders);
+            setBigOrders(bigOrders);
         }
         // setOrders(JSON.parse(evt.data));
     };
@@ -554,7 +561,7 @@ function App() {
                     <div>
                         <SendOrder sellDepth={sellDepth} buyDepth={buyDepth} productId={msg[selectedIndex].detail[values].productId}
                                    productName={msg[selectedIndex].productDisplayName} productPeriod={msg[selectedIndex].detail[values].productPeriod}
-                                   processingOrders={processingOrders}/>
+                                   processingOrders={processingOrders} bigOrders={bigOrders}/>
                     </div>
                 }
 

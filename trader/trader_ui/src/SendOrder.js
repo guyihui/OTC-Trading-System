@@ -133,7 +133,7 @@ function TextMaskCustom(props) {
             ref={ref => {
                 inputRef(ref ? ref.inputElement : null);
             }}
-            mask={[/\d/,' ', 'D',' ', /\d/, /\d/,' ', 'H', ' ',/\d/, /\d/,' ', 'M']}
+            mask={[/\d/,' ', 'D',' ', /\d/, /\d/,' ', 'H', ' ',/\d/, /\d/,' ', 'M',' ',/\d/, /\d/,' ', 's']}
             placeholderChar={'\u2000'}
             showMask
         />
@@ -162,13 +162,14 @@ class SendOrder extends Component {
             sellDepth:this.props.sellDepth,
             buyDepth:this.props.buyDepth,
             processingOrders:this.props.processingOrders,
+            bigOrders:this.props.bigOrders,
             warningOpen:false,
             warningMessage:'',
             priceSelect:false,
             checkedIceBerg:false,
             showBigOrder:false,
-            textMask:'  天    小时    分',
-            intervalMask:'  天    小时    分',
+            textMask:'  天    小时    分    秒',
+            intervalMask:'  天    小时    分    秒',
             selectedStrategy:"",
         };
         this.handleStartDateChange = this.handleStartDateChange.bind(this);
@@ -189,7 +190,8 @@ class SendOrder extends Component {
     static getDerivedStateFromProps(nextProps, prevState) {
         console.log("aaaa");
         if (nextProps.productId !== prevState.productId || nextProps.productName !== prevState.productName || nextProps.productPeriod !== prevState.productPeriod
-            || nextProps.sellDepth !== prevState.sellDepth || nextProps.buyDepth !== prevState.buyDepth || nextProps.processingOrders !== prevState.processingOrders) {
+            || nextProps.sellDepth !== prevState.sellDepth || nextProps.buyDepth !== prevState.buyDepth || nextProps.processingOrders !== prevState.processingOrders
+            || nextProps.bigOrders !== prevState.bigOrders) {
             console.log("bbbb");
             console.log(nextProps);
             return {
@@ -203,6 +205,7 @@ class SendOrder extends Component {
                 sellDepth:nextProps.sellDepth,
                 buyDepth:nextProps.buyDepth,
                 processingOrders:nextProps.processingOrders,
+                bigOrders:nextProps.bigOrders
             };
         }
         // 否则，对于state不进行任何操作
@@ -266,7 +269,7 @@ class SendOrder extends Component {
     handleDealTimeChange(event){
         let nums = event.target.value.split(" ");
         console.log(nums);
-        console.log(parseInt(nums[0]),parseInt(nums[2]),parseInt(nums[4]));
+        console.log(parseInt(nums[0]),parseInt(nums[2]),parseInt(nums[4]),parseInt(nums[6]));
         this.setState({
             textMask:event.target.value,
         })
@@ -275,7 +278,7 @@ class SendOrder extends Component {
     handleIntervalChange(event){
         let nums = event.target.value.split(" ");
         console.log(nums);
-        console.log(parseInt(nums[0]),parseInt(nums[2]),parseInt(nums[4]));
+        console.log(parseInt(nums[0]),parseInt(nums[2]),parseInt(nums[4]),parseInt(nums[6]));
         this.setState({
             intervalMask:event.target.value,
         })
@@ -303,7 +306,8 @@ class SendOrder extends Component {
             let intervalTime=this.state.intervalMask.split(" ");
             if(totalTime[0]===null||isNaN(totalTime[0])||totalTime[2]===null||isNaN(totalTime[2])||
                 parseInt(totalTime[2])>23||parseInt(totalTime[2])<0||totalTime[4]===null||isNaN(totalTime[4])||
-                parseInt(totalTime[4])>59||parseInt(totalTime[4])<0){
+                parseInt(totalTime[4])>59||parseInt(totalTime[4])<0||totalTime[6]===null||isNaN(totalTime[6])||
+                parseInt(totalTime[6])>59||parseInt(totalTime[6])<0){
                 this.setState({
                     warningOpen: true,
                     warningMessage: "时间格式错误！"
@@ -312,7 +316,8 @@ class SendOrder extends Component {
             }
             if(intervalTime[0]===null||isNaN(intervalTime[0])||intervalTime[2]===null||isNaN(intervalTime[2])||
                 parseInt(intervalTime[2])>23||parseInt(intervalTime[2])<0||intervalTime[4]===null||isNaN(intervalTime[4])||
-                parseInt(intervalTime[4])>59||parseInt(intervalTime[4])<0){
+                parseInt(intervalTime[4])>59||parseInt(intervalTime[4])<0||intervalTime[6]===null||isNaN(intervalTime[6])||
+                parseInt(intervalTime[6])>59||parseInt(intervalTime[6])<0){
                 this.setState({
                     warningOpen: true,
                     warningMessage: "时间格式错误！"
@@ -320,8 +325,8 @@ class SendOrder extends Component {
                 return;
             }
 
-            let realTotalTime = parseInt(totalTime[0])*24*3600+parseInt(totalTime[2])*3600+parseInt(totalTime[4])*60;
-            let realIntervalTime = parseInt(intervalTime[0])*24*3600+parseInt(intervalTime[2])*3600+parseInt(intervalTime[4])*60;
+            let realTotalTime = parseInt(totalTime[0])*24*3600+parseInt(totalTime[2])*3600+parseInt(totalTime[4])*60+parseInt(totalTime[6]);
+            let realIntervalTime = parseInt(intervalTime[0])*24*3600+parseInt(intervalTime[2])*3600+parseInt(intervalTime[4])*60+parseInt(intervalTime[6]);
             console.log(realTotalTime,realIntervalTime);
             console.log(this.state);
 
@@ -345,8 +350,8 @@ class SendOrder extends Component {
                         orderType: "",
                         priceSelect: false,
                         checkedIceBerg:false,
-                        textMask:'  天    小时    分',
-                        intervalMask:'  天    小时    分',
+                        textMask:'  天    小时    分    秒',
+                        intervalMask:'  天    小时    分    秒',
                         selectedStrategy:"",
                     });
                 }
@@ -376,11 +381,11 @@ class SendOrder extends Component {
             }
             let xmlHttp = new XMLHttpRequest();
             if(this.state.orderType==='market'){
-                xmlHttp.open("GET", "http://202.120.40.8:30483/sendOrder?productId="+this.state.productId+"&type="+this.state.orderType+"&sellOrBuy="+this.state.sellOrBuy+"&price=0"+"&quantity="+this.state.amount
+                xmlHttp.open("GET", "http://localhost:30483/sendOrder?productId="+this.state.productId+"&type="+this.state.orderType+"&sellOrBuy="+this.state.sellOrBuy+"&price=0"+"&quantity="+this.state.amount
                     +"&traderName="+Cookies.get('username')+"&brokerId="+Cookies.get('broker'), true);
             }
             else{
-                xmlHttp.open("GET", "http://202.120.40.8:30483/sendOrder?productId="+this.state.productId+"&type="+this.state.orderType+"&sellOrBuy="+this.state.sellOrBuy+"&price="+this.state.price+"&quantity="+this.state.amount
+                xmlHttp.open("GET", "http://localhost:30483/sendOrder?productId="+this.state.productId+"&type="+this.state.orderType+"&sellOrBuy="+this.state.sellOrBuy+"&price="+this.state.price+"&quantity="+this.state.amount
                     +"&traderName="+Cookies.get('username')+"&brokerId="+Cookies.get('broker'), true);
             }
             xmlHttp.setRequestHeader("Content-Type", "application/json");
@@ -436,7 +441,7 @@ class SendOrder extends Component {
                                 <Typography variant="h6" style={{marginLeft:30}} gutterBottom>
                                     进行中拆分单
                                 </Typography>
-                                <BigOrderTable productName={this.state.productName} processingOrders={this.state.processingOrders}/>
+                                <BigOrderTable productName={this.state.productName} processingOrders={this.state.bigOrders}/>
                             </Grid>
                             :
                             <Grid item xs={5}>
