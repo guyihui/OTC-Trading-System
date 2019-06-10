@@ -117,6 +117,7 @@ public class WebSocketTest {
                 for (WebSocketTest socket : webSocketMap.get(product)) {
                     System.out.println("Now update order state!");
 
+                    //需要推送的order
                     Set<Order> orders = orderStorage.getFilteredOrders(
                             socket.askedBroker,
                             socket.user,
@@ -126,6 +127,7 @@ public class WebSocketTest {
                     if (orders == null) {
                         continue;
                     }
+                    //对部分order进行单独的额外推送、大单特殊处理
                     Map<String, Integer> bigOrderRemainingQuantity = new HashMap<>();
                     for (Order order : orders) {
                         if (order.getDisplayFlag() > 2) {
@@ -149,13 +151,15 @@ public class WebSocketTest {
                         }
                     }
                     //统计完拆分单信息，更新 big order
-                    //TODO: 对于已经结束的小单，需要从big order中移除
+                    //对于已经结束的小单，需要从big order中移除
                     Set<BigOrder> bigOrders = bigOrderStorage.getFilteredOrders(socket.askedBroker, socket.user, socket.askedProduct);
-                    for (String bigOrderId : bigOrderRemainingQuantity.keySet()) {
-                        for (BigOrder bigOrder : bigOrders) {
-                            bigOrder.setWaitingQuantity(bigOrderRemainingQuantity.get(bigOrderId));
-                            bigOrder.clearFinishedSplitOrders();
+                    for (BigOrder bigOrder : bigOrders) {
+                        Integer waitingQuantity = bigOrderRemainingQuantity.get(bigOrder.getId());
+                        if (waitingQuantity == null) {
+                            waitingQuantity = 0;
                         }
+                        bigOrder.setWaitingQuantity(waitingQuantity);
+                        bigOrder.clearFinishedSplitOrders();
                     }
 
                     JsonObject state = new JsonObject();
