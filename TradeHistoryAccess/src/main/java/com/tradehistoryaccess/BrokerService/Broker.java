@@ -97,8 +97,8 @@ public class Broker implements InitializingBean {
                 double random = Math.random();
                 Order testOrder = new Order(
                         "test" + count,
-                        random < 0.2 ? "stop" : random < 0.4 ? "cancel" : "limit",
-                        995 + (int) (11 * Math.random()),
+                        random < 0.2 ? "stop" : random < 0.4 ? "market" : "limit",
+                        980 + (int) (41 * Math.random()),
                         Math.random() < 0.5 ? "buy" : "sell"
                 );
                 if (testOrder.getOrderType().equals("cancel")) {
