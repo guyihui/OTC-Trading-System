@@ -46,7 +46,12 @@ public class BigOrderController {
         User user=new User(traderName);
         bigOrderStorage.addOrder(broker,user,product,bigOrder);
 
-        bigOrderService.TwapService(bigOrder,totalSeconds,freqSeconds,brokerId);
+        if(strategy.equals("twap")) {
+            bigOrderService.TwapService(bigOrder, totalSeconds, freqSeconds, brokerId);
+        }
+        else {
+            bigOrderService.VwapService(bigOrder,totalSeconds,freqSeconds,brokerId);
+        }
         return "good";
 
 
