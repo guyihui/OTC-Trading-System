@@ -156,11 +156,11 @@ class Orderbook extends Component{
                 <Table className={classes.table}>
                     <TableHead>
                         <TableRow>
-                            <StyledTableCell style={{textAlign: "center"}}>Sell Level</StyledTableCell>
-                            <StyledTableCell style={{textAlign: "center"}}>Sell Amount</StyledTableCell>
-                            <StyledTableCell style={{textAlign: "center"}}>Price</StyledTableCell>
-                            <StyledTableCell style={{textAlign: "center"}}>Buy Amount</StyledTableCell>
-                            <StyledTableCell style={{textAlign: "center"}}>Buy Level</StyledTableCell>
+                            <StyledTableCell style={{textAlign: "center",width:'20%'}}>Sell Level</StyledTableCell>
+                            <StyledTableCell style={{textAlign: "center",width:'20%'}}>Sell Amount</StyledTableCell>
+                            <StyledTableCell style={{textAlign: "center",width:'20%'}}>Price</StyledTableCell>
+                            <StyledTableCell style={{textAlign: "center",width:'20%'}}>Buy Amount</StyledTableCell>
+                            <StyledTableCell style={{textAlign: "center",width:'20%'}}>Buy Level</StyledTableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -169,29 +169,34 @@ class Orderbook extends Component{
                                 <StyledTableCell style={{
                                     textAlign: "center",
                                     fontSize: (row.sellLevel === 1 || row.buyLevel === 1) ? 20 : 16,
-                                    fontWeight: (row.sellLevel === 1 || row.buyLevel === 1) ? 700 : 400
+                                    fontWeight: (row.sellLevel === 1 || row.buyLevel === 1) ? 700 : 400,
+                                    width:'20%'
                                 }}>{row.sellLevel}</StyledTableCell>
                                 <StyledTableCell style={{
                                     textAlign: "center",
                                     fontSize: (row.sellLevel === 1 || row.buyLevel === 1) ? 20 : 16,
-                                    fontWeight: (row.sellLevel === 1 || row.buyLevel === 1) ? 700 : 400
+                                    fontWeight: (row.sellLevel === 1 || row.buyLevel === 1) ? 700 : 400,
+                                    width:'20%'
                                 }}>{row.sellAmount}</StyledTableCell>
                                 <StyledTableCell
                                     onClick={() => this.handleClickOpen(row.price, row.sellOrders, row.buyOrders)} style={{
                                     textAlign: "center",
                                     cursor: "pointer",
                                     fontSize: (row.sellLevel === 1 || row.buyLevel === 1) ? 20 : 16,
-                                    fontWeight: (row.sellLevel === 1 || row.buyLevel === 1) ? 700 : 400
+                                    fontWeight: (row.sellLevel === 1 || row.buyLevel === 1) ? 700 : 400,
+                                    width:'20%'
                                 }}>{row.price}</StyledTableCell>
                                 <StyledTableCell style={{
                                     textAlign: "center",
                                     fontSize: (row.sellLevel === 1 || row.buyLevel === 1) ? 20 : 16,
-                                    fontWeight: (row.sellLevel === 1 || row.buyLevel === 1) ? 700 : 400
+                                    fontWeight: (row.sellLevel === 1 || row.buyLevel === 1) ? 700 : 400,
+                                    width:'20%'
                                 }}>{row.buyAmount}</StyledTableCell>
                                 <StyledTableCell style={{
                                     textAlign: "center",
                                     fontSize: (row.sellLevel === 1 || row.buyLevel === 1) ? 20 : 16,
-                                    fontWeight: (row.sellLevel === 1 || row.buyLevel === 1) ? 700 : 400
+                                    fontWeight: (row.sellLevel === 1 || row.buyLevel === 1) ? 700 : 400,
+                                    width:'20%'
                                 }}>{row.buyLevel}</StyledTableCell>
                             </StyledTableRow>
                         ))}

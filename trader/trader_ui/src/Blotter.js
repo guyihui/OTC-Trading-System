@@ -11,6 +11,8 @@ import {
 import Button from '@material-ui/core/Button';
 import DateFnsUtils from "@date-io/date-fns";
 import BlotterTable from "./BlotterTable";
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Checkbox from '@material-ui/core/Checkbox';
 import Cookies from "js-cookie";
 
 
@@ -85,11 +87,14 @@ class Blotter extends Component {
             selectedStartDate:new Date(),
             selectedEndDate:new Date(),
             showBlotter:false,
-            data:[]
+            data:[],
+            myOrder:[],
+            checkedMyOrder:false,
         };
         this.handleStartDateChange = this.handleStartDateChange.bind(this);
         this.handleEndDateChange = this.handleEndDateChange.bind(this);
         this.handleButtonOnClick = this.handleButtonOnClick.bind(this);
+        this.handleCheckMyOrder = this.handleCheckMyOrder.bind(this);
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
@@ -130,11 +135,28 @@ class Blotter extends Component {
             if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {
                 let data=JSON.parse(xmlHttp.responseText);
                 console.log(data);
-                this.setState({data:data});
+                let myOrder=[];
+                let currUser=Cookies.get('username');
+                for(let i=0;i<data.length;i++){
+                    if(data[i].initTrader===currUser||data[i].compTrader===currUser){
+                        myOrder.push(data[i]);
+                    }
+                }
+                this.setState({
+                    data:data,
+                    myOrder:myOrder,
+                });
             }
         };
         xmlHttp.send();
 
+    }
+
+    handleCheckMyOrder(event){
+        console.log(event.target.checked);
+        this.setState({
+            checkedMyOrder:event.target.checked,
+        });
     }
 
     render() {
@@ -166,11 +188,18 @@ class Blotter extends Component {
                     disableFuture={true}
                     style={{marginRight:30}}
                 />
-                <Button variant="contained" color="primary" onClick={this.handleButtonOnClick} style={{textAlign:"center",height:55,width:100,fontSize:16}}>
+                <Button variant="contained" color="primary" onClick={this.handleButtonOnClick} style={{verticalAlign:"middle",height:55,width:100,fontSize:16}}>
                     查询
                 </Button>
+                <FormControlLabel
+                    control={
+                        <Checkbox checked={this.state.checkedMyOrder} onChange={this.handleCheckMyOrder} color="primary" value="checkedA" />
+                    }
+                    label="只看我的交易"
+                    style={{verticalAlign:'middle',marginLeft:10}}
+                />
             </MuiPickersUtilsProvider>
-                {this.state.showBlotter?<BlotterTable data={this.state.data}/>:<div></div>}
+                {this.state.showBlotter?<BlotterTable data={this.state.checkedMyOrder?this.state.myOrder:this.state.data}/>:<div></div>}
             </div>
         );
     }
