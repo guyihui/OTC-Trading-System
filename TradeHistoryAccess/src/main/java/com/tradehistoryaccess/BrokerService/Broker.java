@@ -83,6 +83,9 @@ public class Broker implements InitializingBean {
         }
     }
 
+    public boolean hasProduct(Product product) {
+        return orderBookMap.containsKey(product);
+    }
     static class TestSocketThread implements Runnable {
         public void run() {
             int count = 0;
@@ -97,14 +100,14 @@ public class Broker implements InitializingBean {
                 double random = Math.random();
                 Order testOrder = new Order(
                         "test" + count,
-                        random < 0.2 ? "stop" : random < 0.4 ? "market" : "limit",
+                        random < 0.2 ? "stop" : random < 0.3 ? "market" : "limit",
                         980 + (int) (41 * Math.random()),
                         Math.random() < 0.5 ? "buy" : "sell"
                 );
                 if (testOrder.getOrderType().equals("cancel")) {
                     testOrder.setCancelId("test" + (int) count * Math.random());
                 }
-                int qqqq = Math.random() < 0.5 ? 20 + (int) (10 * Math.random()) : 1 + (int) (100 * Math.random());
+                int qqqq = Math.random() < 0.5 ? 20 + (int) (10 * Math.random()) : 1 + (int) (50 * Math.random());
                 testOrder.setRemainingQuantity(qqqq);
                 testOrder.setTotalQuantity(qqqq);
                 Trader trader = new Trader("1", "CorpA");
