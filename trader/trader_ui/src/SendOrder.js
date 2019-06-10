@@ -1,5 +1,6 @@
 import 'date-fns';
 import React,{Component,Fragment} from 'react';
+import PropTypes from 'prop-types';
 import Grid from '@material-ui/core/Grid';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
@@ -11,7 +12,13 @@ import WarningIcon from '@material-ui/icons/WarningOutlined';
 import Schedule from '@material-ui/icons/Schedule';
 import List from '@material-ui/core/List';
 import Paper from '@material-ui/core/Paper';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Select from '@material-ui/core/Select';
+import OutlinedInput from '@material-ui/core/OutlinedInput';
+import Switch from '@material-ui/core/Switch';
+import Checkbox from '@material-ui/core/Checkbox';
 import MenuItem from '@material-ui/core/MenuItem';
+import LineStyleIcon from '@material-ui/icons/LineStyleRounded';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import {
@@ -21,8 +28,13 @@ import {
     MuiPickersUtilsProvider,
 } from "@material-ui/pickers";
 import Button from '@material-ui/core/Button';
+import Input from '@material-ui/core/Input';
+import InputLabel from '@material-ui/core/InputLabel';
+import FormControl from '@material-ui/core/FormControl';
+import MaskedInput from 'react-text-mask';
 import DateFnsUtils from "@date-io/date-fns";
 import MyOrderTable from "./MyOrderTable";
+import BigOrderTable from "./BigOrderTable";
 import Divider from '@material-ui/core/Divider';
 import Cookies from 'js-cookie';
 import Dialog from '@material-ui/core/Dialog';
@@ -112,6 +124,26 @@ const orders =
 
 
 
+function TextMaskCustom(props) {
+    const { inputRef, ...other } = props;
+
+    return (
+        <MaskedInput
+            {...other}
+            ref={ref => {
+                inputRef(ref ? ref.inputElement : null);
+            }}
+            mask={[/\d/,' ', 'D',' ', /\d/, /\d/,' ', 'H', ' ',/\d/, /\d/,' ', 'M']}
+            placeholderChar={'\u2000'}
+            showMask
+        />
+    );
+}
+
+TextMaskCustom.propTypes = {
+    inputRef: PropTypes.func.isRequired,
+};
+
 class SendOrder extends Component {
     constructor(props){
         super(props);
@@ -133,6 +165,11 @@ class SendOrder extends Component {
             warningOpen:false,
             warningMessage:'',
             priceSelect:false,
+            checkedIceBerg:false,
+            showBigOrder:false,
+            textMask:'  天    小时    分',
+            intervalMask:'  天    小时    分',
+            selectedStrategy:"",
         };
         this.handleStartDateChange = this.handleStartDateChange.bind(this);
         this.handleEndDateChange = this.handleEndDateChange.bind(this);
@@ -142,6 +179,11 @@ class SendOrder extends Component {
         this.handleOrderTypeChange = this.handleOrderTypeChange.bind(this);
         this.handleOrderButtonOnClick = this.handleOrderButtonOnClick.bind(this);
         this.handleWarningClose = this.handleWarningClose.bind(this);
+        this.handleIceBergChecked = this.handleIceBergChecked.bind(this);
+        this.handleShowBigOrder = this.handleShowBigOrder.bind(this);
+        this.handleDealTimeChange = this.handleDealTimeChange.bind(this);
+        this.handleIntervalChange = this.handleIntervalChange.bind(this);
+        this.handleStrategyChange = this.handleStrategyChange.bind(this);
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
@@ -207,62 +249,144 @@ class SendOrder extends Component {
         console.log(e.target.value);
     }
 
+    handleIceBergChecked(event){
+        console.log(event.target.checked);
+        this.setState({
+            checkedIceBerg:event.target.checked,
+        });
+    }
+
+    handleShowBigOrder(event){
+        console.log(event.target.checked);
+        this.setState({
+            showBigOrder:event.target.checked,
+        });
+    }
+
+    handleDealTimeChange(event){
+        let nums = event.target.value.split(" ");
+        console.log(nums);
+        console.log(parseInt(nums[0]),parseInt(nums[2]),parseInt(nums[4]));
+        this.setState({
+            textMask:event.target.value,
+        })
+    }
+
+    handleIntervalChange(event){
+        let nums = event.target.value.split(" ");
+        console.log(nums);
+        console.log(parseInt(nums[0]),parseInt(nums[2]),parseInt(nums[4]));
+        this.setState({
+            intervalMask:event.target.value,
+        })
+    }
+
 
     handleOrderButtonOnClick(){
         console.log(this.state);
-        if(this.state.productId===''||this.state.orderType===''||this.state.sellOrBuy===''||this.state.price===''||this.state.amount===''){
-            if(this.state.orderType==='market'&&this.state.price===''){
-
-            }
-            else {
+        if(this.state.checkedIceBerg===true){
+            if(this.state.productId===''||this.state.sellOrBuy===''||this.state.amount===''||this.state.textMask===''||this.state.intervalMask===''||this.state.selectedStrategy===''){
                 this.setState({
                     warningOpen: true,
                     warningMessage: "订单信息不能为空，请检查后重试！"
                 });
                 return;
             }
-        }
-        else if(isNaN(this.state.price)||isNaN(this.state.amount)){
-            this.setState({
-                warningOpen:true,
-                warningMessage:"订单价格和买卖手数必须为数字！"
-            });
-            return;
-        }
-        let xmlHttp = new XMLHttpRequest();
-        if(this.state.orderType==='market'){
-            xmlHttp.open("GET", "http://localhost:8082/sendOrder?productId="+this.state.productId+"&type="+this.state.orderType+"&sellOrBuy="+this.state.sellOrBuy+"&price=0"+"&quantity="+this.state.amount
-                +"&traderName="+Cookies.get('username')+"&brokerId="+Cookies.get('broker'), true);
-        }
-        else{
-            xmlHttp.open("GET", "http://localhost:8082/sendOrder?productId="+this.state.productId+"&type="+this.state.orderType+"&sellOrBuy="+this.state.sellOrBuy+"&price="+this.state.price+"&quantity="+this.state.amount
-                +"&traderName="+Cookies.get('username')+"&brokerId="+Cookies.get('broker'), true);
-        }
-        xmlHttp.setRequestHeader("Content-Type", "application/json");
-        xmlHttp.onreadystatechange = () => {
-            if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {
-                let data=xmlHttp.responseText;
-                console.log(data);
+            else if(isNaN(this.state.amount)){
                 this.setState({
-                    selectedStartDate:new Date(),
-                    selectedEndDate:new Date(),
-                    showBlotter:false,
-                    data:[],
-                    sellOrBuy:"",
-                    price:"",
-                    amount:"",
-                    orderType:"",
-                    priceSelect:false,
+                    warningOpen:true,
+                    warningMessage:"买卖手数必须为数字！"
                 });
+                return;
             }
-        };
-        xmlHttp.send();
+            let totalTime=this.state.textMask.split(" ");
+            let intervalTime=this.state.intervalMask.split(" ");
+            if(totalTime[0]===null||isNaN(totalTime[0])||totalTime[2]===null||isNaN(totalTime[2])||
+                parseInt(totalTime[2])>23||parseInt(totalTime[2])<0||totalTime[4]===null||isNaN(totalTime[4])||
+                parseInt(totalTime[4])>59||parseInt(totalTime[4])<0){
+                this.setState({
+                    warningOpen: true,
+                    warningMessage: "时间格式错误！"
+                });
+                return;
+            }
+            if(intervalTime[0]===null||isNaN(intervalTime[0])||intervalTime[2]===null||isNaN(intervalTime[2])||
+                parseInt(intervalTime[2])>23||parseInt(intervalTime[2])<0||intervalTime[4]===null||isNaN(intervalTime[4])||
+                parseInt(intervalTime[4])>59||parseInt(intervalTime[4])<0){
+                this.setState({
+                    warningOpen: true,
+                    warningMessage: "时间格式错误！"
+                });
+                return;
+            }
+
+            let realTotalTime = parseInt(totalTime[0])*24*3600+parseInt(totalTime[2])*3600+parseInt(totalTime[4])*60;
+            let realIntervalTime = parseInt(intervalTime[0])*24*3600+parseInt(intervalTime[2])*3600+parseInt(intervalTime[4])*60;
+            console.log(realTotalTime,realIntervalTime);
+            console.log(this.state);
+
+        }
+        else {
+            if (this.state.productId === '' || this.state.orderType === '' || this.state.sellOrBuy === '' || this.state.price === '' || this.state.amount === '') {
+                if (this.state.orderType === 'market' && this.state.price === '') {
+
+                }
+                else {
+                    this.setState({
+                        warningOpen: true,
+                        warningMessage: "订单信息不能为空，请检查后重试！"
+                    });
+                    return;
+                }
+            }
+            else if (isNaN(this.state.price) || isNaN(this.state.amount)) {
+                this.setState({
+                    warningOpen: true,
+                    warningMessage: "订单价格和买卖手数必须为数字！"
+                });
+                return;
+            }
+            let xmlHttp = new XMLHttpRequest();
+            if (this.state.orderType === 'market') {
+                xmlHttp.open("GET", "http://localhost:8082/sendOrder?productId=" + this.state.productId + "&type=" + this.state.orderType + "&sellOrBuy=" + this.state.sellOrBuy + "&price=0" + "&quantity=" + this.state.amount
+                    + "&traderName=" + Cookies.get('username') + "&brokerId=" + Cookies.get('broker'), true);
+            }
+            else {
+                xmlHttp.open("GET", "http://localhost:8082/sendOrder?productId=" + this.state.productId + "&type=" + this.state.orderType + "&sellOrBuy=" + this.state.sellOrBuy + "&price=" + this.state.price + "&quantity=" + this.state.amount
+                    + "&traderName=" + Cookies.get('username') + "&brokerId=" + Cookies.get('broker'), true);
+            }
+            xmlHttp.setRequestHeader("Content-Type", "application/json");
+            xmlHttp.onreadystatechange = () => {
+                if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {
+                    let data = xmlHttp.responseText;
+                    console.log(data);
+                    this.setState({
+                        selectedStartDate: new Date(),
+                        selectedEndDate: new Date(),
+                        showBlotter: false,
+                        data: [],
+                        sellOrBuy: "",
+                        price: "",
+                        amount: "",
+                        orderType: "",
+                        priceSelect: false,
+                    });
+                }
+            };
+            xmlHttp.send();
+        }
 
     }
 
     handleWarningClose(){
         this.setState({
             warningOpen:false,
+        })
+    }
+
+    handleStrategyChange(event){
+        this.setState({
+            selectedStrategy:event.target.value,
         })
     }
 
@@ -278,201 +402,351 @@ class SendOrder extends Component {
             <div className={classes.root}>
                 <div>
                     <Grid container className={classes.root} spacing={2}>
-                        <Grid item xs={5}>
-                            <Grid container justify="center">
-                                <Grid item xs={6}>
-                                    <Grid container justify="center">
-                                        {/*<Card style={{width:'100%',textAlign:'center'}}>*/}
-                                        {/*<CardContent style={{width:'100%'}}>*/}
-                                        {/*<Typography variant="h2" gutterBottom>*/}
-                                        {/*1240*/}
-                                        {/*</Typography>*/}
-                                        {/*</CardContent>*/}
-                                        {/*</Card>*/}
-                                        <TextField
-                                            id="outlined-full-width"
-                                            label="SELL Depth"
-                                            style={{ margin: 8 }}
-                                            value={this.state.sellDepth.depth}
-                                            fullWidth
-                                            margin="normal"
-                                            variant="outlined"
-                                            InputLabelProps={{
-                                                shrink: true,
-                                            }}
-                                            InputProps={{
-                                                startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                                                style: { fontSize: 45 },
-                                                readOnly: true,
-                                                endAdornment: this.state.sellDepth.flag===0?<InputAdornment position="end"><ArrowDownWardIcon fontSize={"medium"}/></InputAdornment>
-                                                :(this.state.sellDepth.flag===2?<InputAdornment position="end"><ArrowUpWardIcon fontSize={"medium"}/></InputAdornment>:' '),
-                                            }}
-                                        />
-                                    </Grid>
-                                </Grid>
-                                <Grid item xs={6}>
-                                    <Grid container justify="center">
-                                        <TextField
-                                            id="outlined-full-width"
-                                            label="BUY Depth"
-                                            style={{ margin: 8 }}
-                                            value={this.state.buyDepth.depth}
-                                            fullWidth
-                                            margin="normal"
-                                            variant="outlined"
-                                            InputLabelProps={{
-                                                shrink: true,
-                                            }}
-                                            InputProps={{
-                                                startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                                                style: { fontSize: 45 },
-                                                readOnly: true,
-                                                endAdornment: (this.state.buyDepth.flag===0)?<InputAdornment position="end"><ArrowDownWardIcon fontSize={"medium"}/></InputAdornment>
-                                                    :(this.state.buyDepth.flag===2?<InputAdornment position="end"><ArrowUpWardIcon fontSize={"medium"}/></InputAdornment>:' '),
-                                            }}
-                                        />
-                                    </Grid>
-                                </Grid>
+                        {this.state.showBigOrder?
+                            <Grid item xs={5}>
+                                <LineStyleIcon style={{float:'left'}}/>
+                                <Typography variant="h6" style={{marginLeft:30}} gutterBottom>
+                                    进行中拆分单
+                                </Typography>
+                                <BigOrderTable productName={this.state.productName} processingOrders={this.state.processingOrders}/>
                             </Grid>
-                            <Grid container justify="center">
-                                <Card style={{marginTop:20,marginBottom:30}}>
-                                    <CardContent>
-                                    <Grid container justify="center" className={classes.root} spacing={2}>
-                                        <Grid item xs={4}>
-                                            <Grid container justify="center">
-                                                <TextField
-                                                    id="standard-read-only-input"
-                                                    label="商品名称"
-                                                    value={this.state.productName}
-                                                    className={classes.textField}
-                                                    margin="normal"
-                                                    disabled={true}
-                                                    InputProps={{
-                                                        readOnly: true,
-                                                    }}
-                                                />
-                                            </Grid>
-                                        </Grid>
-                                        <Grid item xs={4}>
-                                            <Grid container justify="center">
-                                                <TextField
-                                                    id="standard-read-only-input"
-                                                    label="日期"
-                                                    value={this.state.productPeriod}
-                                                    className={classes.textField}
-                                                    margin="normal"
-                                                    disabled={true}
-                                                    InputProps={{
-                                                        readOnly: true,
-                                                    }}
-                                                />
-                                            </Grid>
-                                        </Grid>
-                                        <Grid item xs={4}>
-                                            <Grid container justify="center">
-                                                <TextField
-                                                    id="standard-select-currency"
-                                                    select
-                                                    label="买/卖"
-                                                    className={classes.textField}
-                                                    value={this.state.sellOrBuy}
-                                                    onChange={this.handleSellOrBuyChange}
-                                                    SelectProps={{
-                                                        MenuProps: {
-                                                            className: classes.menu,
-                                                        },
-                                                    }}
-                                                    helperText="请选择交易方：买单 或 卖单"
-                                                    margin="normal"
-                                                >
-                                                    {[{key:"买",value:"buy"},{key:"卖",value:"sell"}].map(option => (
-                                                        <MenuItem key={option.key} value={option.value}>
-                                                            {option.key}
-                                                        </MenuItem>
-                                                    ))}
-                                                </TextField>
-                                            </Grid>
+                            :
+                            <Grid item xs={5}>
+                                <Grid container justify="center">
+                                    <Grid item xs={6}>
+                                        <Grid container justify="center">
+                                            {/*<Card style={{width:'100%',textAlign:'center'}}>*/}
+                                            {/*<CardContent style={{width:'100%'}}>*/}
+                                            {/*<Typography variant="h2" gutterBottom>*/}
+                                            {/*1240*/}
+                                            {/*</Typography>*/}
+                                            {/*</CardContent>*/}
+                                            {/*</Card>*/}
+                                            <TextField
+                                                id="outlined-full-width"
+                                                label="SELL Depth"
+                                                style={{ margin: 8 }}
+                                                value={this.state.sellDepth.depth}
+                                                fullWidth
+                                                margin="normal"
+                                                variant="outlined"
+                                                InputLabelProps={{
+                                                    shrink: true,
+                                                }}
+                                                InputProps={{
+                                                    startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                                                    style: { fontSize: 45 },
+                                                    readOnly: true,
+                                                    endAdornment: this.state.sellDepth.flag===0?<InputAdornment position="end"><ArrowDownWardIcon fontSize={"medium"}/></InputAdornment>
+                                                        :(this.state.sellDepth.flag===2?<InputAdornment position="end"><ArrowUpWardIcon fontSize={"medium"}/></InputAdornment>:' '),
+                                                }}
+                                            />
                                         </Grid>
                                     </Grid>
-                                        <Grid container justify="center" className={classes.root} spacing={2}>
-                                            <Grid item xs={4}>
-                                                <Grid container justify="center">
-                                                    <TextField
-                                                        id="standard-read-only-input"
-                                                        label="价格"
-                                                        value={this.state.price}
-                                                        className={classes.textField}
-                                                        margin="normal"
-                                                        onChange={this.handlePriceChange}
-                                                        disabled={this.state.priceSelect}
-                                                        InputProps={{
-                                                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                                                        }}
-                                                        helperText="请选择出价"
-                                                    />
-                                                </Grid>
-                                            </Grid>
-                                            <Grid item xs={4}>
-                                                <Grid container justify="center">
-                                                    <TextField
-                                                        id="standard-read-only-input"
-                                                        label="数量"
-                                                        value={this.state.amount}
-                                                        className={classes.textField}
-                                                        margin="normal"
-                                                        onChange={this.handleAmountChange}
-                                                        InputProps={{
-                                                            endAdornment: <InputAdornment position="end">手</InputAdornment>,
-                                                        }}
-                                                        helperText="请选择发单手数"
-                                                    />
-                                                </Grid>
-                                            </Grid>
-                                            <Grid item xs={4}>
-                                                <Grid container justify="center">
-                                                    <TextField
-                                                        id="standard-select-currency"
-                                                        select
-                                                        label="订单种类"
-                                                        className={classes.textField}
-                                                        value={this.state.orderType}
-                                                        onChange={this.handleOrderTypeChange}
-                                                        SelectProps={{
-                                                            MenuProps: {
-                                                                className: classes.menu,
-                                                            },
-                                                        }}
-                                                        helperText="请选择 Limit / Stop / Market"
-                                                        margin="normal"
-                                                    >
-                                                        {[{key:"Limit",value:"limit"},{key:"Stop",value:"stop"},{key:"Market",value:"market"}].map(option => (
-                                                            <MenuItem key={option.key} value={option.value}>
-                                                                {option.key}
+                                    <Grid item xs={6}>
+                                        <Grid container justify="center">
+                                            <TextField
+                                                id="outlined-full-width"
+                                                label="BUY Depth"
+                                                style={{ margin: 8 }}
+                                                value={this.state.buyDepth.depth}
+                                                fullWidth
+                                                margin="normal"
+                                                variant="outlined"
+                                                InputLabelProps={{
+                                                    shrink: true,
+                                                }}
+                                                InputProps={{
+                                                    startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                                                    style: { fontSize: 45 },
+                                                    readOnly: true,
+                                                    endAdornment: (this.state.buyDepth.flag===0)?<InputAdornment position="end"><ArrowDownWardIcon fontSize={"medium"}/></InputAdornment>
+                                                        :(this.state.buyDepth.flag===2?<InputAdornment position="end"><ArrowUpWardIcon fontSize={"medium"}/></InputAdornment>:' '),
+                                                }}
+                                            />
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+                                <Grid container justify="center">
+                                    <Card style={{marginTop:20,marginBottom:30}}>
+                                        <CardContent>
+                                            {this.state.checkedIceBerg?
+                                                <div>
+                                                    <Grid container justify="center" className={classes.root} spacing={2}>
+                                                        <Grid item xs={4}>
+                                                            <Grid container justify="center">
+                                                                <TextField
+                                                                    id="standard-read-only-input"
+                                                                    label="商品名称"
+                                                                    value={this.state.productName}
+                                                                    className={classes.textField}
+                                                                    margin="normal"
+                                                                    disabled={true}
+                                                                    InputProps={{
+                                                                        readOnly: true,
+                                                                    }}
+                                                                />
+                                                            </Grid>
+                                                        </Grid>
+                                                        <Grid item xs={4}>
+                                                            <Grid container justify="center">
+                                                                <TextField
+                                                                    id="standard-read-only-input"
+                                                                    label="日期"
+                                                                    value={this.state.productPeriod}
+                                                                    className={classes.textField}
+                                                                    margin="normal"
+                                                                    disabled={true}
+                                                                    InputProps={{
+                                                                        readOnly: true,
+                                                                    }}
+                                                                />
+                                                            </Grid>
+                                                        </Grid>
+                                                        <Grid item xs={4}>
+                                                            <Grid container justify="center">
+                                                                <TextField
+                                                                    id="standard-select-currency"
+                                                                    select
+                                                                    label="买/卖"
+                                                                    className={classes.textField}
+                                                                    value={this.state.sellOrBuy}
+                                                                    onChange={this.handleSellOrBuyChange}
+                                                                    SelectProps={{
+                                                                        MenuProps: {
+                                                                            className: classes.menu,
+                                                                        },
+                                                                    }}
+                                                                    helperText="请选择交易方：买单 或 卖单"
+                                                                    margin="normal"
+                                                                >
+                                                                    {[{key:"买",value:"buy"},{key:"卖",value:"sell"}].map(option => (
+                                                                        <MenuItem key={option.key} value={option.value}>
+                                                                            {option.key}
+                                                                        </MenuItem>
+                                                                    ))}
+                                                                </TextField>
+                                                            </Grid>
+                                                        </Grid>
+                                                    </Grid>
+                                                    <Grid container justify="center" className={classes.root} spacing={2}>
+                                                        <Grid item xs={4}>
+                                                            <FormControl className={classes.textField} style={{marginTop:16}}>
+                                                                <InputLabel htmlFor="formatted-text-mask-input">选择交易时长</InputLabel>
+                                                                <Input
+                                                                    value={this.state.textMask}
+                                                                    onChange={this.handleDealTimeChange}
+                                                                    id="formatted-text-mask-input"
+                                                                    inputComponent={TextMaskCustom}
+                                                                />
+                                                            </FormControl>
+                                                        </Grid>
+                                                        <Grid item xs={4}>
+                                                            <FormControl className={classes.textField} style={{marginTop:16}}>
+                                                                <InputLabel htmlFor="formatted-text-mask-input">选择交易间隔</InputLabel>
+                                                                <Input
+                                                                    value={this.state.intervalMask}
+                                                                    onChange={this.handleIntervalChange}
+                                                                    id="formatted-text-mask-input"
+                                                                    inputComponent={TextMaskCustom}
+                                                                />
+                                                            </FormControl>
+                                                        </Grid>
+                                                        <Grid item xs={4}>
+                                                            <Grid container justify="center">
+                                                                <TextField
+                                                                    id="standard-read-only-input"
+                                                                    label="数量"
+                                                                    value={this.state.amount}
+                                                                    className={classes.textField}
+                                                                    margin="normal"
+                                                                    onChange={this.handleAmountChange}
+                                                                    InputProps={{
+                                                                        endAdornment: <InputAdornment position="end">手</InputAdornment>,
+                                                                    }}
+                                                                    helperText="请选择发单手数"
+                                                                />
+                                                            </Grid>
+                                                        </Grid>
+                                                    </Grid>
+                                                    <Grid container justify="center" className={classes.root} spacing={2}>
+                                                        <Select
+                                                            value={this.state.selectedStrategy}
+                                                            onChange={this.handleStrategyChange}
+                                                            input={<OutlinedInput name="strategy" id="brokerSelect" />}
+                                                            displayEmpty
+                                                            name="age"
+                                                            className={classes.selectEmpty}
+                                                            style={{width:'90%',marginTop:40}}
+                                                        >
+                                                            <MenuItem value="" disabled>
+                                                                请选择 交易策略
                                                             </MenuItem>
-                                                        ))}
-                                                    </TextField>
+                                                            <MenuItem value={"twap"}>TWAP</MenuItem>
+                                                            <MenuItem value={"vwap"}>VWAP</MenuItem>
+                                                        </Select>
+                                                    </Grid>
+                                                </div>
+                                                :
+                                                <div>
+                                                    <Grid container justify="center" className={classes.root} spacing={2}>
+                                                        <Grid item xs={4}>
+                                                            <Grid container justify="center">
+                                                                <TextField
+                                                                    id="standard-read-only-input"
+                                                                    label="商品名称"
+                                                                    value={this.state.productName}
+                                                                    className={classes.textField}
+                                                                    margin="normal"
+                                                                    disabled={true}
+                                                                    InputProps={{
+                                                                        readOnly: true,
+                                                                    }}
+                                                                />
+                                                            </Grid>
+                                                        </Grid>
+                                                        <Grid item xs={4}>
+                                                            <Grid container justify="center">
+                                                                <TextField
+                                                                    id="standard-read-only-input"
+                                                                    label="日期"
+                                                                    value={this.state.productPeriod}
+                                                                    className={classes.textField}
+                                                                    margin="normal"
+                                                                    disabled={true}
+                                                                    InputProps={{
+                                                                        readOnly: true,
+                                                                    }}
+                                                                />
+                                                            </Grid>
+                                                        </Grid>
+                                                        <Grid item xs={4}>
+                                                            <Grid container justify="center">
+                                                                <TextField
+                                                                    id="standard-select-currency"
+                                                                    select
+                                                                    label="买/卖"
+                                                                    className={classes.textField}
+                                                                    value={this.state.sellOrBuy}
+                                                                    onChange={this.handleSellOrBuyChange}
+                                                                    SelectProps={{
+                                                                        MenuProps: {
+                                                                            className: classes.menu,
+                                                                        },
+                                                                    }}
+                                                                    helperText="请选择交易方：买单 或 卖单"
+                                                                    margin="normal"
+                                                                >
+                                                                    {[{key:"买",value:"buy"},{key:"卖",value:"sell"}].map(option => (
+                                                                        <MenuItem key={option.key} value={option.value}>
+                                                                            {option.key}
+                                                                        </MenuItem>
+                                                                    ))}
+                                                                </TextField>
+                                                            </Grid>
+                                                        </Grid>
+                                                    </Grid>
+                                                    <Grid container justify="center" className={classes.root} spacing={2}>
+                                                        <Grid item xs={4}>
+                                                            <Grid container justify="center">
+                                                                <TextField
+                                                                    id="standard-read-only-input"
+                                                                    label="价格"
+                                                                    value={this.state.price}
+                                                                    className={classes.textField}
+                                                                    margin="normal"
+                                                                    onChange={this.handlePriceChange}
+                                                                    disabled={this.state.priceSelect}
+                                                                    InputProps={{
+                                                                        startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                                                                    }}
+                                                                    helperText="请选择出价"
+                                                                />
+                                                            </Grid>
+                                                        </Grid>
+                                                        <Grid item xs={4}>
+                                                            <Grid container justify="center">
+                                                                <TextField
+                                                                    id="standard-read-only-input"
+                                                                    label="数量"
+                                                                    value={this.state.amount}
+                                                                    className={classes.textField}
+                                                                    margin="normal"
+                                                                    onChange={this.handleAmountChange}
+                                                                    InputProps={{
+                                                                        endAdornment: <InputAdornment position="end">手</InputAdornment>,
+                                                                    }}
+                                                                    helperText="请选择发单手数"
+                                                                />
+                                                            </Grid>
+                                                        </Grid>
+                                                        <Grid item xs={4}>
+                                                            <Grid container justify="center">
+                                                                <TextField
+                                                                    id="standard-select-currency"
+                                                                    select
+                                                                    label="订单种类"
+                                                                    className={classes.textField}
+                                                                    value={this.state.orderType}
+                                                                    onChange={this.handleOrderTypeChange}
+                                                                    SelectProps={{
+                                                                        MenuProps: {
+                                                                            className: classes.menu,
+                                                                        },
+                                                                    }}
+                                                                    helperText="请选择 Limit / Stop / Market"
+                                                                    margin="normal"
+                                                                >
+                                                                    {[{key:"Limit",value:"limit"},{key:"Stop",value:"stop"},{key:"Market",value:"market"}].map(option => (
+                                                                        <MenuItem key={option.key} value={option.value}>
+                                                                            {option.key}
+                                                                        </MenuItem>
+                                                                    ))}
+                                                                </TextField>
+                                                            </Grid>
+                                                        </Grid>
+                                                    </Grid></div>
+                                                }
+                                            <Divider style={{marginTop:50}}/>
+                                            <Grid container justify="center" className={classes.root} spacing={2}>
+                                                <Grid item xs={4}>
+                                                    <FormControlLabel
+                                                        control={
+                                                            <Checkbox checked={this.state.checkedIceBerg} onChange={this.handleIceBergChecked} color="primary" value="checkedA" />
+                                                        }
+                                                        label="冰山策略"
+                                                        style={{marginTop:50}}
+                                                    />
                                                 </Grid>
+                                                <Grid item xs={4}/>
+                                                <Button variant="contained" color="primary" onClick={this.handleOrderButtonOnClick} style={{marginTop:60,height:40,width:100,fontSize:16}}>
+                                                    生成订单
+                                                </Button>
                                             </Grid>
-                                        </Grid>
-                                        <Divider style={{marginTop:50}}/>
-                                        <Grid container justify="center" className={classes.root} spacing={2}>
-                                            <Grid item xs={4}/>
-                                            <Grid item xs={4}/>
-                                            <Button variant="contained" color="primary" onClick={this.handleOrderButtonOnClick} style={{marginTop:60,height:40,width:100,fontSize:16}}>
-                                                生成订单
-                                            </Button>
-                                        </Grid>
-                                    </CardContent>
-                                </Card>
-                            </Grid>
+                                        </CardContent>
+                                    </Card>
+                                </Grid>
 
-                        </Grid>
+                            </Grid>}
                         <Grid item xs={7}>
                             <div style={{verticalAlign:'middle'}}>
                                 <Schedule style={{float:'left'}}/>
                                 <Typography variant="h6" style={{marginLeft:30}} gutterBottom>
-                                    交易中订单
+                                    进行中订单
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={this.state.showBigOrder}
+                                                onChange={this.handleShowBigOrder}
+                                                value="checkedB"
+                                                color="primary"
+                                            />
+                                        }
+                                        label="查看拆分单"
+                                        style={{float:'right'}}
+                                    />
                                 </Typography>
+
                             </div>
                             <MyOrderTable productName={this.state.productName} processingOrders={this.state.processingOrders}/>
                         </Grid>
