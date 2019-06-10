@@ -100,7 +100,7 @@ public class Broker implements InitializingBean {
                 double random = Math.random();
                 Order testOrder = new Order(
                         "test" + count,
-                        random < 0.2 ? "stop" : random < 0.3 ? "market" : "limit",
+                        random < 0.2 ? "stop" : random < 0.25 ? "market" : "limit",
                         980 + (int) (41 * Math.random()),
                         Math.random() < 0.5 ? "buy" : "sell"
                 );
@@ -108,6 +108,9 @@ public class Broker implements InitializingBean {
                     testOrder.setCancelId("test" + (int) count * Math.random());
                 }
                 int qqqq = Math.random() < 0.5 ? 20 + (int) (10 * Math.random()) : 1 + (int) (50 * Math.random());
+                if (testOrder.getOrderType().equals("market")) {
+                    qqqq = 5 + (int) (15 * Math.random());
+                }
                 testOrder.setRemainingQuantity(qqqq);
                 testOrder.setTotalQuantity(qqqq);
                 Trader trader = new Trader("1", "CorpA");
@@ -118,7 +121,7 @@ public class Broker implements InitializingBean {
                 orderBookMap.get(new Product("01")).addWOOrder(testOrder);
 
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(800);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
