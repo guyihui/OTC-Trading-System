@@ -14,6 +14,7 @@ import javax.annotation.Resource;
 import java.net.InetSocketAddress;
 import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousServerSocketChannel;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -35,9 +36,9 @@ public class Broker implements InitializingBean {
         Orderbook gold1Orderbook = new Orderbook(gold1, brokerName);
         orderBookMap.putIfAbsent(gold1, gold1Orderbook);
 
-//        Product oil1 = Products.get("03");
-//        Orderbook oil1Orderbook = new Orderbook(oil1, brokerName);
-//        orderBookMap.putIfAbsent(oil1, oil1Orderbook);
+        Product oil1 = Products.get("03");
+        Orderbook oil1Orderbook = new Orderbook(oil1, brokerName);
+        orderBookMap.putIfAbsent(oil1, oil1Orderbook);
 
 //        Product gold2 = Products.get("02");
 //        Orderbook gold2Orderbook = new Orderbook(gold2, brokerName);
@@ -52,6 +53,9 @@ public class Broker implements InitializingBean {
 
         startupGateway();
 
+        Thread thread2 = new Thread(new TestSocketThread2());
+        thread2.start();
+        Thread.sleep(3000);
         Thread thread1 = new Thread(new TestSocketThread());
         thread1.start();
 
@@ -86,7 +90,9 @@ public class Broker implements InitializingBean {
     public static boolean hasProduct(Product product) {
         return orderBookMap.containsKey(product);
     }
+
     static class TestSocketThread implements Runnable {
+
         public void run() {
             int count = 0;
             try {
@@ -97,17 +103,49 @@ public class Broker implements InitializingBean {
 
             while (true) {
 
+                int buyDepth = orderBookMap.get(Products.get("01")).getBuyOrders().getDepth();
+                int sellDepth = orderBookMap.get(Products.get("01")).getSellOrders().getDepth();
+
+                String buyOrSell;
+                if (buyDepth != Integer.MAX_VALUE && sellDepth != 0) {
+                    buyOrSell = buyDepth + sellDepth < 2000 ? "buy" : "sell";
+                } else {
+                    buyOrSell = Math.random() < 0.5 ? "buy" : "sell";
+                }
+
                 double random = Math.random();
+                String orderType = random < 0.2 ? "stop" : random < 0.22 ? "market" : "limit";
+
+                int price =
+                        buyOrSell.equals("buy") ?
+                                sellDepth == 0 ?
+                                        buyDepth == Integer.MAX_VALUE ?
+                                                1000
+                                                :
+                                                buyDepth + (int) (1.1 * Math.random())
+                                        :
+                                        sellDepth + (int) ((2.5 * Math.random()) * (orderType.equals("stop") ? -1 : 1))
+                                :
+                                buyDepth == Integer.MAX_VALUE ?
+                                        sellDepth == 0 ?
+                                                1000
+                                                :
+                                                sellDepth - (int) (1.1 * Math.random())
+                                        :
+                                        buyDepth - (int) ((2.5 * Math.random()) * (orderType.equals("stop") ? -1 : 1));
                 Order testOrder = new Order(
                         "test" + count,
-                        random < 0.2 ? "stop" : random < 0.3 ? "market" : "limit",
-                        980 + (int) (41 * Math.random()),
-                        Math.random() < 0.5 ? "buy" : "sell"
+                        orderType,
+                        price,
+                        buyOrSell
                 );
                 if (testOrder.getOrderType().equals("cancel")) {
                     testOrder.setCancelId("test" + (int) count * Math.random());
                 }
                 int qqqq = Math.random() < 0.5 ? 20 + (int) (10 * Math.random()) : 1 + (int) (50 * Math.random());
+                if (testOrder.getOrderType().equals("market")) {
+                    qqqq = 5 + (int) (15 * Math.random());
+                }
                 testOrder.setRemainingQuantity(qqqq);
                 testOrder.setTotalQuantity(qqqq);
                 Trader trader = new Trader("1", "CorpA");
@@ -118,7 +156,60 @@ public class Broker implements InitializingBean {
                 orderBookMap.get(new Product("01")).addWOOrder(testOrder);
 
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(800);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+
+                count++;
+            }
+
+
+        }
+    }
+
+    static class TestSocketThread2 implements Runnable {
+
+        public void run() {
+            int count = 0;
+            try {
+                Thread.sleep(4000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            while (true) {
+
+                String buyOrSell = Math.random() < 0.5 ? "buy" : "sell";
+
+                double random = Math.random();
+                String orderType = random < 0.2 ? "stop" : random < 0.22 ? "market" : "limit";
+
+                Order testOrder = new Order(
+                        "test" + count,
+                        orderType,
+                        992 + (int) (17 * Math.random()),
+                        buyOrSell
+                );
+                if (testOrder.getOrderType().equals("cancel")) {
+                    testOrder.setCancelId("test" + (int) count * Math.random());
+                }
+                int qqqq = Math.random() < 0.5 ? 20 + (int) (10 * Math.random()) : 5 + (int) (35 * Math.random());
+                if (testOrder.getOrderType().equals("market")) {
+                    qqqq = 5 + (int) (15 * Math.random());
+                }
+                testOrder.setRemainingQuantity(qqqq);
+                testOrder.setTotalQuantity(qqqq);
+                Trader trader = new Trader("1", "CorpA");
+                testOrder.setTrader(trader);
+                testOrder.setTime(System.currentTimeMillis());
+                testOrder.setProduct(new Product("01"));
+                //orderBookMap.get(new Product((count%2==0)?"01":"02")).addWOBuyLimit(testOrder);
+                orderBookMap.get(new Product("01")).addWOOrder(testOrder);
+
+                try {
+                    Thread.sleep(800);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

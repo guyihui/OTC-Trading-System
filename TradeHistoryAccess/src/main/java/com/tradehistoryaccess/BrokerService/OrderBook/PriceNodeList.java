@@ -68,10 +68,12 @@ public class PriceNodeList {
         if (order.getSellOrBuy().equals("sell") && order.getOrderType().equals("stop")) {
             if (order.getPrice() >= other.getDepth()) {
                 order.setOrderType("limit");
+                RedisTest.setOrderState(order.getOrderId(),"active");
             }
         } else if (order.getSellOrBuy().equals("buy") && order.getOrderType().equals("stop")) {
             if (order.getPrice() <= other.getDepth()) {
                 order.setOrderType("limit");
+                RedisTest.setOrderState(order.getOrderId(),"active");
             }
         }
 
