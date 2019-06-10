@@ -16,6 +16,7 @@ public class Order {
     private Long time;
     private String state;
     private Integer flag;
+    private String bigOrderId;
 
     public Order() {
         flag = 0;
@@ -141,5 +142,13 @@ public class Order {
     @Override
     public int hashCode() {
         return super.hashCode() + orderId.hashCode();
+    }
+
+    public String getBigOrderId() {
+        return bigOrderId;
+    }
+
+    public void setBigOrderId(String bigOrderId) {
+        this.bigOrderId = bigOrderId;
     }
 }
