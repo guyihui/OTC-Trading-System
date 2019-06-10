@@ -22,6 +22,7 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
+import Paper from '@material-ui/core/Paper';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -292,11 +293,16 @@ function App() {
     const [failMessage, setFailMessage] = React.useState("");
     const [processingOrders, setProcessingOrders] = React.useState([]);
     const [bigOrders, setBigOrders] = React.useState([]);
+    const [noProduct, setNoProduct] = React.useState(false);
+    const [state, setState] = React.useState({
+        checkedB: false,
+    });
 
     if(Cookies.get("socketFlag")==="1"){
         if(ws!==null){
             ws.close();
         }
+        setNoProduct(false);
         ws = new WebSocket("ws://localhost:30483/WebSocket");
         Cookies.set("socketFlag","0");
     }
@@ -405,6 +411,9 @@ function App() {
             console.log(bigOrders);
             setBigOrders(bigOrders);
         }
+        else if(data.type==='noProduct'){
+            setNoProduct(true);
+        }
         // setOrders(JSON.parse(evt.data));
     };
 
@@ -424,7 +433,9 @@ function App() {
         setValues(0);
         setSellDepth({depth:"0",flag:1});
         setBuyDepth({depth:"0",flag:1});
+        setState({checkedB:false});
         setProcessingOrders([]);
+        setNoProduct(false);
         ws = new WebSocket("ws://localhost:30483/WebSocket");
         //ws.send(msg[index%2].toString());
     }
@@ -434,7 +445,9 @@ function App() {
         setValues(event.target.value);
         setSellDepth({depth:"0",flag:1});
         setBuyDepth({depth:"0",flag:1});
+        setState({checkedB:false});
         setProcessingOrders([]);
+        setNoProduct(false);
         ws = new WebSocket("ws://localhost:30483/WebSocket");
         //console.log(event.target.value);
     }
@@ -443,6 +456,8 @@ function App() {
         ws.close();
         setSellDepth({depth:"0",flag:1});
         setBuyDepth({depth:"0",flag:1});
+        setState({checkedB:false});
+        setNoProduct(false);
         browserHistory.push({
             pathname:'/',
         });
@@ -466,15 +481,11 @@ function App() {
         setFailOpen(false);
     }
 
-    const [state, setState] = React.useState({
-        checkedB: false,
-    });
 
     const handleOrderTypeChange = name => event => {
         setState({ ...state, [name]: event.target.checked });
     };
 
-    const mmssgg = <h3>asdasxsad</h3>;
     return (
         <div className={classes.root}>
             <CssBaseline />
@@ -524,7 +535,7 @@ function App() {
                     ))}
                 </List>
             </Drawer>
-            <main className={classes.content}>
+                <main className={classes.content}>
                 <div className={classes.toolbar} />
                 <Fragment>
                     <FormControl className={classes.formControl} style={{marginBottom:30}}>
@@ -547,6 +558,7 @@ function App() {
                                 onChange={handleOrderTypeChange('checkedB')}
                                 value="checkedB"
                                 color="primary"
+                                disabled={noProduct}
                             />
                         }
                         label="查看Blotter"
@@ -558,12 +570,27 @@ function App() {
                         <Blotter productId={msg[selectedIndex].detail[values].productId} productName={msg[selectedIndex].productDisplayName} productPeriod={msg[selectedIndex].detail[values].productPeriod}/>
                     </div>
                     :
-                    <div>
-                        <SendOrder sellDepth={sellDepth} buyDepth={buyDepth} productId={msg[selectedIndex].detail[values].productId}
-                                   productName={msg[selectedIndex].productDisplayName} productPeriod={msg[selectedIndex].detail[values].productPeriod}
-                                   processingOrders={processingOrders} bigOrders={bigOrders}/>
-                    </div>
+                    noProduct?
+                                <Grid container className={classes.root} spacing={2} style={{width:'100%'}}>
+                                    <Grid item xs={2}/>
+                                    <Grid item xs={8}>
+                                        <Grid container justify="center">
+                                            <Typography variant="h2" component="h3" style={{marginTop:150}}>
+                                                当前暂不支持此种期货
+                                            </Typography>
+                                        </Grid>
+                                    </Grid>
+                                    <Grid item xs={2}/>
+                                </Grid>
+                            :
+                            <div>
+                                <SendOrder sellDepth={sellDepth} buyDepth={buyDepth} productId={msg[selectedIndex].detail[values].productId}
+                                           productName={msg[selectedIndex].productDisplayName} productPeriod={msg[selectedIndex].detail[values].productPeriod}
+                                           processingOrders={processingOrders} bigOrders={bigOrders}/>
+                            </div>
+
                 }
+
 
                 <Snackbar
                     anchorOrigin={{
