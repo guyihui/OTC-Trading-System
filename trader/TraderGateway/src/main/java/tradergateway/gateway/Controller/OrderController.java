@@ -24,9 +24,7 @@ public class OrderController {
 
     ) {
         String orderid = "";
-        System.err.println("requested broker:" + brokerId);
-        //TODO: 判断完brokerId是否带引号后删除
-        //      null pointer 的处理
+        //TODO: null pointer 的处理
         switch (type) {
             case "limit":
                 orderid = orderService.sendLimitOrder(brokerId, Brokers.get(brokerId).getUuid(), sellorbuy, price, quantity, productid, name);
