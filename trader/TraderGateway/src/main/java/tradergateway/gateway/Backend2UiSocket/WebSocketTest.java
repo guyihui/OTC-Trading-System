@@ -149,10 +149,12 @@ public class WebSocketTest {
                         }
                     }
                     //统计完拆分单信息，更新 big order
+                    //TODO: 对于已经结束的小单，需要从big order中移除
                     Set<BigOrder> bigOrders = bigOrderStorage.getFilteredOrders(socket.askedBroker, socket.user, socket.askedProduct);
                     for (String bigOrderId : bigOrderRemainingQuantity.keySet()) {
                         for (BigOrder bigOrder : bigOrders) {
                             bigOrder.setWaitingQuantity(bigOrderRemainingQuantity.get(bigOrderId));
+                            bigOrder.clearFinishedSplitOrders();
                         }
                     }
 

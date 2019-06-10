@@ -114,6 +114,14 @@ public class BigOrder {
         splitOrders.remove(order);
     }
 
+    public void clearFinishedSplitOrders() {
+        for (Order order : splitOrders) {
+            if (order.getDisplayFlag() > 0) {
+                splitOrders.remove(order);
+            }
+        }
+    }
+
     @Override
     public boolean equals(Object obj) {
         return obj instanceof BigOrder && ((BigOrder) obj).getId().equals(id);
