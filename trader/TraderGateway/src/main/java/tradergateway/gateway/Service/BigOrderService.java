@@ -75,9 +75,11 @@ public class BigOrderService {
         List<Integer> prices = new ArrayList<>();
         List<Integer> quantity = new ArrayList<>();
         int remainqtr=bigOrder.getTotalQuantity();
-        int totalhistory=trades.size();
+        int totalhistory=0;
+        for(TradeDTO tradeDTO:trades){
+            totalhistory+=tradeDTO.getQuantity();
+        }
         System.err.println("start big order, qty:"+bigOrder.getTotalQuantity()+"freq seconds"+freqSeconds);
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
         for (int i = 0; i < bunchTimes; i++) {
             int temPrices = 0;
             int tempQty = 0;
