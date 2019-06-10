@@ -11,7 +11,7 @@ public class Brokers {
     }
 
     static {
-        brokers.put("01", new Broker("01", "127.0.0.1", 8888, "http://localhost:8080"));
-        brokers.put("02", new Broker("02", "127.0.0.1", 8889, "http://localhost:8081"));
+        brokers.put("01", new Broker("01", "127.0.0.1", 8888, "http://localhost:30482"));
+        brokers.put("02", new Broker("02", "127.0.0.1", 8889, "http://localhost:30484"));
     }
 }

@@ -90,6 +90,33 @@ public class OrderService {
         return (String) res.get("id");
     }
 
+    public Map<String, Object> sendBigLimitOrder(String brokerId, String traderId, String buyOrSell, Integer price, Integer quantity, String productId, String traderName) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+        //TODO:多个broker
+        String url = Brokers.get(brokerId).getApiUrl() + "/addOrder";
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("type", "limit");
+        body.put("traderid", traderId);
+        // body.put("compName",traderid);
+        body.put("productid", productId);
+        //   body.put("prodectName",productName);
+        //   body.put("period",period);
+        body.put("price", price);
+        body.put("buyorsell", buyOrSell);
+        body.put("traderName", traderName);
+        body.put("quantity", quantity);
+
+        HttpEntity<Map<String, Object>> reqEntity = new HttpEntity<>(body, headers);
+        Map<String, Object> res = restTemplate.postForObject(url, reqEntity, Map.class);
+        System.out.println(res.get("id") + " " + res.get("time"));
+
+
+        return res;
+    }
+
+
     public String sendMarket(String brokerId, String traderId, String buyOrSell, Integer quantity, String productId, String traderName) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
@@ -131,6 +158,32 @@ public class OrderService {
 
         System.out.println(res.get("id") + " " + res.get("time"));
         return (String) res.get("id");
+    }
+
+    public Map<String,Object> sendBigMarket(String brokerId, String traderId, String buyOrSell, Integer quantity, String productId, String traderName) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+        //TODO:多个broker
+        String url = Brokers.get(brokerId).getApiUrl() + "/addOrder";
+
+        Map<String, Object> body = new HashMap<>();
+        Object put = body.put("type", "market");
+        body.put("traderid", traderId);
+        //   body.put("compName", traderId);
+        body.put("productid", productId);
+        //   body.put("productName",productName);
+        //   body.put("period",period);
+        body.put("quantity", quantity);
+        body.put("traderName", traderName);
+        body.put("buyorsell", buyOrSell);
+
+        HttpEntity<Map<String, Object>> reqEntity = new HttpEntity<>(body, headers);
+        Map<String, Object> res = restTemplate.postForObject(url, reqEntity, Map.class);
+
+
+
+        System.out.println(res.get("id") + " " + res.get("time"));
+        return res;
     }
 
     public String sendStop(String brokerId, String traderId, String buyOrSell, Integer price, Integer quantity, String productId, String traderName) {

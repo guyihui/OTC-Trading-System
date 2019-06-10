@@ -2,6 +2,7 @@ package com.tradehistoryaccess.BrokerService.GatewaySocket;
 
 import com.tradehistoryaccess.BrokerService.OrderBook.Orderbook;
 import com.tradehistoryaccess.BrokerService.OrderBook.Product;
+import com.tradehistoryaccess.Entity.Products;
 import com.tradehistoryaccess.Entity.Trader;
 
 import java.io.IOException;
@@ -74,12 +75,15 @@ public class SocketChannelReadHandle implements CompletionHandler<Integer, ByteB
             //TODO: switch by request type
             //订阅 product
             if (data.indexOf("subscribe:") == 0) {
-                Product product = new Product(data.substring("subscribe:".length()));
+                String productId = data.substring("subscribe:".length());
+                Product product = Products.get(productId);
                 Orderbook orderbook = this.products.get(product);
                 if (orderbook != null) {
                     orderbook.bindConnection(this.trader);
                     //TODO: give response
+                    client.write(ByteBuffer.wrap(String.format("subscribe:%s:%s", productId, "success").getBytes()));
                 } else {
+                    client.write(ByteBuffer.wrap(String.format("subscribe:%s:%s", productId, "fail").getBytes()));
                     System.err.println("subscribe error " + data);
                 }
             } else {

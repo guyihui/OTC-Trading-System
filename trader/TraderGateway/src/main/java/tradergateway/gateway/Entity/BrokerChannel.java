@@ -68,31 +68,40 @@ public class BrokerChannel {
 
     public boolean subscribeProduct(Product product) {
         try {
-            this.subscribedProducts.putIfAbsent(product, new Pair<>(null, null));
+            //发送订阅请求，不会直接成功
             channel.write(ByteBuffer.wrap(("subscribe:" + product.getProductId()).getBytes())).get();
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return true;
+        return false;
     }
 
     public void updateDepth(String productId, String buyOrSell, String depth) {
         Product product = new Product(productId);
         Pair<String, String> pair = subscribedProducts.get(product);
+        if (pair == null) {
+            //TODO:可以向前端推送未订阅的信息
+            return;
+        }
         Pair<String, String> updatedPair;
 
-        if (buyOrSell.equals("buy")) {
-            updatedPair = new Pair<>(depth, pair.getValue());
-        } else if (buyOrSell.equals("sell")) {
-            updatedPair = new Pair<>(pair.getKey(), depth);
-        } else if (buyOrSell.equals("noUpdate")) {
-            updatedPair = pair;
-        } else {
-            System.err.println("update depth error");
-            updatedPair = pair;
+        switch (buyOrSell) {
+            case "buy":
+                updatedPair = new Pair<>(depth, pair.getValue());
+                break;
+            case "sell":
+                updatedPair = new Pair<>(pair.getKey(), depth);
+                break;
+            case "noUpdate":
+                updatedPair = pair;
+                break;
+            default:
+                System.err.println("update depth error");
+                updatedPair = pair;
         }
         subscribedProducts.put(product, updatedPair);
-        System.out.printf("%2s.depth:%4s,%4s\n", productId, updatedPair.getKey(), updatedPair.getValue());
+//        System.out.printf("%2s.depth:%4s,%4s\n", productId, updatedPair.getKey(), updatedPair.getValue());
         //TODO: 向前端推送深度
         WebSocketTest.sendDepth(product, updatedPair);
     }
@@ -101,8 +110,8 @@ public class BrokerChannel {
         return isConnected;
     }
 
-    public Set<Product> getSubscribedProducts() {
-        return subscribedProducts.keySet();
+    public Map<Product, Pair<String, String>> getSubscribedProducts() {
+        return subscribedProducts;
     }
 
     public AsynchronousSocketChannel getChannel() {

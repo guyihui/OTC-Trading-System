@@ -1,6 +1,8 @@
 package tradergateway.gateway.GatewaySocket;
 
+import javafx.util.Pair;
 import tradergateway.gateway.Entity.BrokerChannel;
+import tradergateway.gateway.Entity.Products;
 
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -36,9 +38,17 @@ public class TraderSocketChannelReadHandle implements CompletionHandler<Integer,
             String buyOrSell = list[2];
             String depth = list[3];
             brokerChannel.updateDepth(productId, buyOrSell, depth);
-            System.err.println("服务器信息：" + data);
+        } else if (list.length == 3 && list[0].equals("subscribe")) {
+            String productId = list[1];
+            String result = list[2];
+            if (result.equals("success")) {
+                brokerChannel.getSubscribedProducts().putIfAbsent(Products.get(productId), new Pair<>(null, null));
+                System.out.printf("订阅_%s_成功\n", productId);
+            } else {
+                System.err.printf("订阅_%s_失败:%s\n", productId, result);
+            }
         } else {
-            //System.err.println("服务器信息：" + data);
+            System.err.println("服务器信息：" + data);
         }
     }
 

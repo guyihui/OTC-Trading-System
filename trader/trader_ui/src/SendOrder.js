@@ -325,6 +325,34 @@ class SendOrder extends Component {
             console.log(realTotalTime,realIntervalTime);
             console.log(this.state);
 
+
+            let xmlHttp = new XMLHttpRequest();
+            xmlHttp.open("GET", "http://localhost:30483/sendBigOrder?productId="+this.state.productId+"&sellOrBuy="+this.state.sellOrBuy+"&quantity="+this.state.amount
+                +"&totalSeconds="+realTotalTime+"&intervalSeconds="+realIntervalTime+"&traderName="+Cookies.get('username')+"&brokerId="+Cookies.get('broker')+"&strategy="+this.state.selectedStrategy, true);
+            xmlHttp.setRequestHeader("Content-Type", "application/json");
+            xmlHttp.onreadystatechange = () => {
+                if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {
+                    let data=xmlHttp.responseText;
+                    console.log(data);
+                    this.setState({
+                        selectedStartDate: new Date(),
+                        selectedEndDate: new Date(),
+                        showBlotter: false,
+                        data: [],
+                        sellOrBuy: "",
+                        price: "",
+                        amount: "",
+                        orderType: "",
+                        priceSelect: false,
+                        checkedIceBerg:false,
+                        textMask:'  天    小时    分',
+                        intervalMask:'  天    小时    分',
+                        selectedStrategy:"",
+                    });
+                }
+            };
+            xmlHttp.send();
+
         }
         else {
             if (this.state.productId === '' || this.state.orderType === '' || this.state.sellOrBuy === '' || this.state.price === '' || this.state.amount === '') {
@@ -341,24 +369,24 @@ class SendOrder extends Component {
             }
             else if (isNaN(this.state.price) || isNaN(this.state.amount)) {
                 this.setState({
-                    warningOpen: true,
-                    warningMessage: "订单价格和买卖手数必须为数字！"
+                    warningOpen:true,
+                    warningMessage:"订单价格和买卖手数必须为数字！"
                 });
                 return;
             }
             let xmlHttp = new XMLHttpRequest();
-            if (this.state.orderType === 'market') {
-                xmlHttp.open("GET", "http://localhost:8082/sendOrder?productId=" + this.state.productId + "&type=" + this.state.orderType + "&sellOrBuy=" + this.state.sellOrBuy + "&price=0" + "&quantity=" + this.state.amount
-                    + "&traderName=" + Cookies.get('username') + "&brokerId=" + Cookies.get('broker'), true);
+            if(this.state.orderType==='market'){
+                xmlHttp.open("GET", "http://202.120.40.8:30483/sendOrder?productId="+this.state.productId+"&type="+this.state.orderType+"&sellOrBuy="+this.state.sellOrBuy+"&price=0"+"&quantity="+this.state.amount
+                    +"&traderName="+Cookies.get('username')+"&brokerId="+Cookies.get('broker'), true);
             }
-            else {
-                xmlHttp.open("GET", "http://localhost:8082/sendOrder?productId=" + this.state.productId + "&type=" + this.state.orderType + "&sellOrBuy=" + this.state.sellOrBuy + "&price=" + this.state.price + "&quantity=" + this.state.amount
-                    + "&traderName=" + Cookies.get('username') + "&brokerId=" + Cookies.get('broker'), true);
+            else{
+                xmlHttp.open("GET", "http://202.120.40.8:30483/sendOrder?productId="+this.state.productId+"&type="+this.state.orderType+"&sellOrBuy="+this.state.sellOrBuy+"&price="+this.state.price+"&quantity="+this.state.amount
+                    +"&traderName="+Cookies.get('username')+"&brokerId="+Cookies.get('broker'), true);
             }
             xmlHttp.setRequestHeader("Content-Type", "application/json");
             xmlHttp.onreadystatechange = () => {
                 if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {
-                    let data = xmlHttp.responseText;
+                    let data=xmlHttp.responseText;
                     console.log(data);
                     this.setState({
                         selectedStartDate: new Date(),

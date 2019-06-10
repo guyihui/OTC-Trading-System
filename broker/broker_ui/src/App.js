@@ -183,7 +183,7 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-let ws = new WebSocket("ws://localhost:8080/WebSocket");
+let ws = new WebSocket("ws://202.120.40.8:30482/WebSocket");
 
 // let msg = [
 //     {
@@ -236,14 +236,14 @@ function App() {
         ws.close();
         setSelectedIndex(index);
         setValues(0);
-        ws = new WebSocket("ws://localhost:8080/WebSocket");
+        ws = new WebSocket("ws://202.120.40.8:30482/WebSocket");
         //ws.send(msg[index%2].toString());
     }
 
     function handleChange(event) {
         ws.close();
         setValues(event.target.value);
-        ws = new WebSocket("ws://localhost:8080/WebSocket");
+        ws = new WebSocket("ws://202.120.40.8:30482/WebSocket");
     }
 
     const [state, setState] = React.useState({
