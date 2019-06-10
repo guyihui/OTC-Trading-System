@@ -1,9 +1,7 @@
 package tradergateway.gateway.Entity;
 
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 public class BigOrder {
     // TODO: 自动生成id
