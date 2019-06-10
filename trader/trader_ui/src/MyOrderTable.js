@@ -158,7 +158,7 @@ class MyOrderTable extends Component {
 
     handleCancelOrder(row){
         let xmlHttp = new XMLHttpRequest();
-        xmlHttp.open("GET", "http://202.120.40.8:30483/sendCancel?productId="+row.product.productId+"&sellOrBuy="+row.sellOrBuy+"&price="+row.price+"&cancelId="+row.orderId+
+        xmlHttp.open("GET", "http://localhost:30483/sendCancel?productId="+row.product.productId+"&sellOrBuy="+row.sellOrBuy+"&price="+row.price+"&cancelId="+row.orderId+
         "&traderName="+Cookies.get('username')+"&brokerId="+Cookies.get('broker'), true);
         xmlHttp.setRequestHeader("Content-Type", "application/json");
         xmlHttp.onreadystatechange = () => {
@@ -199,9 +199,9 @@ class MyOrderTable extends Component {
                                     <TableCell align="left">{row.remainingQuantity}</TableCell>
                                     <TableCell align="right">{row.orderType}</TableCell>
                                     <TableCell align="right">
-                                        <IconButton size="small" color="secondary" aria-label="Add" onClick={()=>this.handleCancelOrder(row)} className={classes.margin}>
+                                        {row.hasOwnProperty('bigOrderId')?<div></div>:<IconButton size="small" color="secondary" aria-label="Add" onClick={()=>this.handleCancelOrder(row)} className={classes.margin}>
                                             <CancelIcon />
-                                        </IconButton>
+                                        </IconButton>}
                                     </TableCell>
                                 </TableRow>
                             ))}

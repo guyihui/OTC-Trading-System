@@ -158,7 +158,7 @@ class BigOrderTable extends Component {
 
     handleCancelOrder(row){
         let xmlHttp = new XMLHttpRequest();
-        xmlHttp.open("GET", "http://localhost:8082/sendCancel?productId="+row.product.productId+"&sellOrBuy="+row.sellOrBuy+"&price="+row.price+"&cancelId="+row.orderId+
+        xmlHttp.open("GET", "http://localhost:30483/cancelBigOrder?productId="+row.product.productId+"&bigOrderId="+row.id+
         "&traderName="+Cookies.get('username')+"&brokerId="+Cookies.get('broker'), true);
         xmlHttp.setRequestHeader("Content-Type", "application/json");
         xmlHttp.onreadystatechange = () => {
@@ -180,10 +180,9 @@ class BigOrderTable extends Component {
                         <TableHead style={{width:'100%'}}>
                             <TableRow>
                                 <TableCell>买/卖</TableCell>
-                                <TableCell align="left" >价格</TableCell>
                                 <TableCell align="left" >总数</TableCell>
-                                <TableCell align="left" >余量</TableCell>
-                                <TableCell align="left" >订单种类</TableCell>
+                                <TableCell align="left" >未发送</TableCell>
+                                <TableCell align="left" >未交易</TableCell>
                                 <TableCell align="left" >取消订单</TableCell>
                             </TableRow>
                         </TableHead>
@@ -193,11 +192,9 @@ class BigOrderTable extends Component {
                                     <TableCell component="th" scope="row">
                                         {row.sellOrBuy}
                                     </TableCell>
-
-                                    <TableCell align="left">{row.price}</TableCell>
                                     <TableCell align="left">{row.totalQuantity}</TableCell>
-                                    <TableCell align="left">{row.remainingQuantity}</TableCell>
-                                    <TableCell align="right">{row.orderType}</TableCell>
+                                    <TableCell align="left">{row.unsentQuantity}</TableCell>
+                                    <TableCell align="left">{row.waitingQuantity}</TableCell>
                                     <TableCell align="right">
                                         <IconButton size="small" color="secondary" aria-label="Add" onClick={()=>this.handleCancelOrder(row)} className={classes.margin}>
                                             <CancelIcon />
