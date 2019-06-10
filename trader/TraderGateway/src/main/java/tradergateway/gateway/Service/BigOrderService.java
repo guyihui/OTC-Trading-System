@@ -7,6 +7,7 @@ import tradergateway.gateway.Entity.*;
 import tradergateway.gateway.OrderStorage;
 
 import javax.annotation.Resource;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,12 +32,14 @@ public class BigOrderService {
         List<TradeDTO> trades = gson.fromJson(history, new TypeToken<List<TradeDTO>>() {
         }.getType());
         List<Integer> prices = new ArrayList<>();
+        System.err.println("start big order, qty:"+bigOrder.getTotalQuantity());
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         for (int i = 0; i < bunchTimes; i++) {
             int temPrices = 0;
             int tempQty = 0;
             for (TradeDTO tradeDTO : trades) {
-                System.out.println("Twap get history time:" + tradeDTO.getTime() + " price: " + tradeDTO.getPrice() + " quantity: " + tradeDTO.getQuantity());
-                if (Long.valueOf(tradeDTO.getTime() + i * freqSeconds) >= starttime && Long.valueOf(tradeDTO.getTime()) <= starttime + (i + 1) * freqSeconds) {
+                System.out.println("Twap get history time:" + simpleDateFormat.format(tradeDTO.getTime()) + " price: " + tradeDTO.getPrice() + " quantity: " + tradeDTO.getQuantity());
+                if ((Long.valueOf(tradeDTO.getTime()) + i * freqSeconds) >= starttime && Long.valueOf(tradeDTO.getTime()) <= starttime + (i + 1) * freqSeconds) {
                     tempQty += tradeDTO.getQuantity();
                     temPrices += (tradeDTO.getQuantity()) * tradeDTO.getPrice();
                 }
@@ -51,6 +54,11 @@ public class BigOrderService {
 
         Thread Twap = new Thread(new TwapThread(brokerId, bigOrder, prices, bunchTimes, bunchNum, lastBunchNum, freqSeconds));
         Twap.start();
+
+        return;
+    }
+
+    public void VwapService(BigOrder bigOrder,Integer toralSeconds,Integer freqSeconds,String brokerId){
 
     }
 
