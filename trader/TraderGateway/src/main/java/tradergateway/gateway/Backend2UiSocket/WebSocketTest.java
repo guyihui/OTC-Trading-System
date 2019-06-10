@@ -85,6 +85,17 @@ public class WebSocketTest {
         this.askedProduct = Products.get(msgJson.get("productId").toString().replace("\"", ""));
 
 
+        if (!askedBroker.getBrokerChannel().getSubscribedProducts().containsKey(askedProduct)) {
+            synchronized (this) {
+                JsonObject noProductError = new JsonObject();
+                noProductError.addProperty("type", "noProduct");
+                try {
+                    session.getBasicRemote().sendText(noProductError.toString());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
         if (webSocketMap.containsKey(askedProduct)) {
             System.out.println("Add a client!");
             webSocketMap.get(askedProduct).add(this);

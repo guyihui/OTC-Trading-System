@@ -3,8 +3,10 @@ package com.tradehistoryaccess.BrokerService.Backend2UiSocket;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.tradehistoryaccess.BrokerService.Broker;
 import com.tradehistoryaccess.BrokerService.OrderBook.PriceNodeList;
 import com.tradehistoryaccess.BrokerService.OrderBook.Product;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.websocket.*;
@@ -25,6 +27,9 @@ public class WebSocketTest {
 
     //与某个客户端的连接会话，需要通过它来给客户端发送数据
     private Session session;
+
+    @Autowired
+    private Broker broker;
 
     static {
         System.out.println("WebSocket service start.");
@@ -64,6 +69,19 @@ public class WebSocketTest {
     public void onMessage(String message, Session session) {
         System.out.println("来自客户端的消息:" + message);
         Product askedProduct = new Gson().fromJson(message, Product.class);
+
+        if (!broker.hasProduct(askedProduct)) {
+            synchronized (this) {
+                JsonObject noProductError = new JsonObject();
+                noProductError.addProperty("type", "noProduct");
+                try {
+                    session.getBasicRemote().sendText(noProductError.toString());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
         CopyOnWriteArraySet<WebSocketTest> webSocketSet = new CopyOnWriteArraySet<>();
 
         if (webSocketMap.containsKey(askedProduct)) {
