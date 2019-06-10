@@ -39,7 +39,7 @@ public class BigOrderService {
             int tempQty = 0;
             for (TradeDTO tradeDTO : trades) {
                 System.out.println("Twap get history time:" + simpleDateFormat.format(tradeDTO.getTime()) + " price: " + tradeDTO.getPrice() + " quantity: " + tradeDTO.getQuantity());
-                if ((Long.valueOf(tradeDTO.getTime()) + i * freqSeconds) >= starttime && Long.valueOf(tradeDTO.getTime()) <= starttime + (i + 1) * freqSeconds) {
+                if (Long.valueOf(tradeDTO.getTime())  >= (starttime+ i * freqSeconds) && Long.valueOf(tradeDTO.getTime()) <= starttime + (i + 1) * freqSeconds) {
                     tempQty += tradeDTO.getQuantity();
                     temPrices += (tradeDTO.getQuantity()) * tradeDTO.getPrice();
                 }
@@ -52,6 +52,7 @@ public class BigOrderService {
             }
         }
 
+        System.out.println("price list: "+gson.toJson(prices));
         Thread Twap = new Thread(new TwapThread(brokerId, bigOrder, prices, bunchTimes, bunchNum, lastBunchNum, freqSeconds));
         Twap.start();
 
@@ -86,7 +87,6 @@ public class BigOrderService {
         public void run() {
             for (int i = 0; i < bunchTimes; i++) {
                 if (bigOrder.getCancelFlag()) {
-                    //TODO: cancel all  orders
                     for (Order order : bigOrder.getSplitOrders()) {
                         orderService.sendCancel(brokerId, Brokers.get(brokerId).getUuid(), bigOrder.getSellOrBuy(), order.getPrice(), bigOrder.getProduct().getProductId(), order.getOrderId(), bigOrder.getTraderName());
                     }
@@ -178,22 +178,36 @@ public class BigOrderService {
 
     //TEST GSON
     public static void main(String[] args) {
-        Gson gson = new Gson();
-        List<TradeDTO> temp = new ArrayList<>();
-        TradeDTO tradeDTO = new TradeDTO();
-        TradeDTO tradeDTO2 = new TradeDTO();
-        temp.add(tradeDTO);
-        temp.add(tradeDTO2);
+       class A {
+           public String a=null;
+           public String b="b";
 
-        String a = gson.toJson(temp);
+           public A(){
+           }
+           public String getA() {
+               return a;
+           }
 
+           public void setA(String a) {
+               this.a = a;
+           }
+
+           public String getB() {
+               return b;
+           }
+
+           public void setB(String b) {
+               this.b = b;
+           }
+       }
+
+        A asd=new A();
+
+       asd.setA(null);
+       asd.setB("213");
         Gson gson1 = new Gson();
-        List<TradeDTO> trades = gson1.fromJson(a, new TypeToken<List<TradeDTO>>() {
-        }.getType());
+        System.out.println(gson1.toJson(asd));
 
-        for (TradeDTO trade : trades) {
-            System.out.println(trade.getId() + "price:" + trade.getPrice());
-        }
 
     }
 
