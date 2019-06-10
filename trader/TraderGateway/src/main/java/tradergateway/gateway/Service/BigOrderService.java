@@ -79,12 +79,12 @@ public class BigOrderService {
         for(TradeDTO tradeDTO:trades){
             totalhistory+=tradeDTO.getQuantity();
         }
-        System.err.println("start big order, qty:"+bigOrder.getTotalQuantity()+"freq seconds"+freqSeconds);
+        System.err.println("start big order, qty:"+bigOrder.getTotalQuantity()+"freq seconds"+freqSeconds+"history num: "+totalhistory);
         for (int i = 0; i < bunchTimes; i++) {
             int temPrices = 0;
             int tempQty = 0;
             for (TradeDTO tradeDTO : trades) {
-                System.out.println("Twap get history time:" + tradeDTO.getTime() + " price: " + tradeDTO.getPrice() + " quantity: " + tradeDTO.getQuantity());
+                System.out.println("Vwap get history time:" + tradeDTO.getTime() + " price: " + tradeDTO.getPrice() + " quantity: " + tradeDTO.getQuantity());
 
 
                 if (Long.valueOf(tradeDTO.getTime())  >= (starttime+ 1000*i * freqSeconds) && Long.valueOf(tradeDTO.getTime()) <= starttime + (i + 1) * freqSeconds*1000) {
@@ -92,7 +92,8 @@ public class BigOrderService {
                     temPrices += (tradeDTO.getQuantity()) * tradeDTO.getPrice();
                 }
             }
-            System.out.println("Twap bunch qty: " + tempQty);
+            System.out.println("Vwap bunch qty: " + tempQty);
+            System.out.println("v  bunch price"+temPrices);
             if (tempQty == 0) {
                 prices.add(0);
                 if(i==bunchTimes-1){
@@ -108,13 +109,18 @@ public class BigOrderService {
                     quantity.add(remainqtr);
                 }
                 else {
-                    quantity.add(tempQty / totalhistory * bigOrder.getTotalQuantity());
-                    remainqtr-=tempQty / totalhistory * bigOrder.getTotalQuantity();
+//                    System.out.println("tempqty+"+tempQty);
+//                    System.out.println("totalhistory:"+totalhistory);
+//                    System.out.println("big total qty"+ bigOrder.getTotalQuantity());
+//                    System.out.println(tempQty / totalhistory * bigOrder.getTotalQuantity()+":vwap temp qty");
+                    quantity.add((int)(Math.floor((tempQty*0.1) / (totalhistory*0.1) * bigOrder.getTotalQuantity())));
+                    remainqtr-=(int)(Math.floor((tempQty*0.1) / (totalhistory*0.1) * bigOrder.getTotalQuantity()));
                 }
             }
         }
 
         System.out.println("price list: "+gson.toJson(prices));
+        System.out.println("qty list"+gson.toJson(quantity));
         Thread Vwap = new Thread(new VwapThread(brokerId, bigOrder, prices, quantity,bunchTimes, freqSeconds));
         Vwap.start();
 
@@ -265,13 +271,14 @@ public class BigOrderService {
                 }
                 Integer price = prices.get(i);
                 Integer qty = quantitys.get(i);
+                System.out.println("split price:" +price);
+                System.out.println("split qty"+qty);
                 String type = "limit";
-                if (price == 0) {
-                    type = "market";
+                if (price == 0 & qty==0) {
+                    continue;
                 }
 
-                switch (type) {
-                    case "limit":
+
                         Map<String, Object> res = orderService.sendBigLimitOrder(brokerId,
                                 Brokers.get(brokerId).getUuid(),
                                 bigOrder.getSellOrBuy(),
@@ -300,37 +307,8 @@ public class BigOrderService {
                         orderStorage.addOrder(broker, user, product, order);
                         bigOrder.addSplitOrder(order);
                         bigOrder.setUnsentQuantity(bigOrder.getUnsentQuantity() - qty);
-                        break;
 
-                    case "market":
-                        Map<String, Object> res1 = orderService.sendBigMarket(brokerId,
-                                Brokers.get(brokerId).getUuid(),
-                                bigOrder.getSellOrBuy(), qty,
-                                bigOrder.getProduct().getProductId(),
-                                bigOrder.getTraderName());
 
-                        Order order1 = new Order();
-                        order1.setOrderId((String) res1.get("id"));
-                        order1.setBroker(brokerId);
-                        order1.setOrderType("market");
-                        order1.setProduct(bigOrder.getProduct());
-                        order1.setSellOrBuy(bigOrder.getSellOrBuy());
-                        order1.setTraderName(bigOrder.getTraderName());
-                        order1.setTotalQuantity(qty);
-                        order1.setRemainingQuantity(qty);
-                        order1.setPrice(0);
-                        order1.setTime((Long) res1.get("time"));
-                        order1.setState("waiting");
-                        order1.setBigOrderId(bigOrder.getId());
-
-                        Broker broker1 = Brokers.get(brokerId);
-                        User user1 = new User(bigOrder.getTraderName());
-                        Product product1 = bigOrder.getProduct();
-                        orderStorage.addOrder(broker1, user1, product1, order1);
-                        bigOrder.addSplitOrder(order1);
-                        bigOrder.setUnsentQuantity(bigOrder.getUnsentQuantity() - qty);
-                        break;
-                }
                 try {
                     Thread.sleep(1000 * freqSeconds);
                 } catch (InterruptedException e) {

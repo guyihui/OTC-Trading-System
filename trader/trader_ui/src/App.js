@@ -378,7 +378,7 @@ function App() {
                         ProductName:&nbsp;{canceledOrder.product.productName},&nbsp;ProductPeriod:&nbsp;{canceledOrder.product.productPeriod}
                     </Typography>
                     <Typography variant={'subtitle1'}>
-                        Side:&nbsp;{canceledOrder.sellOrBuy},&nbsp;OrderType:&nbsp;{canceledOrder.sellOrBuy}
+                        Side:&nbsp;{canceledOrder.sellOrBuy},&nbsp;OrderType:&nbsp;{canceledOrder.orderType}
                     </Typography>
                     <Typography variant={'subtitle1'}>
                         TotalQuantity:&nbsp;{canceledOrder.totalQuantity},&nbsp;RemainingQuantity:&nbsp;{canceledOrder.remainingQuantity}

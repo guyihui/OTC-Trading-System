@@ -50,6 +50,7 @@ public class BigOrderController {
             bigOrderService.TwapService(bigOrder, totalSeconds, freqSeconds, brokerId);
         }
         else {
+            System.out.println("start v wap");
             bigOrderService.VwapService(bigOrder,totalSeconds,freqSeconds,brokerId);
         }
         return "good";
