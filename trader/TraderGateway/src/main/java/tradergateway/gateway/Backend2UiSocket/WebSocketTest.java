@@ -160,6 +160,15 @@ public class WebSocketTest {
                         }
                         bigOrder.setWaitingQuantity(waitingQuantity);
                         bigOrder.clearFinishedSplitOrders();
+                        if (bigOrder.getCancelFlag() ||
+                                (bigOrder.getUnsentQuantity() == 0 && bigOrder.getWaitingQuantity() == 0)) {
+                            bigOrderStorage.removeOrder(
+                                    socket.askedBroker,
+                                    socket.user,
+                                    socket.askedProduct,
+                                    bigOrder
+                            );
+                        }
                     }
 
                     JsonObject state = new JsonObject();
