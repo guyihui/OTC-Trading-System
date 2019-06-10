@@ -83,7 +83,7 @@ public class Broker implements InitializingBean {
         }
     }
 
-    public boolean hasProduct(Product product) {
+    public static boolean hasProduct(Product product) {
         return orderBookMap.containsKey(product);
     }
     static class TestSocketThread implements Runnable {

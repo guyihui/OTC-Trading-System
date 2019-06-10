@@ -183,7 +183,7 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-let ws = new WebSocket("ws://202.120.40.8:30482/WebSocket");
+let ws = new WebSocket("ws://localhost:30482/WebSocket");
 
 // let msg = [
 //     {
@@ -207,6 +207,10 @@ function App() {
             buyList: [],
             sellList:[],
         });
+    const [state, setState] = React.useState({
+        checkedB: false,
+    });
+    const [noProduct, setNoProduct] = React.useState(false);
 
     ws.onopen = function() {
         console.log("open");
@@ -220,7 +224,15 @@ function App() {
 
     ws.onmessage = function(evt) {
         console.log(evt.data);
-        setOrders(JSON.parse(evt.data));
+        let jsonData = JSON.parse(evt.data);
+        if(jsonData.hasOwnProperty('type')){
+            if(jsonData.type==='noProduct'){
+                setNoProduct(true);
+            }
+        }
+        else {
+            setOrders(jsonData);
+        }
     };
 
     ws.onclose = function(evt) {
@@ -236,19 +248,18 @@ function App() {
         ws.close();
         setSelectedIndex(index);
         setValues(0);
-        ws = new WebSocket("ws://202.120.40.8:30482/WebSocket");
+        setNoProduct(false);
+        ws = new WebSocket("ws://localhost:30482/WebSocket");
         //ws.send(msg[index%2].toString());
     }
 
     function handleChange(event) {
         ws.close();
         setValues(event.target.value);
-        ws = new WebSocket("ws://202.120.40.8:30482/WebSocket");
+        setNoProduct(false);
+        ws = new WebSocket("ws://localhost:30482/WebSocket");
     }
 
-    const [state, setState] = React.useState({
-        checkedB: false,
-    });
 
     const handleOrderTypeChange = name => event => {
         setState({ ...state, [name]: event.target.checked });
@@ -307,6 +318,7 @@ function App() {
                             <Switch
                                 checked={state.checkedB}
                                 onChange={handleOrderTypeChange('checkedB')}
+                                disabled={noProduct}
                                 value="checkedB"
                                 color="primary"
                             />
@@ -320,9 +332,22 @@ function App() {
                         <Blotter productId={msg[selectedIndex].detail[values].productId} productName={msg[selectedIndex].productDisplayName} productPeriod={msg[selectedIndex].detail[values].productPeriod}/>
                     </div>
                     :
-                    <div>
-                        <Orderbook buyList={orders.buyList} sellList={orders.sellList}/>
-                    </div>
+                    noProduct?
+                        <Grid container className={classes.root} spacing={2} style={{width:'100%'}}>
+                            <Grid item xs={2}/>
+                            <Grid item xs={8}>
+                                <Grid container justify="center">
+                                    <Typography variant="h2" component="h3" style={{marginTop:150}}>
+                                        当前暂不支持此种期货
+                                    </Typography>
+                                </Grid>
+                            </Grid>
+                            <Grid item xs={2}/>
+                        </Grid>
+                        :
+                        <div>
+                            <Orderbook buyList={orders.buyList} sellList={orders.sellList}/>
+                        </div>
                 }
             </main>
         </div>
