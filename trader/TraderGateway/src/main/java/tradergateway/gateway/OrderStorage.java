@@ -64,14 +64,17 @@ public class OrderStorage implements InitializingBean {
     }
 
     public Set<Order> getFilteredOrders(Broker broker, User user, Product product) {
+        Set<Order> result = null;
         try {
-            return allOrders.get(broker).get(user).get(product);
+            result = allOrders.get(broker).get(user).get(product);
         } catch (NullPointerException e) {
-            return new CopyOnWriteArraySet<>();
         } catch (Exception e) {
             e.printStackTrace();
-            return new CopyOnWriteArraySet<>();
         }
+        if (result == null) {
+            result = new CopyOnWriteArraySet<>();
+        }
+        return result;
     }
 
     public Set<Order> getAllOrders(Broker broker, User user, Product product) {
