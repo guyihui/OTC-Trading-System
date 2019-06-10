@@ -15,6 +15,12 @@ public class Order {
     private String cancelId;
     private Long time;
     private String state;
+    private Integer flag;
+
+    public Order() {
+        flag = 0;
+    }
+
     private Integer displayFlag = 0;
     private String bigOrderId = null;
 

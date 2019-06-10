@@ -1,9 +1,17 @@
 package tradergateway.gateway.Entity;
 
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 public class BigOrder {
+    // TODO: 自动生成id
+    private static int counts=0;
+
+    synchronized private  static void add(){
+        counts++;
+    }
     private String id;
     private Product product;
     private String sellOrBuy;
@@ -16,7 +24,10 @@ public class BigOrder {
     private Boolean cancelFlag;
     private Set<Order> splitOrders = new CopyOnWriteArraySet<>();
 
+
     public BigOrder() {
+        add();
+        id = "" + counts;
         cancelFlag = false;
         waitingQuantity = 0;
     }
@@ -101,7 +112,7 @@ public class BigOrder {
         this.strategy = strategy;
     }
 
-    public Set<Order> getSplitOrder() {
+    public Set<Order> getSplitOrders() {
         return splitOrders;
     }
 
