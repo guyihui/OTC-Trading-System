@@ -75,10 +75,10 @@ public class BigOrderService {
         @Override
         public void run() {
             for(int i=0;i<bunchTimes;i++){
-                if(bigOrder.getCancelflag()){
+                if(bigOrder.getCancelFlag()){
                     //TODO: cancel all  orders
                     for(Order order : bigOrder.getSplitOrders()){
-                        orderService.sendCancel(brokerId,Brokers.get(brokerId).getUuid(),bigOrder.getSellorbuy(),order.getPrice(),bigOrder.getProduct().getProductId(),order.getOrderId(),bigOrder.getTraderName());
+                        orderService.sendCancel(brokerId,Brokers.get(brokerId).getUuid(),bigOrder.getSellOrBuy(),order.getPrice(),bigOrder.getProduct().getProductId(),order.getOrderId(),bigOrder.getTraderName());
                     }
                     break;
 
@@ -94,7 +94,7 @@ public class BigOrderService {
                     case "limit":
                         Map<String, Object> res=orderService.sendBigLimitOrder(brokerId,
                                 Brokers.get(brokerId).getUuid(),
-                                bigOrder.getSellorbuy(),
+                                bigOrder.getSellOrBuy(),
                                 price,qty,
                                 bigOrder.getProduct().getProductId(),
                                 bigOrder.getTraderName());
@@ -103,7 +103,7 @@ public class BigOrderService {
                         order.setBroker(brokerId);
                         order.setOrderType("limit");
                         order.setProduct(bigOrder.getProduct());
-                        order.setSellOrBuy(bigOrder.getSellorbuy());
+                        order.setSellOrBuy(bigOrder.getSellOrBuy());
                         order.setTraderName(bigOrder.getTraderName());
                         order.setTotalQuantity(qty);
                         order.setRemainingQuantity(qty);
@@ -118,14 +118,14 @@ public class BigOrderService {
                         Product product = bigOrder.getProduct();
 
                         orderStorage.addOrder(broker,user,product,order);
-                        bigOrder.addSplitOrders(order);
+                        bigOrder.addSplitOrder(order);
                         bigOrder.setUnsentQuantity(bigOrder.getUnsentQuantity()-qty);
                         break;
 
                     case "market":
                         Map<String,Object> res1=orderService.sendBigMarket(brokerId,
                                 Brokers.get(brokerId).getUuid(),
-                                bigOrder.getSellorbuy(),qty,
+                                bigOrder.getSellOrBuy(),qty,
                                 bigOrder.getProduct().getProductId(),
                                 bigOrder.getTraderName());
 
@@ -134,7 +134,7 @@ public class BigOrderService {
                         order1.setBroker(brokerId);        //TODO: 多个broker
                         order1.setOrderType("market");
                         order1.setProduct(bigOrder.getProduct());
-                        order1.setSellOrBuy(bigOrder.getSellorbuy());
+                        order1.setSellOrBuy(bigOrder.getSellOrBuy());
                         order1.setTraderName(bigOrder.getTraderName());
                         order1.setTotalQuantity(qty);
                         order1.setRemainingQuantity(qty);
@@ -147,7 +147,7 @@ public class BigOrderService {
                         User user1 = new User(bigOrder.getTraderName());
                         Product product1 = bigOrder.getProduct();
                         orderStorage.addOrder(broker1, user1, product1, order1);
-                        bigOrder.addSplitOrders(order1);
+                        bigOrder.addSplitOrder(order1);
                         bigOrder.setUnsentQuantity(bigOrder.getUnsentQuantity()-qty);
                         break;
                 }

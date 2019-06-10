@@ -112,7 +112,7 @@ public class BigOrder {
         this.strategy = strategy;
     }
 
-    public Set<Order> getSplitOrder() {
+    public Set<Order> getSplitOrders() {
         return splitOrders;
     }
 
