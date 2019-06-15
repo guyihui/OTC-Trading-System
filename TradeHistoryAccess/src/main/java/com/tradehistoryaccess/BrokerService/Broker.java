@@ -124,7 +124,7 @@ public class Broker implements InitializingBean {
                                                 :
                                                 buyDepth + (int) (1.1 * Math.random())
                                         :
-                                        sellDepth + (int) ((2.5 * Math.random()) * (orderType.equals("stop") ? -1 : 1))
+                                        sellDepth + (int) ((4.5 * Math.random()) * (orderType.equals("stop") ? -1 : 1))
                                 :
                                 buyDepth == Integer.MAX_VALUE ?
                                         sellDepth == 0 ?
@@ -132,7 +132,7 @@ public class Broker implements InitializingBean {
                                                 :
                                                 sellDepth - (int) (1.1 * Math.random())
                                         :
-                                        buyDepth - (int) ((2.5 * Math.random()) * (orderType.equals("stop") ? -1 : 1));
+                                        buyDepth - (int) ((4.5 * Math.random()) * (orderType.equals("stop") ? -1 : 1));
                 Order testOrder = new Order(
                         "test" + count,
                         orderType,
